@@ -5,7 +5,10 @@ import pygame
 from typing_extensions import override
 
 from const.COLORS import BLACK, DARK_ORANGE, ORANGE, WHITE
-from src.Gameplay import Background, Border, BoxEntity, CircEntity
+from const.FONTS import REGULAR, SUBTITLE_SZ
+from src.Core import Background, Border
+from src.Gameplay import BoxEntity, CircEntity
+from src.Menu import GameOver, MainMenu
 from src.Weapons import Bullet
 
 
@@ -198,9 +201,8 @@ class Game:
         self.enemy_spawn_timer = 0
         self.enemies = pygame.sprite.Group()
 
-        self.current_weap_state = "MG"  # [BULLET, SG, MG]
-
-        self.header_ft = pygame.font.Font("assets/fonts/GoboldRegular.otf", 30)
+        self.current_weap_state = "SG"  # [BULLET, SG, MG]
+        self.weap_state_ft = pygame.font.Font(REGULAR, SUBTITLE_SZ)
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -242,12 +244,12 @@ class Game:
         for border in self.borders:
             border.draw(screen)
 
+        self._show_weap_state(screen)
+
         for bullet in self.bullets:
             bullet.draw(screen)
 
         self.player.draw(screen)
-
-        self._render_text(screen)
 
     def _spawn_enemy(self):
         if len(self.enemies) >= self.max_enemies:
@@ -269,14 +271,19 @@ class Game:
 
         self.enemies.add(Enemy(20, x, y, ORANGE, random.randint(2, 4)))
 
-    def _render_text(self, screen):
-        header_img = self.header_ft.render(f"Central Defense", True, BLACK)
-        header_rect = header_img.get_rect(center=(self.win_wd // 2, 30))
-        screen.blit(header_img, header_rect)
+    def _show_weap_state(self, screen):
+        weap_state_img = self.weap_state_ft.render(
+            f"Current Weapon: {self.current_weap_state}", True, BLACK
+        )
+        weap_state_rect = weap_state_img.get_rect(topleft=(10, 20))
+
+        screen.blit(weap_state_img, weap_state_rect)
 
 
 class GameManager:
-    def __init__(self, disp_wd, disp_ht) -> None:
+    # STATES = ["MAINMENU", "RUNNING", "GAMEOVER"]
+
+    def __init__(self, disp_wd, disp_ht, current_state) -> None:
         self.disp_wd = disp_wd
         self.disp_ht = disp_ht
         self.screen = pygame.display.set_mode((self.disp_wd, self.disp_ht))
@@ -284,20 +291,40 @@ class GameManager:
         self.clock = pygame.time.Clock()
 
         self.game_running = True
+        self.current_state = current_state
 
         # instantiate game objects
         self.game = Game(self.disp_wd, self.disp_ht)
+
+        # instantiate menu objects
+        self.main_menu = MainMenu(self.disp_wd, self.disp_ht)
+        self.game_over = GameOver(self.disp_wd, self.disp_ht)
 
     def event(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.game_running = False
+            if pygame.mouse.get_pressed()[0]:
+                if self.current_state in ["MAINMENU", "GAMEOVER"]:
+                    self.current_state = "PLAYING"
 
     def update(self):
-        self.game.update()
+        match self.current_state:
+            case "MAINMENU":
+                pass
+            case "PLAYING":
+                self.game.update()
+            case "GAMEOVER":
+                pass
 
     def draw(self):
-        self.game.draw(self.screen)
+        match self.current_state:
+            case "MAINMENU":
+                self.main_menu.draw(self.screen)
+            case "PLAYING":
+                self.game.draw(self.screen)
+            case "GAMEOVER":
+                self.game_over.draw(self.screen)
 
     def runner(self, fps):
         while self.game_running:
@@ -314,5 +341,5 @@ if __name__ == "__main__":
     disp_wd, disp_ht = 1600, 900
 
     pygame.init()
-    gm = GameManager(disp_wd, disp_ht)
+    gm = GameManager(disp_wd, disp_ht, "MAINMENU")
     gm.runner(60)
