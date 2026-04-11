@@ -13,7 +13,7 @@ class Player(BoxEntity):
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.friction = 0.85
-        self.shoot_cd = 25
+        self.shoot_cd = 50
         self.shoot_timer = 0
 
         self.bullets = pygame.sprite.Group()
@@ -142,7 +142,7 @@ class GameManager:
 
 
 if __name__ == "__main__":
-    disp_wd, disp_ht = 900, 900
+    disp_wd, disp_ht = 1280, 900
 
     pygame.init()
     gm = GameManager(disp_wd, disp_ht)
