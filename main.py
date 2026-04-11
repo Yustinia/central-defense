@@ -6,15 +6,16 @@ from src.Gameplay import Background, Border, BoxEntity
 
 
 class Player(BoxEntity):
-    def __init__(self, win_wd, win_ht, x_cor, y_cor, color, speed=5) -> None:
+    def __init__(self, win_wd, win_ht, x_cor, y_cor, color, speed=2) -> None:
         super().__init__(win_wd, win_ht, x_cor, y_cor, color)
         self.speed = speed
         self.dx, self.dy = 0, 0
+        self.friction = 0.85
 
     @override
     def update(self, keys, borders):
-        self._collision(borders)
         self._movement(keys)
+        self._collision(borders)
 
     @override
     def _movement(self, keys):
@@ -27,18 +28,22 @@ class Player(BoxEntity):
         if keys[pygame.K_s]:
             self.dy += self.speed
 
+    @override
     def _collision(self, borders):
         self.rect.x += self.dx
         for border in borders:
             if self.rect.colliderect(border.rect):
                 self.rect.x -= self.dx
+                self.dx = 0
 
         self.rect.y += self.dy
         for border in borders:
             if self.rect.colliderect(border.rect):
                 self.rect.y -= self.dy
+                self.dy = 0
 
-        self.dx, self.dy = 0, 0
+        self.dx *= self.friction
+        self.dy *= self.friction
 
 
 class Game:
@@ -111,6 +116,8 @@ class GameManager:
 
 
 if __name__ == "__main__":
+    disp_wd, disp_ht = 900, 900
+
     pygame.init()
-    gm = GameManager(800, 800)
+    gm = GameManager(disp_wd, disp_ht)
     gm.runner(60)

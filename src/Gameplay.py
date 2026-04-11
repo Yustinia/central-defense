@@ -52,10 +52,40 @@ class BoxEntity(ABC, pygame.sprite.Sprite):
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
-    @abstractmethod
     def update(self, keys, borders):
-        self._collision(borders)
         self._movement(keys)
+        self._collision(borders)
+
+    @abstractmethod
+    def _movement(self, keys):
+        pass
+
+    @abstractmethod
+    def _collision(self, borders):
+        pass
+
+
+class CircEntity(ABC, pygame.sprite.Sprite):
+    def __init__(self, radius, x_cor, y_cor, color) -> None:
+        super().__init__()
+
+        self.radius = radius
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.color = color
+
+        self.image = pygame.Surface((self.radius * 2, self.radius * 2))
+        pygame.draw.circle(
+            self.image, self.color, (self.radius, self.radius), self.radius
+        )
+        self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+    def update(self, keys, borders):
+        self._movement(keys)
+        self._collision(borders)
 
     @abstractmethod
     def _movement(self, keys):
