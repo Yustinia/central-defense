@@ -13,8 +13,13 @@ class Player(BoxEntity):
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.friction = 0.85
+
         self.shoot_cd = 50
         self.shoot_timer = 0
+
+        self.dash_spd = 5
+        self.dash_cd = 1000
+        self.dash_timer = 0
 
         self.bullets = pygame.sprite.Group()
 
@@ -46,6 +51,24 @@ class Player(BoxEntity):
             self.dy -= self.speed
         if keys[pygame.K_s]:
             self.dy += self.speed
+
+        self._dash(keys)
+
+    def _dash(self, keys):
+        now = pygame.time.get_ticks()
+        if now - self.dash_timer < self.dash_cd:
+            return
+
+        if not keys[pygame.K_SPACE]:
+            return
+
+        self.dash_timer = now
+
+        if self.dx == 0 and self.dy == 0:
+            return
+
+        self.dx *= self.dash_spd
+        self.dy *= self.dash_spd
 
     @override
     def _collision(self, borders):
