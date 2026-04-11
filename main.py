@@ -1,6 +1,7 @@
-import pygame
 import math
 import random
+
+import pygame
 from typing_extensions import override
 
 from const.COLORS import BLACK, DARK_ORANGE, ORANGE, WHITE
@@ -8,7 +9,72 @@ from src.Gameplay import Background, Border, BoxEntity, CircEntity
 from src.Weapons import Bullet
 
 
-class Player(BoxEntity):
+class Arsenal:
+    def shoot_bullets(self, tar_x, tar_y, bullets_grp):
+        self.shoot_cd = 150
+
+        now = pygame.time.get_ticks()
+        if now - self.shoot_timer < self.shoot_cd:
+            return
+        self.shoot_timer = now
+
+        bullet = Bullet(5, self.rect.centerx, self.rect.centery, tar_x, tar_y, ORANGE)
+        bullets_grp.add(bullet)
+
+    def shoot_shotgun(self, tar_x, tar_y, bullets_grp):
+        self.shoot_cd = 750
+
+        now = pygame.time.get_ticks()
+        if now - self.shoot_timer < self.shoot_cd:
+            return
+        self.shoot_timer = now
+
+        spread = 15
+        pellets = 4
+        base_angle = math.degrees(
+            math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
+        )
+
+        for i in range(pellets):
+            offset = (i - pellets // 2) * spread  # e.g. -30, -15, 0, 15, 30
+            angle = math.radians(base_angle + offset)
+            tar_x_off = self.rect.centerx + math.cos(angle) * 100
+            tar_y_off = self.rect.centery + math.sin(angle) * 100
+            bullets_grp.add(
+                Bullet(
+                    10,
+                    self.rect.centerx,
+                    self.rect.centery,
+                    tar_x_off,
+                    tar_y_off,
+                    ORANGE,
+                    20,
+                )
+            )
+
+    def shoot_machine_gun(self, tar_x, tar_y, bullets_grp):
+        self.shoot_cd = 25
+
+        now = pygame.time.get_ticks()
+        if now - self.shoot_timer < self.shoot_cd:
+            return
+        self.shoot_timer = now
+
+        deviation = random.uniform(-0.7, 0.7)
+
+        bullet = Bullet(
+            2,
+            self.rect.centerx,
+            self.rect.centery,
+            tar_x,
+            tar_y,
+            ORANGE,
+            30,
+        )
+        bullets_grp.add(bullet)
+
+
+class Player(BoxEntity, Arsenal):
     def __init__(self, win_wd, win_ht, x_cor, y_cor, color, speed=1) -> None:
         super().__init__(win_wd, win_ht, x_cor, y_cor, color)
 
@@ -16,7 +82,6 @@ class Player(BoxEntity):
         self.dx, self.dy = 0, 0
         self.friction = 0.85
 
-        self.shoot_cd = 50
         self.shoot_timer = 0
 
         self.dash_spd = 5
@@ -27,18 +92,6 @@ class Player(BoxEntity):
     def update(self, keys, borders):
         self._movement(keys)
         self._collision(borders)
-
-    def shoot(self, tar_x, tar_y, bullets_grp):
-        if len(bullets_grp) >= 10:
-            return
-
-        now = pygame.time.get_ticks()
-        if now - self.shoot_timer < self.shoot_cd:
-            return
-        self.shoot_timer = now
-
-        bullet = Bullet(5, self.rect.centerx, self.rect.centery, tar_x, tar_y, ORANGE)
-        bullets_grp.add(bullet)
 
     @override
     def _movement(self, keys):
@@ -145,6 +198,8 @@ class Game:
         self.enemy_spawn_timer = 0
         self.enemies = pygame.sprite.Group()
 
+        self.current_weap_state = "MG"  # [BULLET, SG, MG]
+
         self.header_ft = pygame.font.Font("assets/fonts/GoboldRegular.otf", 30)
 
     def update(self):
@@ -158,13 +213,25 @@ class Game:
 
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.player.shoot(mouse_x, mouse_y, self.bullets)
+            match self.current_weap_state:
+                case "BULLET":
+                    self.player.shoot_bullets(mouse_x, mouse_y, self.bullets)
+                case "SG":
+                    self.player.shoot_shotgun(mouse_x, mouse_y, self.bullets)
+                case "MG":
+                    self.player.shoot_machine_gun(mouse_x, mouse_y, self.bullets)
 
         hits = pygame.sprite.groupcollide(self.bullets, self.enemies, True, False)
 
         for bullet, enemies_hit in hits.items():
             for enemy in enemies_hit:
-                enemy.take_dmg(25)
+                match self.current_weap_state:
+                    case "BULLET":
+                        enemy.take_dmg(20)
+                    case "SG":
+                        enemy.take_dmg(40)
+                    case "MG":
+                        enemy.take_dmg(10)
 
     def draw(self, screen):
         self.bg.draw(screen)
