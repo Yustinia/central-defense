@@ -3,19 +3,38 @@ from typing_extensions import override
 
 from const.COLORS import BLACK, DARK_ORANGE, ORANGE, WHITE
 from src.Gameplay import Background, Border, BoxEntity
+from src.Weapons import Bullet
 
 
 class Player(BoxEntity):
     def __init__(self, win_wd, win_ht, x_cor, y_cor, color, speed=2) -> None:
         super().__init__(win_wd, win_ht, x_cor, y_cor, color)
+
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.friction = 0.85
+        self.shoot_cd = 25
+        self.shoot_timer = 0
+
+        self.bullets = pygame.sprite.Group()
 
     @override
     def update(self, keys, borders):
         self._movement(keys)
         self._collision(borders)
+        self.bullets.update(borders)
+
+    def shoot(self, tar_x, tar_y):
+        if len(self.bullets) >= 10:
+            return
+
+        now = pygame.time.get_ticks()
+        if now - self.shoot_timer < self.shoot_cd:
+            return
+        self.shoot_timer = now
+
+        bullet = Bullet(5, self.rect.centerx, self.rect.centery, tar_x, tar_y, ORANGE)
+        self.bullets.add(bullet)
 
     @override
     def _movement(self, keys):
@@ -71,11 +90,18 @@ class Game:
 
         self.player.update(keys, self.borders)
 
+        if pygame.mouse.get_pressed()[0]:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            self.player.shoot(mouse_x, mouse_y)
+
     def draw(self, screen):
         self.bg.draw(screen)
 
         for border in self.borders:
             border.draw(screen)
+
+        for bullet in self.player.bullets:
+            bullet.draw(screen)
 
         self.player.draw(screen)
 
