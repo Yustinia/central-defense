@@ -94,6 +94,7 @@ class Enemy(CircEntity):
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.health = 100
+        self.wander = random.uniform(-0.3, 0.3)
 
     def update(self, tar_x, tar_y):
         self._movement(tar_x, tar_y)
@@ -101,6 +102,7 @@ class Enemy(CircEntity):
     @override
     def _movement(self, tar_x, tar_y):
         angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
+        angle += self.wander
 
         self.dx = math.cos(angle) * self.speed
         self.dy = math.sin(angle) * self.speed
@@ -136,25 +138,21 @@ class Game:
         ply_wd = ply_ht = 40
         self.player = Player(ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE)
 
+        self.max_enemies = 20
+        self.enemy_spawn_cd = 500
+        self.enemy_spawn_timer = 0
         self.enemies = pygame.sprite.Group()
+
+        self.header_ft = pygame.font.Font("assets/fonts/GoboldRegular.otf", 30)
 
     def update(self):
         keys = pygame.key.get_pressed()
 
-        while len(self.enemies) < 10:
-            enemy = Enemy(
-                20,
-                random.randint(60, self.win_wd - 60),
-                random.randint(60, self.win_ht - 60),
-                ORANGE,
-            )
-            self.enemies.add(enemy)
+        self._spawn_enemy()
 
         self.player.update(keys, self.borders)
         self.bullets.update(self.borders)
         self.enemies.update(self.player.rect.centerx, self.player.rect.centery)
-
-        pygame.sprite.spritecollide(self.player, self.enemies, False)
 
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -179,6 +177,33 @@ class Game:
             bullet.draw(screen)
 
         self.player.draw(screen)
+
+        self._render_text(screen)
+
+    def _spawn_enemy(self):
+        if len(self.enemies) >= self.max_enemies:
+            return
+        now = pygame.time.get_ticks()
+        if now - self.enemy_spawn_timer < self.enemy_spawn_cd:
+            return
+        self.enemy_spawn_timer = now
+
+        side = random.choice(["left", "right", "top", "bottom"])
+        if side == "left":
+            x, y = -20, random.randint(0, self.win_ht)
+        elif side == "right":
+            x, y = self.win_wd + 20, random.randint(0, self.win_ht)
+        elif side == "top":
+            x, y = random.randint(0, self.win_wd), -20
+        else:
+            x, y = random.randint(0, self.win_wd), self.win_ht + 20
+
+        self.enemies.add(Enemy(20, x, y, ORANGE, random.randint(2, 4)))
+
+    def _render_text(self, screen):
+        header_img = self.header_ft.render(f"Central Defense", True, BLACK)
+        header_rect = header_img.get_rect(center=(self.win_wd // 2, 30))
+        screen.blit(header_img, header_rect)
 
 
 class GameManager:
