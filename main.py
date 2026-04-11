@@ -21,16 +21,14 @@ class Player(BoxEntity):
         self.dash_cd = 1000
         self.dash_timer = 0
 
-        self.bullets = pygame.sprite.Group()
-
     @override
-    def update(self, keys, borders):
+    def update(self, keys, borders, bullets_grp):
         self._movement(keys)
         self._collision(borders)
-        self.bullets.update(borders)
+        bullets_grp.update(borders)
 
-    def shoot(self, tar_x, tar_y):
-        if len(self.bullets) >= 10:
+    def shoot(self, tar_x, tar_y, bullets_grp):
+        if len(bullets_grp) >= 10:
             return
 
         now = pygame.time.get_ticks()
@@ -39,7 +37,7 @@ class Player(BoxEntity):
         self.shoot_timer = now
 
         bullet = Bullet(5, self.rect.centerx, self.rect.centery, tar_x, tar_y, ORANGE)
-        self.bullets.add(bullet)
+        bullets_grp.add(bullet)
 
     @override
     def _movement(self, keys):
@@ -105,17 +103,19 @@ class Game:
         for border in border_list:
             self.borders.add(border)
 
+        self.bullets = pygame.sprite.Group()
+
         ply_wd = ply_ht = 40
         self.player = Player(ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE)
 
     def update(self):
         keys = pygame.key.get_pressed()
 
-        self.player.update(keys, self.borders)
+        self.player.update(keys, self.borders, self.bullets)
 
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            self.player.shoot(mouse_x, mouse_y)
+            self.player.shoot(mouse_x, mouse_y, self.bullets)
 
     def draw(self, screen):
         self.bg.draw(screen)
@@ -123,7 +123,7 @@ class Game:
         for border in self.borders:
             border.draw(screen)
 
-        for bullet in self.player.bullets:
+        for bullet in self.bullets:
             bullet.draw(screen)
 
         self.player.draw(screen)
@@ -165,7 +165,7 @@ class GameManager:
 
 
 if __name__ == "__main__":
-    disp_wd, disp_ht = 1280, 900
+    disp_wd, disp_ht = 1600, 900
 
     pygame.init()
     gm = GameManager(disp_wd, disp_ht)
