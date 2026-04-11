@@ -73,7 +73,7 @@ class CircEntity(ABC, pygame.sprite.Sprite):
         self.y_cor = y_cor
         self.color = color
 
-        self.image = pygame.Surface((self.radius * 2, self.radius * 2))
+        self.image = pygame.Surface((self.radius * 2, self.radius * 2), pygame.SRCALPHA)
         pygame.draw.circle(
             self.image, self.color, (self.radius, self.radius), self.radius
         )

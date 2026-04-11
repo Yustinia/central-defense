@@ -1,8 +1,10 @@
 import pygame
+import math
+import random
 from typing_extensions import override
 
 from const.COLORS import BLACK, DARK_ORANGE, ORANGE, WHITE
-from src.Gameplay import Background, Border, BoxEntity
+from src.Gameplay import Background, Border, BoxEntity, CircEntity
 from src.Weapons import Bullet
 
 
@@ -22,10 +24,9 @@ class Player(BoxEntity):
         self.dash_timer = 0
 
     @override
-    def update(self, keys, borders, bullets_grp):
+    def update(self, keys, borders):
         self._movement(keys)
         self._collision(borders)
-        bullets_grp.update(borders)
 
     def shoot(self, tar_x, tar_y, bullets_grp):
         if len(bullets_grp) >= 10:
@@ -86,6 +87,33 @@ class Player(BoxEntity):
         self.dy *= self.friction
 
 
+class Enemy(CircEntity):
+    def __init__(self, radius, x_cor, y_cor, color, speed=2) -> None:
+        super().__init__(radius, x_cor, y_cor, color)
+
+        self.speed = speed
+        self.dx, self.dy = 0, 0
+        self.health = 100
+
+    def update(self, tar_x, tar_y):
+        self._movement(tar_x, tar_y)
+
+    @override
+    def _movement(self, tar_x, tar_y):
+        angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
+
+        self.dx = math.cos(angle) * self.speed
+        self.dy = math.sin(angle) * self.speed
+
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
+
+    def take_dmg(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self.kill()
+
+
 class Game:
     def __init__(self, win_wd, win_ht) -> None:
         self.win_wd = win_wd
@@ -108,17 +136,41 @@ class Game:
         ply_wd = ply_ht = 40
         self.player = Player(ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE)
 
+        self.enemies = pygame.sprite.Group()
+
     def update(self):
         keys = pygame.key.get_pressed()
 
-        self.player.update(keys, self.borders, self.bullets)
+        while len(self.enemies) < 10:
+            enemy = Enemy(
+                20,
+                random.randint(60, self.win_wd - 60),
+                random.randint(60, self.win_ht - 60),
+                ORANGE,
+            )
+            self.enemies.add(enemy)
+
+        self.player.update(keys, self.borders)
+        self.bullets.update(self.borders)
+        self.enemies.update(self.player.rect.centerx, self.player.rect.centery)
+
+        pygame.sprite.spritecollide(self.player, self.enemies, False)
 
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             self.player.shoot(mouse_x, mouse_y, self.bullets)
 
+        hits = pygame.sprite.groupcollide(self.bullets, self.enemies, True, False)
+
+        for bullet, enemies_hit in hits.items():
+            for enemy in enemies_hit:
+                enemy.take_dmg(25)
+
     def draw(self, screen):
         self.bg.draw(screen)
+
+        for enemy in self.enemies:
+            enemy.draw(screen)
 
         for border in self.borders:
             border.draw(screen)
