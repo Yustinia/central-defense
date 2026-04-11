@@ -7,7 +7,7 @@ from src.Weapons import Bullet
 
 
 class Player(BoxEntity):
-    def __init__(self, win_wd, win_ht, x_cor, y_cor, color, speed=2) -> None:
+    def __init__(self, win_wd, win_ht, x_cor, y_cor, color, speed=1) -> None:
         super().__init__(win_wd, win_ht, x_cor, y_cor, color)
 
         self.speed = speed
@@ -76,7 +76,7 @@ class Game:
         border_list = [
             Border(thickness, self.win_ht, 0, 0, WHITE),  # left
             Border(thickness, self.win_ht, self.win_wd - thickness, 0, WHITE),  # right
-            Border(self.win_wd, thickness, 0, 0, WHITE),  # up
+            Border(self.win_wd, 100, 0, 0, WHITE),  # up
             Border(self.win_wd, thickness, 0, self.win_ht - thickness, WHITE),  # down
         ]
         for border in border_list:

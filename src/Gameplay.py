@@ -60,7 +60,6 @@ class BoxEntity(ABC, pygame.sprite.Sprite):
     def _movement(self, keys):
         pass
 
-    @abstractmethod
     def _collision(self, borders):
         pass
 
@@ -91,6 +90,5 @@ class CircEntity(ABC, pygame.sprite.Sprite):
     def _movement(self, keys):
         pass
 
-    @abstractmethod
     def _collision(self, borders):
         pass
