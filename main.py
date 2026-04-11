@@ -30,16 +30,16 @@ class Player(BoxEntity):
 
     @override
     def _collision(self, borders):
-        self.rect.x += self.dx
+        self.rect.x += int(self.dx)
         for border in borders:
             if self.rect.colliderect(border.rect):
-                self.rect.x -= self.dx
+                self.rect.x -= int(self.dx)
                 self.dx = 0
 
-        self.rect.y += self.dy
+        self.rect.y += int(self.dy)
         for border in borders:
             if self.rect.colliderect(border.rect):
-                self.rect.y -= self.dy
+                self.rect.y -= int(self.dy)
                 self.dy = 0
 
         self.dx *= self.friction
