@@ -94,7 +94,8 @@ class Enemy(CircEntity):
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.health = 100
-        self.wander = random.uniform(-0.3, 0.3)
+        self.friction = 0.98
+        self.accel = 0.5
 
     def update(self, tar_x, tar_y):
         self._movement(tar_x, tar_y)
@@ -102,10 +103,11 @@ class Enemy(CircEntity):
     @override
     def _movement(self, tar_x, tar_y):
         angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
-        angle += self.wander
 
-        self.dx = math.cos(angle) * self.speed
-        self.dy = math.sin(angle) * self.speed
+        self.dx += math.cos(angle) * self.accel
+        self.dy += math.sin(angle) * self.accel
+        self.dx *= self.friction
+        self.dy *= self.friction
 
         self.rect.x += int(self.dx)
         self.rect.y += int(self.dy)
@@ -138,8 +140,8 @@ class Game:
         ply_wd = ply_ht = 40
         self.player = Player(ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE)
 
-        self.max_enemies = 20
-        self.enemy_spawn_cd = 500
+        self.max_enemies = 50
+        self.enemy_spawn_cd = 2000
         self.enemy_spawn_timer = 0
         self.enemies = pygame.sprite.Group()
 
