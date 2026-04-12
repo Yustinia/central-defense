@@ -28,7 +28,9 @@ class MainMenu:
         sub_rect = sub_img.get_rect(center=(sub_cor_x, sub_cor_y))
 
         screen.blit(header_img, header_rect)
-        screen.blit(sub_img, sub_rect)
+
+        if (pygame.time.get_ticks() // 500) % 2 == 0:
+            screen.blit(sub_img, sub_rect)
 
 
 class GameOver:
