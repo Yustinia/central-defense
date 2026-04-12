@@ -19,6 +19,7 @@ class Player(BoxEntity):
     ) -> None:
         super().__init__(win_wd, win_ht, x_cor, y_cor, color)
 
+        self.health = 500
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.friction = 0.85
@@ -33,10 +34,22 @@ class Player(BoxEntity):
         # Abilities
         self.dash_ab = Dash()
 
+        # States
+        self.is_alive = True
+
     @override
     def update(self, keys, borders):
         self._movement(keys)
         self._collision(borders)
+
+    def take_damage(self, amount):
+        self.health -= amount
+
+        if self.health <= 0:
+            self.is_alive = False
+            return self.is_alive
+
+        return self.is_alive
 
     @override
     def _movement(self, keys):
@@ -89,7 +102,7 @@ class Game:
 
         self.projectiles = pygame.sprite.Group()
 
-        ply_wd = ply_ht = 40
+        ply_wd, ply_ht = 40, 40
         self.player = Player(
             ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE, self.projectiles
         )
@@ -142,6 +155,15 @@ class Game:
         for projectile, chasers_hit in chaser_hitmarks.items():
             for enemy in chasers_hit:
                 enemy.take_dmg(current_weapon.damage)
+
+        player_chaser_hitmarks = pygame.sprite.spritecollide(
+            self.player, self.chasers, False
+        )
+        if player_chaser_hitmarks:
+            self.player.take_damage(20)
+            if not self.player.is_alive:
+                return False
+        return True
 
     def draw(self, screen):
         self.bg.draw(screen)
@@ -230,7 +252,11 @@ class GameManager:
             case "MAINMENU":
                 pass
             case "PLAYING":
-                self.game.update()
+                is_player_alive = self.game.update()
+
+                if not is_player_alive:
+                    self.current_state = "GAMEOVER"
+
             case "GAMEOVER":
                 pass
 
