@@ -89,6 +89,7 @@ class Game:
         self.win_ht = win_ht
         self.bg = Background(self.win_wd, self.win_ht, BLACK)
 
+        # GAME BORDER
         thickness = 10
         self.borders = pygame.sprite.Group()
         border_list = [
@@ -100,22 +101,28 @@ class Game:
         for border in border_list:
             self.borders.add(border)
 
+        # PELLETS
         self.projectiles = pygame.sprite.Group()
 
+        # PLAYER
         ply_wd, ply_ht = 40, 40
         self.player = Player(
             ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE, self.projectiles
         )
 
+        # ENEMIES
         self.chaser_spawn_cd = 2000
         self.chaser_spawn_timer = 0
         self.chasers = pygame.sprite.Group()
 
+        # WEAPON
         self.current_weapon_counter = 0
         self.current_weap_state = "PISTOL"  # [PISTOL, SHOTGUN, MACHINEGUN]
 
+        # ROUNDS
         self.round_counter = 1
 
+        # FONTS
         self.subtitle_ft = pygame.font.Font(REGULAR, SUBTITLE_SZ)
 
     def event(self, event):
@@ -176,6 +183,7 @@ class Game:
 
         self._show_weap_state(screen)
         self._show_round(screen)
+        self._show_ply_hp(screen)
 
         for projectile in self.projectiles:
             projectile.draw(screen)
@@ -215,6 +223,12 @@ class Game:
         round_state_rect = round_state_img.get_rect(topright=(self.win_wd - 10, 20))
 
         screen.blit(round_state_img, round_state_rect)
+
+    def _show_ply_hp(self, screen):
+        ply_hp_img = self.subtitle_ft.render(f"HP: {self.player.health}", True, BLACK)
+        ply_hp_rect = ply_hp_img.get_rect(center=(self.win_wd // 2, 40))
+
+        screen.blit(ply_hp_img, ply_hp_rect)
 
 
 class GameManager:
