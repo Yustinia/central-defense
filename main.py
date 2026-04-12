@@ -95,10 +95,9 @@ class Game:
             ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE, self.bullets
         )
 
-        self.max_enemies = 50
-        self.enemy_spawn_cd = 2000
-        self.enemy_spawn_timer = 0
-        self.enemies = pygame.sprite.Group()
+        self.chaser_spawn_cd = 2000
+        self.chaser_spawn_timer = 0
+        self.chasers = pygame.sprite.Group()
 
         self.current_weapon_counter = 0
         self.current_weap_state = "PISTOL"  # [PISTOL, SHOTGUN, MACHINEGUN]
@@ -121,11 +120,11 @@ class Game:
     def update(self):
         keys = pygame.key.get_pressed()
 
-        self._spawn_enemy()
+        self._spawn_chaser()
 
         self.player.update(keys, self.borders)
         self.bullets.update(self.borders)
-        self.enemies.update(self.player.rect.centerx, self.player.rect.centery)
+        self.chasers.update(self.player.rect.centerx, self.player.rect.centery)
 
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -138,7 +137,7 @@ class Game:
                     self.player.machinegun.shoot(mouse_x, mouse_y)
 
         current_weapon = getattr(self.player, self.current_weap_state.lower())
-        hits = pygame.sprite.groupcollide(self.bullets, self.enemies, True, False)
+        hits = pygame.sprite.groupcollide(self.bullets, self.chasers, True, False)
         for bullet, enemies_hit in hits.items():
             for enemy in enemies_hit:
                 enemy.take_dmg(current_weapon.damage)
@@ -146,8 +145,8 @@ class Game:
     def draw(self, screen):
         self.bg.draw(screen)
 
-        for enemy in self.enemies:
-            enemy.draw(screen)
+        for chaser in self.chasers:
+            chaser.draw(screen)
 
         for border in self.borders:
             border.draw(screen)
@@ -160,13 +159,11 @@ class Game:
 
         self.player.draw(screen)
 
-    def _spawn_enemy(self):
-        if len(self.enemies) >= self.max_enemies:
-            return
+    def _spawn_chaser(self):
         now = pygame.time.get_ticks()
-        if now - self.enemy_spawn_timer < self.enemy_spawn_cd:
+        if now - self.chaser_spawn_timer < self.chaser_spawn_cd:
             return
-        self.enemy_spawn_timer = now
+        self.chaser_spawn_timer = now
 
         side = random.choice(["left", "right", "top", "bottom"])
         if side == "left":
@@ -178,7 +175,7 @@ class Game:
         else:
             x, y = random.randint(0, self.win_wd), self.win_ht + 20
 
-        self.enemies.add(Chaser(20, x, y, ORANGE))
+        self.chasers.add(Chaser(20, x, y, ORANGE))
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(
