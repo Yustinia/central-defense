@@ -17,6 +17,7 @@ class Chaser(CircEntity):
         self.friction = random.uniform(0.94, 0.99)
         self.accel = random.uniform(0.50, 0.90)
 
+    @override
     def update(self, tar_x, tar_y):
         self._movement(tar_x, tar_y)
 

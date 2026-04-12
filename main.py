@@ -1,4 +1,3 @@
-import math
 import random
 
 import pygame
@@ -88,11 +87,11 @@ class Game:
         for border in border_list:
             self.borders.add(border)
 
-        self.bullets = pygame.sprite.Group()
+        self.projectiles = pygame.sprite.Group()
 
         ply_wd = ply_ht = 40
         self.player = Player(
-            ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE, self.bullets
+            ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE, self.projectiles
         )
 
         self.chaser_spawn_cd = 2000
@@ -123,7 +122,7 @@ class Game:
         self._spawn_chaser()
 
         self.player.update(keys, self.borders)
-        self.bullets.update(self.borders)
+        self.projectiles.update(self.borders)
         self.chasers.update(self.player.rect.centerx, self.player.rect.centery)
 
         if pygame.mouse.get_pressed()[0]:
@@ -137,9 +136,11 @@ class Game:
                     self.player.machinegun.shoot(mouse_x, mouse_y)
 
         current_weapon = getattr(self.player, self.current_weap_state.lower())
-        hits = pygame.sprite.groupcollide(self.bullets, self.chasers, True, False)
-        for bullet, enemies_hit in hits.items():
-            for enemy in enemies_hit:
+        chaser_hitmarks = pygame.sprite.groupcollide(
+            self.projectiles, self.chasers, True, False
+        )
+        for projectile, chasers_hit in chaser_hitmarks.items():
+            for enemy in chasers_hit:
                 enemy.take_dmg(current_weapon.damage)
 
     def draw(self, screen):
@@ -154,8 +155,8 @@ class Game:
         self._show_weap_state(screen)
         self._show_round(screen)
 
-        for bullet in self.bullets:
-            bullet.draw(screen)
+        for projectile in self.projectiles:
+            projectile.draw(screen)
 
         self.player.draw(screen)
 
