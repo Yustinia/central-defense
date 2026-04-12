@@ -202,7 +202,10 @@ class Game:
         self.enemies = pygame.sprite.Group()
 
         self.current_weap_state = "SG"  # [BULLET, SG, MG]
-        self.weap_state_ft = pygame.font.Font(REGULAR, SUBTITLE_SZ)
+
+        self.round_counter = 1
+
+        self.subtitle_ft = pygame.font.Font(REGULAR, SUBTITLE_SZ)
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -245,6 +248,7 @@ class Game:
             border.draw(screen)
 
         self._show_weap_state(screen)
+        self._show_round(screen)
 
         for bullet in self.bullets:
             bullet.draw(screen)
@@ -272,12 +276,20 @@ class Game:
         self.enemies.add(Enemy(20, x, y, ORANGE, random.randint(2, 4)))
 
     def _show_weap_state(self, screen):
-        weap_state_img = self.weap_state_ft.render(
+        weap_state_img = self.subtitle_ft.render(
             f"Current Weapon: {self.current_weap_state}", True, BLACK
         )
         weap_state_rect = weap_state_img.get_rect(topleft=(10, 20))
 
         screen.blit(weap_state_img, weap_state_rect)
+
+    def _show_round(self, screen):
+        round_state_img = self.subtitle_ft.render(
+            f"Round: {self.round_counter}", True, BLACK
+        )
+        round_state_rect = round_state_img.get_rect(topright=(self.win_wd - 10, 20))
+
+        screen.blit(round_state_img, round_state_rect)
 
 
 class GameManager:
