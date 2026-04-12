@@ -150,8 +150,8 @@ class Enemy(CircEntity):
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.health = 100
-        self.friction = 0.98
-        self.accel = 0.5
+        self.friction = random.uniform(0.94, 0.99)
+        self.accel = random.uniform(0.50, 0.90)
 
     def update(self, tar_x, tar_y):
         self._movement(tar_x, tar_y)
@@ -201,7 +201,8 @@ class Game:
         self.enemy_spawn_timer = 0
         self.enemies = pygame.sprite.Group()
 
-        self.current_weap_state = "SG"  # [BULLET, SG, MG]
+        self.current_weapon_counter = 0
+        self.current_weap_state = "MACHINEGUN"  # [PISTOL, SHOTGUN, MACHINEGUN]
 
         self.round_counter = 1
 
@@ -219,23 +220,36 @@ class Game:
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             match self.current_weap_state:
-                case "BULLET":
+                case "PISTOL":
                     self.player.shoot_bullets(mouse_x, mouse_y, self.bullets)
-                case "SG":
+                case "SHOTGUN":
                     self.player.shoot_shotgun(mouse_x, mouse_y, self.bullets)
-                case "MG":
+                case "MACHINEGUN":
                     self.player.shoot_machine_gun(mouse_x, mouse_y, self.bullets)
+
+        if pygame.mouse.get_pressed()[2]:
+            match self.current_weapon_counter:
+                case 0:
+                    self.current_weap_state = "PISTOL"
+                case 1:
+                    self.current_weap_state = "SHOTGUN"
+                case 2:
+                    self.current_weap_state = "MACHINEGUN"
+
+            self.current_weapon_counter += 1
+            if self.current_weapon_counter >= 3:
+                self.current_weapon_counter = 0
 
         hits = pygame.sprite.groupcollide(self.bullets, self.enemies, True, False)
 
         for bullet, enemies_hit in hits.items():
             for enemy in enemies_hit:
                 match self.current_weap_state:
-                    case "BULLET":
+                    case "PISTOL":
                         enemy.take_dmg(20)
-                    case "SG":
+                    case "SHOTGUN":
                         enemy.take_dmg(40)
-                    case "MG":
+                    case "MACHINEGUN":
                         enemy.take_dmg(10)
 
     def draw(self, screen):
@@ -273,7 +287,7 @@ class Game:
         else:
             x, y = random.randint(0, self.win_wd), self.win_ht + 20
 
-        self.enemies.add(Enemy(20, x, y, ORANGE, random.randint(2, 4)))
+        self.enemies.add(Enemy(20, x, y, ORANGE))
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(
