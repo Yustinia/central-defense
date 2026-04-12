@@ -88,7 +88,7 @@ class Player(BoxEntity, Arsenal):
         self.shoot_timer = 0
 
         self.dash_spd = 5
-        self.dash_cd = 1000
+        self.dash_cd = 500
         self.dash_timer = 0
 
     @override
