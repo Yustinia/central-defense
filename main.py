@@ -388,7 +388,7 @@ class GameManager:
 
 
 if __name__ == "__main__":
-    disp_wd, disp_ht = 1600, 900
+    disp_wd, disp_ht = 1920, 1080
 
     pygame.init()
     gm = GameManager(disp_wd, disp_ht, "MAINMENU")
