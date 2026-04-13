@@ -1,7 +1,6 @@
 import math
 import random
 
-import pygame
 from typing_extensions import override
 
 from src.Gameplay import CircEntity
@@ -32,6 +31,37 @@ class Chaser(CircEntity):
 
         self.rect.x += int(self.dx)
         self.rect.y += int(self.dy)
+
+    def take_dmg(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self.kill()
+
+
+class Bouncer(CircEntity):
+    def __init__(self, radius, x_cor, y_cor, color, speed=3) -> None:
+        super().__init__(radius, x_cor, y_cor, color)
+
+        self.health = 200
+        self.dx = speed
+        self.dy = speed
+
+    @override
+    def update(self, borders):
+        self._collision(borders)
+
+    def _collision(self, borders):
+        self.rect.x += int(self.dx)
+        for border in borders:
+            if self.rect.colliderect(border.rect):
+                self.rect.x -= int(self.dx)
+                self.dx *= -1
+
+        self.rect.y += int(self.dy)
+        for border in borders:
+            if self.rect.colliderect(border.rect):
+                self.rect.y -= int(self.dy)
+                self.dy *= -1
 
     def take_dmg(self, amount):
         self.health -= amount
