@@ -19,10 +19,13 @@ class Player(BoxEntity):
     ) -> None:
         super().__init__(win_wd, win_ht, x_cor, y_cor, color)
 
-        self.health = 500
+        self.health = 200
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.friction = 0.85
+
+        self.dmg_cd = 1000
+        self.dmg_timer = 0
 
         self.projectile_grp = projectile_grp
 
@@ -43,6 +46,11 @@ class Player(BoxEntity):
         self._collision(borders)
 
     def take_damage(self, amount):
+        now = pygame.time.get_ticks()
+        if now - self.dmg_timer < self.dmg_cd:
+            return self.is_alive
+        self.dmg_timer = now
+
         self.health -= amount
 
         if self.health <= 0:
@@ -167,7 +175,7 @@ class Game:
             self.player, self.chasers, False
         )
         if player_chaser_hitmarks:
-            self.player.take_damage(20)
+            self.player.take_damage(10)
             if not self.player.is_alive:
                 return False
         return True
@@ -257,7 +265,7 @@ class GameManager:
 
             if event.type == pygame.QUIT:
                 self.game_running = False
-            if pygame.mouse.get_pressed()[0]:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.current_state in ["MAINMENU", "GAMEOVER"]:
                     self.current_state = "PLAYING"
 
@@ -270,6 +278,7 @@ class GameManager:
 
                 if not is_player_alive:
                     self.current_state = "GAMEOVER"
+                    self.game = Game(self.disp_wd, self.disp_ht)
 
             case "GAMEOVER":
                 pass
