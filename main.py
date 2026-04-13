@@ -9,6 +9,7 @@ from src.Abilities import Dash
 from src.Core import Background, Border
 from src.Enemies import Bouncer, Chaser
 from src.Entities import BoxEntity
+from src.Items import HealthPack
 from src.Menu import GameOver, MainMenu
 from src.Weapons import MachineGun, Pistol, Shotgun
 
@@ -24,6 +25,7 @@ class Player(BoxEntity):
         self.dx, self.dy = 0, 0
         self.friction = 0.85
 
+        self.min_health = 75
         self.dmg_cd = 100
         self.dmg_timer = 0
 
@@ -118,6 +120,11 @@ class Game:
             ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, BLUE, self.projectiles
         )
 
+        # OBJECTS
+        self.hp_pack_group = pygame.sprite.GroupSingle()
+        self.hp_pack_cd = 25000
+        self.hp_pack_timer = 0
+
         # CHASER ENEMY
         self.max_chasers = 20
         self.chaser_spawn_cd = 3000
@@ -156,6 +163,7 @@ class Game:
 
         self._spawn_chaser()
         self._spawn_bouncer()
+        self._spawn_hp_pack()
 
         self.player.update(keys, self.borders)
         self.projectiles.update(self.borders)
@@ -173,6 +181,15 @@ class Game:
                     self.player.machinegun.shoot(mouse_x, mouse_y)
 
         current_weapon = getattr(self.player, self.current_weap_state.lower())
+
+        # OBJECTS
+        hp_acq = pygame.sprite.spritecollide(self.player, self.hp_pack_group, False)
+        for pack in self.hp_pack_group:
+            if self.player.health >= self.player.min_health:
+                pack.kill()
+            elif hp_acq:
+                pack.heal(self.player)
+                pack.kill()
 
         # ENEMY PROJECTILE HITMARKS
         chaser_hitmarks = pygame.sprite.groupcollide(
@@ -211,6 +228,13 @@ class Game:
     def draw(self, screen):
         self.bg.draw(screen)
 
+        self.hp_pack_group.draw(screen)
+
+        for projectile in self.projectiles:
+            projectile.draw(screen)
+
+        self.player.draw(screen)
+
         for chaser in self.chasers:
             chaser.draw(screen)
 
@@ -223,11 +247,6 @@ class Game:
         self._show_weap_state(screen)
         self._show_round(screen)
         self._show_ply_hp(screen)
-
-        for projectile in self.projectiles:
-            projectile.draw(screen)
-
-        self.player.draw(screen)
 
     def _spawn_chaser(self):
         now = pygame.time.get_ticks()
@@ -269,6 +288,17 @@ class Game:
                 x, y = random.randint(40, self.win_wd - 40), self.win_ht - 40
 
             self.bouncers.add(Bouncer(10, x, y, ORANGE))
+
+    def _spawn_hp_pack(self):
+        now = pygame.time.get_ticks()
+        if now - self.hp_pack_timer < self.hp_pack_cd:
+            return
+        self.hp_pack_timer = now
+
+        hp_wd, hp_ht = 20, 20
+        rand_hp_x = random.randint(40, self.win_wd - 40)
+        rand_hp_y = random.randint(120, self.win_ht - 40)
+        self.hp_pack_group.add(HealthPack(hp_wd, hp_ht, rand_hp_x, rand_hp_y, "green"))
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(

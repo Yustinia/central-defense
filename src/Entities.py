@@ -21,8 +21,7 @@ class BoxEntity(ABC, pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
 
     def update(self, keys, borders):
-        self._movement(keys)
-        self._collision(borders)
+        pass
 
     def _movement(self, keys):
         pass
@@ -50,8 +49,7 @@ class CircEntity(ABC, pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
 
     def update(self, keys, borders):
-        self._movement(keys)
-        self._collision(borders)
+        pass
 
     def _movement(self, keys):
         pass
