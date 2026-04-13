@@ -3,7 +3,7 @@ import random
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLACK, BLUE, ORANGE, WHITE
+from const.COLORS import BLACK, BLUE, GREEN, ORANGE, VIOLET, WHITE
 from const.FONTS import REGULAR, SUBTITLE_SZ
 from src.Abilities import Dash
 from src.Core import Background, Border
@@ -216,7 +216,7 @@ class Game:
                 return False
 
         player_bouncer_hitmarks = pygame.sprite.spritecollide(
-            self.player, self.bouncers, False
+            self.player, self.bouncers, True
         )
         if player_bouncer_hitmarks:
             self.player.take_damage(10)
@@ -279,15 +279,15 @@ class Game:
             side = random.choice(["left", "right", "top", "bottom"])
 
             if side == "left":
-                x, y = 40, random.randint(40, self.win_ht - 40)
+                x, y = 40, random.randint(120, self.win_ht - 40)
             elif side == "right":
-                x, y = self.win_wd - 40, random.randint(40, self.win_ht - 40)
+                x, y = self.win_wd - 40, random.randint(120, self.win_ht - 40)
             elif side == "top":
                 x, y = random.randint(40, self.win_wd - 40), 120
             else:
                 x, y = random.randint(40, self.win_wd - 40), self.win_ht - 40
 
-            self.bouncers.add(Bouncer(10, x, y, ORANGE))
+            self.bouncers.add(Bouncer(10, x, y, VIOLET))
 
     def _spawn_hp_pack(self):
         now = pygame.time.get_ticks()
@@ -298,7 +298,7 @@ class Game:
         hp_wd, hp_ht = 20, 20
         rand_hp_x = random.randint(40, self.win_wd - 40)
         rand_hp_y = random.randint(120, self.win_ht - 40)
-        self.hp_pack_group.add(HealthPack(hp_wd, hp_ht, rand_hp_x, rand_hp_y, "green"))
+        self.hp_pack_group.add(HealthPack(hp_wd, hp_ht, rand_hp_x, rand_hp_y, GREEN))
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(
