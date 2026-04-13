@@ -135,6 +135,6 @@ class MachineGun(WeaponTemplate):
         tar_y_off = self.rect.centery + math.sin(angle) * 100
 
         bullet = Bullet(
-            2, self.rect.centerx, self.rect.centery, tar_x_off, tar_y_off, BLUE, 30
+            5, self.rect.centerx, self.rect.centery, tar_x_off, tar_y_off, BLUE, 30
         )
         self.projectile_grp.add(bullet)
