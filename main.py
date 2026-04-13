@@ -241,7 +241,7 @@ class Game:
         elif side == "right":
             x, y = self.win_wd + 20, random.randint(0, self.win_ht)
         elif side == "top":
-            x, y = random.randint(0, self.win_wd), 100
+            x, y = random.randint(0, self.win_wd), -20
         else:
             x, y = random.randint(0, self.win_wd), self.win_ht + 20
 
