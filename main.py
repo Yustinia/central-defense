@@ -3,7 +3,7 @@ import random
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLACK, DARK_ORANGE, ORANGE, WHITE
+from const.COLORS import BLACK, BLUE, ORANGE, WHITE
 from const.FONTS import REGULAR, SUBTITLE_SZ
 from src.Abilities import Dash
 from src.Core import Background, Border
@@ -115,7 +115,7 @@ class Game:
         # PLAYER
         ply_wd, ply_ht = 40, 40
         self.player = Player(
-            ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE, self.projectiles
+            ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, BLUE, self.projectiles
         )
 
         # CHASER ENEMY

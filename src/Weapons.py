@@ -5,7 +5,7 @@ from abc import abstractmethod
 import pygame
 from typing_extensions import override
 
-from const.COLORS import ORANGE
+from const.COLORS import BLUE
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -71,7 +71,7 @@ class Pistol(WeaponTemplate):
         if self._on_cooldown():
             return
 
-        bullet = Bullet(5, self.rect.centerx, self.rect.centery, tar_x, tar_y, ORANGE)
+        bullet = Bullet(5, self.rect.centerx, self.rect.centery, tar_x, tar_y, BLUE)
         self.projectile_grp.add(bullet)
 
 
@@ -107,7 +107,7 @@ class Shotgun(WeaponTemplate):
                     self.rect.centery,
                     tar_x_off,
                     tar_y_off,
-                    ORANGE,
+                    BLUE,
                     20,
                 )
             )
@@ -135,6 +135,6 @@ class MachineGun(WeaponTemplate):
         tar_y_off = self.rect.centery + math.sin(angle) * 100
 
         bullet = Bullet(
-            2, self.rect.centerx, self.rect.centery, tar_x_off, tar_y_off, ORANGE, 30
+            2, self.rect.centerx, self.rect.centery, tar_x_off, tar_y_off, BLUE, 30
         )
         self.projectile_grp.add(bullet)
