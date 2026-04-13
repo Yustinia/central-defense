@@ -119,12 +119,14 @@ class Game:
         )
 
         # CHASER ENEMY
-        self.chaser_spawn_cd = 2000
+        self.max_chasers = 20
+        self.chaser_spawn_cd = 3000
         self.chaser_spawn_timer = 0
         self.chasers = pygame.sprite.Group()
 
         # BOUNCER ENEMY
-        self.bouncer_spawn_cd = 500
+        self.max_bouncers = 6
+        self.bouncer_spawn_cd = 10000
         self.bouncer_spawn_timer = 0
         self.bouncers = pygame.sprite.Group()
 
@@ -246,22 +248,27 @@ class Game:
         self.chasers.add(Chaser(20, x, y, ORANGE))
 
     def _spawn_bouncer(self):
+        if len(self.bouncers) >= self.max_bouncers:
+            return
+
         now = pygame.time.get_ticks()
         if now - self.bouncer_spawn_timer < self.bouncer_spawn_cd:
             return
         self.bouncer_spawn_timer = now
 
-        side = random.choice(["left", "right", "top", "bottom"])
-        if side == "left":
-            x, y = 40, random.randint(40, self.win_ht - 40)
-        elif side == "right":
-            x, y = self.win_wd - 40, random.randint(40, self.win_ht - 40)
-        elif side == "top":
-            x, y = random.randint(40, self.win_wd - 40), 80
-        else:
-            x, y = random.randint(40, self.win_wd - 40), self.win_ht - 40
+        for i in range(3):
+            side = random.choice(["left", "right", "top", "bottom"])
 
-        self.bouncers.add(Bouncer(10, x, y, ORANGE))
+            if side == "left":
+                x, y = 40, random.randint(40, self.win_ht - 40)
+            elif side == "right":
+                x, y = self.win_wd - 40, random.randint(40, self.win_ht - 40)
+            elif side == "top":
+                x, y = random.randint(40, self.win_wd - 40), 120
+            else:
+                x, y = random.randint(40, self.win_wd - 40), self.win_ht - 40
+
+            self.bouncers.add(Bouncer(10, x, y, ORANGE))
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(
