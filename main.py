@@ -8,7 +8,7 @@ from const.FONTS import REGULAR, SUBTITLE_SZ
 from src.Abilities import Dash
 from src.Core import Background, Border
 from src.Enemies import Bouncer, Chaser
-from src.Gameplay import BoxEntity
+from src.Entities import BoxEntity
 from src.Menu import GameOver, MainMenu
 from src.Weapons import MachineGun, Pistol, Shotgun
 

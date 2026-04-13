@@ -3,7 +3,7 @@ import random
 
 from typing_extensions import override
 
-from src.Gameplay import CircEntity
+from src.Entities import CircEntity
 
 
 class Chaser(CircEntity):
