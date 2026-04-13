@@ -42,9 +42,9 @@ class Bouncer(CircEntity):
     def __init__(self, radius, x_cor, y_cor, color, speed=3) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
-        self.health = 200
-        self.dx = speed
-        self.dy = speed
+        self.health = 10
+        self.dx = speed * random.choice([-1, 1])
+        self.dy = speed * random.choice([-1, 1])
 
     @override
     def update(self, borders):

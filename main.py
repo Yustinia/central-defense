@@ -7,7 +7,7 @@ from const.COLORS import BLACK, DARK_ORANGE, ORANGE, WHITE
 from const.FONTS import REGULAR, SUBTITLE_SZ
 from src.Abilities import Dash
 from src.Core import Background, Border
-from src.Enemies import Chaser
+from src.Enemies import Bouncer, Chaser
 from src.Gameplay import BoxEntity
 from src.Menu import GameOver, MainMenu
 from src.Weapons import MachineGun, Pistol, Shotgun
@@ -24,7 +24,7 @@ class Player(BoxEntity):
         self.dx, self.dy = 0, 0
         self.friction = 0.85
 
-        self.dmg_cd = 1000
+        self.dmg_cd = 100
         self.dmg_timer = 0
 
         self.projectile_grp = projectile_grp
@@ -118,10 +118,15 @@ class Game:
             ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, ORANGE, self.projectiles
         )
 
-        # ENEMIES
+        # CHASER ENEMY
         self.chaser_spawn_cd = 2000
         self.chaser_spawn_timer = 0
         self.chasers = pygame.sprite.Group()
+
+        # BOUNCER ENEMY
+        self.bouncer_spawn_cd = 500
+        self.bouncer_spawn_timer = 0
+        self.bouncers = pygame.sprite.Group()
 
         # WEAPON
         self.current_weapon_counter = 0
@@ -148,10 +153,12 @@ class Game:
         keys = pygame.key.get_pressed()
 
         self._spawn_chaser()
+        self._spawn_bouncer()
 
         self.player.update(keys, self.borders)
         self.projectiles.update(self.borders)
         self.chasers.update(self.player.rect.centerx, self.player.rect.centery)
+        self.bouncers.update(self.borders)
 
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -164,6 +171,8 @@ class Game:
                     self.player.machinegun.shoot(mouse_x, mouse_y)
 
         current_weapon = getattr(self.player, self.current_weap_state.lower())
+
+        # ENEMY PROJECTILE HITMARKS
         chaser_hitmarks = pygame.sprite.groupcollide(
             self.projectiles, self.chasers, True, False
         )
@@ -171,6 +180,14 @@ class Game:
             for enemy in chasers_hit:
                 enemy.take_dmg(current_weapon.damage)
 
+        bouncer_hitmarks = pygame.sprite.groupcollide(
+            self.projectiles, self.bouncers, True, False
+        )
+        for projectile, bouncers_hit in bouncer_hitmarks.items():
+            for enemy in bouncers_hit:
+                enemy.take_dmg(current_weapon.damage)
+
+        # ENEMY PLAYER HITMARKS
         player_chaser_hitmarks = pygame.sprite.spritecollide(
             self.player, self.chasers, False
         )
@@ -178,6 +195,15 @@ class Game:
             self.player.take_damage(10)
             if not self.player.is_alive:
                 return False
+
+        player_bouncer_hitmarks = pygame.sprite.spritecollide(
+            self.player, self.bouncers, False
+        )
+        if player_bouncer_hitmarks:
+            self.player.take_damage(10)
+            if not self.player.is_alive:
+                return False
+
         return True
 
     def draw(self, screen):
@@ -185,6 +211,9 @@ class Game:
 
         for chaser in self.chasers:
             chaser.draw(screen)
+
+        for bouncer in self.bouncers:
+            bouncer.draw(screen)
 
         for border in self.borders:
             border.draw(screen)
@@ -210,11 +239,29 @@ class Game:
         elif side == "right":
             x, y = self.win_wd + 20, random.randint(0, self.win_ht)
         elif side == "top":
-            x, y = random.randint(0, self.win_wd), -20
+            x, y = random.randint(0, self.win_wd), 100
         else:
             x, y = random.randint(0, self.win_wd), self.win_ht + 20
 
         self.chasers.add(Chaser(20, x, y, ORANGE))
+
+    def _spawn_bouncer(self):
+        now = pygame.time.get_ticks()
+        if now - self.bouncer_spawn_timer < self.bouncer_spawn_cd:
+            return
+        self.bouncer_spawn_timer = now
+
+        side = random.choice(["left", "right", "top", "bottom"])
+        if side == "left":
+            x, y = 40, random.randint(40, self.win_ht - 40)
+        elif side == "right":
+            x, y = self.win_wd - 40, random.randint(40, self.win_ht - 40)
+        elif side == "top":
+            x, y = random.randint(40, self.win_wd - 40), 80
+        else:
+            x, y = random.randint(40, self.win_wd - 40), self.win_ht - 40
+
+        self.bouncers.add(Bouncer(10, x, y, ORANGE))
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(
