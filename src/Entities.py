@@ -1,9 +1,8 @@
-from abc import ABC, abstractmethod
-
 import pygame
+from pygame.sprite import _Group
 
 
-class BoxEntity(ABC, pygame.sprite.Sprite):
+class BoxEntity(pygame.sprite.Sprite):
     def __init__(self, ent_wd, ent_ht, x_cor, y_cor, color) -> None:
         super().__init__()
 
@@ -21,7 +20,7 @@ class BoxEntity(ABC, pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
 
 
-class CircEntity(ABC, pygame.sprite.Sprite):
+class CircEntity(pygame.sprite.Sprite):
     def __init__(self, radius, x_cor, y_cor, color) -> None:
         super().__init__()
 
@@ -40,7 +39,7 @@ class CircEntity(ABC, pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
 
 
-class CrossEntity(ABC, pygame.sprite.Sprite):
+class CrossEntity(pygame.sprite.Sprite):
     def __init__(self, size, x_cor, y_cor, color) -> None:
         super().__init__()
 
@@ -57,6 +56,28 @@ class CrossEntity(ABC, pygame.sprite.Sprite):
         # vertical bar
         pygame.draw.rect(self.image, self.color, (third, 0, third, self.size))
 
+        self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+
+class TriEntity(pygame.sprite.Sprite):
+    def __init__(self, size, x_cor, y_cor, color) -> None:
+        super().__init__()
+
+        self.size = size
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.color = color
+
+        self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
+        tri_pts = [
+            (self.size // 2, 0),  # top center
+            (0, self.size),  # bot left
+            (self.size, self.size),  # bot right
+        ]
+        pygame.draw.polygon(self.image, self.color, tri_pts)
         self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
 
     def draw(self, screen):
