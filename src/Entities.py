@@ -1,3 +1,5 @@
+import math
+
 import pygame
 
 
@@ -77,6 +79,37 @@ class TriEntity(pygame.sprite.Sprite):
             (self.size, self.size),  # bot right
         ]
         pygame.draw.polygon(self.image, self.color, tri_pts)
+        self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+
+class OctEntity(pygame.sprite.Sprite):
+    def __init__(self, size, x_cor, y_cor, color) -> None:
+        super().__init__()
+
+        self.size = size
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.color = color
+
+        # Create a transparent surface
+        self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
+
+        center_offset = self.size // 2
+        radius = self.size // 2
+        oct_pts = []
+
+        for i in range(8):
+            angle_deg = 45 * i + 22.5
+            angle_rad = math.radians(angle_deg)
+
+            x = center_offset + radius * math.cos(angle_rad)
+            y = center_offset + radius * math.sin(angle_rad)
+            oct_pts.append((x, y))
+
+        pygame.draw.polygon(self.image, self.color, oct_pts)
         self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
 
     def draw(self, screen):

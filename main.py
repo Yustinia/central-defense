@@ -3,7 +3,7 @@ from typing_extensions import override
 
 from const.COLORS import BLACK, BLUE, CYAN, GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
 from const.FONTS import REGULAR, SUBTITLE_SZ
-from src.Abilities import Dash
+from src.Abilities import Dash, Shield
 from src.Core import Background, Border
 from src.EnemySpawner import BouncerSpawner, ChaserSpawner, SniperSpawner, TankSpawner
 from src.Entities import BoxEntity
@@ -36,6 +36,7 @@ class Player(BoxEntity):
 
         # Abilities
         self.dash_ab = Dash()
+        self.shield_ab = Shield(80, x_cor, y_cor, YELLOW)
 
         # States
         self.is_alive = True
@@ -43,6 +44,7 @@ class Player(BoxEntity):
     @override
     def update(self, keys, borders):
         self._movement(keys)
+        self.shield_ab.update(self.rect.centerx, self.rect.centery)
         self._collision(borders)
 
     def take_damage(self, amount):
@@ -50,6 +52,12 @@ class Player(BoxEntity):
         if now - self.dmg_timer < self.dmg_cd:
             return self.is_alive
         self.dmg_timer = now
+
+        if self.shield_ab.is_active:
+            self.shield_ab.durability -= amount
+            if self.shield_ab.durability <= 0:
+                self.shield_ab.is_active = False
+            return self.is_alive
 
         self.health -= amount
 
@@ -71,6 +79,9 @@ class Player(BoxEntity):
 
         if keys[pygame.K_SPACE]:
             self.dx, self.dy = self.dash_ab.do_dash(self.dx, self.dy)
+
+        if keys[pygame.K_e]:
+            self.shield_ab.activate()
 
     def _collision(self, borders):
         self.rect.x += int(self.dx)
@@ -96,7 +107,7 @@ class Game:
         self.bg = Background(self.win_wd, self.win_ht, BLACK)
 
         # GAME BORDER
-        thickness = 20
+        thickness = 30
         self.borders = pygame.sprite.Group()
         border_list = [
             Border(thickness, self.win_ht, 0, 0, WHITE),  # left
@@ -268,6 +279,7 @@ class Game:
             projectile.draw(screen)
 
         self.player.draw(screen)
+        self.player.shield_ab.draw(screen)
 
         for spawner in spawners:
             for enemy in spawner.group:
@@ -280,6 +292,7 @@ class Game:
         self._show_weap_state(screen)
         self._show_round(screen)
         self._show_ply_hp(screen)
+        self._show_shield_durability(screen)
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(
@@ -302,6 +315,16 @@ class Game:
         ply_hp_rect = ply_hp_img.get_rect(center=(self.win_wd // 2, 40))
 
         screen.blit(ply_hp_img, ply_hp_rect)
+
+    def _show_shield_durability(self, screen):
+        shield_dur_img = self.subtitle_ft.render(
+            f"Shield: {self.player.shield_ab.durability}",
+            True,
+            YELLOW if self.player.shield_ab.can_be_activated else BLACK,
+        )
+        shield_dur_rect = shield_dur_img.get_rect(center=(self.win_wd // 2, 70))
+
+        screen.blit(shield_dur_img, shield_dur_rect)
 
 
 class GameManager:
