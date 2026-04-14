@@ -36,7 +36,7 @@ class BaseEnemySpawner(ABC):
 
 class ChaserSpawner(BaseEnemySpawner):
     def __init__(self) -> None:
-        super().__init__(hard_lim=20, to_spawn=2, to_spawn_init=2, spawn_cd=3700)
+        super().__init__(hard_lim=14, to_spawn=2, to_spawn_init=2, spawn_cd=3700)
 
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
@@ -71,6 +71,8 @@ class BouncerSpawner(BaseEnemySpawner):
     def __init__(self) -> None:
         super().__init__(hard_lim=7, to_spawn=0, to_spawn_init=-2, spawn_cd=5600)
 
+        self.pref_round = 3
+
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
             return
@@ -97,7 +99,7 @@ class BouncerSpawner(BaseEnemySpawner):
         self.spawned += 1
 
     def next_round(self, round_counter):
-        if round_counter >= 3:
+        if round_counter >= self.pref_round:
             self.to_spawn = min(
                 self.to_spawn_init + round_counter,
                 self.hard_lim,
@@ -167,13 +169,13 @@ class SniperSpawner(BaseEnemySpawner):
         side = random.choice(["left", "right", "top", "bottom"])
 
         if side == "left":
-            x, y = 40, random.randint(120, win_ht - 40)
+            x, y = 60, random.randint(140, win_ht - 60)
         elif side == "right":
-            x, y = win_wd - 40, random.randint(120, win_ht - 40)
+            x, y = win_wd - 60, random.randint(120, win_ht - 60)
         elif side == "top":
-            x, y = random.randint(40, win_wd - 40), 120
+            x, y = random.randint(60, win_wd - 60), 140
         else:
-            x, y = random.randint(40, win_wd - 40), win_ht - 40
+            x, y = random.randint(60, win_wd - 60), win_ht - 60
 
         self.group.add(Sniper(20, x, y, YELLOW))
         self.spawned += 1

@@ -157,7 +157,7 @@ class Game:
 
         # SPAWNER UPDATES
         self.chaser_spawner.try_spawn(self.win_wd, self.win_ht)
-        if self.round_counter >= 3:
+        if self.round_counter >= self.bouncer_spawner.pref_round:
             self.bouncer_spawner.try_spawn(self.win_wd, self.win_ht)
         if self.round_counter % self.tank_spawner.every_round == 0:
             self.tank_spawner.try_spawn(self.win_wd, self.win_ht)
@@ -168,14 +168,18 @@ class Game:
         self.projectiles.update(self.borders)
 
         self.chaser_spawner.group.update(
-            self.player.rect.centerx, self.player.rect.centery
+            self.player.rect.centerx,
+            self.player.rect.centery,
         )
         self.bouncer_spawner.group.update(self.borders)
         self.tank_spawner.group.update(
-            self.player.rect.centerx, self.player.rect.centery
+            self.player.rect.centerx,
+            self.player.rect.centery,
         )
         self.sniper_spawner.group.update(
-            self.player.rect.centerx, self.player.rect.centery, self.borders
+            self.player.rect.centerx,
+            self.player.rect.centery,
+            self.borders,
         )
 
         if pygame.mouse.get_pressed()[0]:
