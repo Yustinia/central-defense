@@ -1,13 +1,11 @@
-import random
-
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLACK, BLUE, GREEN, ORANGE, VIOLET, WHITE
+from const.COLORS import BLACK, BLUE, CYAN, GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
 from const.FONTS import REGULAR, SUBTITLE_SZ
 from src.Abilities import Dash
 from src.Core import Background, Border
-from src.EnemySpawner import BouncerSpawner, ChaserSpawner, TankSpawner, SniperSpawner
+from src.EnemySpawner import BouncerSpawner, ChaserSpawner, SniperSpawner, TankSpawner
 from src.Entities import BoxEntity
 from src.ItemSpawner import HealthPackSpawner
 from src.Menu import GameOver, MainMenu
@@ -61,7 +59,6 @@ class Player(BoxEntity):
 
         return self.is_alive
 
-    @override
     def _movement(self, keys):
         if keys[pygame.K_a]:
             self.dx -= self.speed
@@ -75,7 +72,6 @@ class Player(BoxEntity):
         if keys[pygame.K_SPACE]:
             self.dx, self.dy = self.dash_ab.do_dash(self.dx, self.dy)
 
-    @override
     def _collision(self, borders):
         self.rect.x += int(self.dx)
         for border in borders:
