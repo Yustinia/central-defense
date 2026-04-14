@@ -1,10 +1,10 @@
-import pygame
-
 import random
-from src.Enemies import Chaser, Bouncer, Tank
 from abc import ABC, abstractmethod
 
+import pygame
+
 from const.COLORS import ORANGE, VIOLET
+from src.Enemies import Bouncer, Chaser, Tank
 
 
 class BaseEnemySpawner(ABC):

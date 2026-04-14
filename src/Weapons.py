@@ -45,8 +45,7 @@ class WeaponTemplate:
         self.damage = 10
 
     @abstractmethod
-    def shoot(self):
-        pass
+    def shoot(self, tar_x, tar_y): ...
 
     def _on_cooldown(self):
         now = pygame.time.get_ticks()

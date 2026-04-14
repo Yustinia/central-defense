@@ -6,11 +6,10 @@ from typing_extensions import override
 from const.COLORS import BLACK, BLUE, GREEN, ORANGE, VIOLET, WHITE
 from const.FONTS import REGULAR, SUBTITLE_SZ
 from src.Abilities import Dash
-from src.EnemySpawner import ChaserSpawner, BouncerSpawner, TankSpawner
 from src.Core import Background, Border
-from src.Enemies import Bouncer, Chaser, Tank
+from src.EnemySpawner import BouncerSpawner, ChaserSpawner, TankSpawner
 from src.Entities import BoxEntity
-from src.Items import HealthPack
+from src.ItemSpawner import HealthPackSpawner
 from src.Menu import GameOver, MainMenu
 from src.Weapons import MachineGun, Pistol, Shotgun
 
@@ -122,9 +121,7 @@ class Game:
         )
 
         # OBJECTS
-        self.hp_pack_group = pygame.sprite.GroupSingle()
-        self.hp_pack_cd = 25000
-        self.hp_pack_timer = 0
+        self.hp_pack = HealthPackSpawner()
 
         # ENEMY SPAWNERS
         self.chaser_spawner = ChaserSpawner()
@@ -155,7 +152,7 @@ class Game:
     def update(self):
         keys = pygame.key.get_pressed()
 
-        self._spawn_hp_pack()
+        self.hp_pack.try_spawn(self.win_wd, self.win_ht)
 
         # SPAWNER UPDATES
         self.chaser_spawner.try_spawn(self.win_wd, self.win_ht)
@@ -188,8 +185,8 @@ class Game:
         current_weapon = getattr(self.player, self.current_weap_state.lower())
 
         # OBJECTS
-        hp_acq = pygame.sprite.spritecollide(self.player, self.hp_pack_group, False)
-        for pack in self.hp_pack_group:
+        hp_acq = pygame.sprite.spritecollide(self.player, self.hp_pack.group, False)
+        for pack in self.hp_pack.group:
             if self.player.health >= self.player.min_health:
                 pack.kill()
             elif hp_acq:
@@ -245,7 +242,7 @@ class Game:
     def draw(self, screen):
         self.bg.draw(screen)
 
-        self.hp_pack_group.draw(screen)
+        self.hp_pack.group.draw(screen)
 
         for projectile in self.projectiles:
             projectile.draw(screen)
@@ -270,16 +267,6 @@ class Game:
         self._show_weap_state(screen)
         self._show_round(screen)
         self._show_ply_hp(screen)
-
-    def _spawn_hp_pack(self):
-        now = pygame.time.get_ticks()
-        if now - self.hp_pack_timer < self.hp_pack_cd:
-            return
-        self.hp_pack_timer = now
-
-        rand_hp_x = random.randint(40, self.win_wd - 40)
-        rand_hp_y = random.randint(120, self.win_ht - 40)
-        self.hp_pack_group.add(HealthPack(60, rand_hp_x, rand_hp_y, GREEN))
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(
