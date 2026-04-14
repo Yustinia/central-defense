@@ -126,16 +126,16 @@ class Game:
         self.hp_pack_timer = 0
 
         # CHASER ENEMY
-        self.chasers_to_spawn = 5
+        self.chasers_to_spawn = 6
         self.chasers_spawned = 0
-        self.chaser_spawn_cd = 3000
+        self.chaser_spawn_cd = 2700
         self.chaser_spawn_timer = 0
         self.chasers = pygame.sprite.Group()
 
         # BOUNCER ENEMY
-        self.bouncers_to_spawn = 3
+        self.bouncers_to_spawn = 0
         self.bouncers_spawned = 0
-        self.bouncer_spawn_cd = 7500
+        self.bouncer_spawn_cd = 8200
         self.bouncer_spawn_timer = 0
         self.bouncers = pygame.sprite.Group()
 
@@ -228,13 +228,18 @@ class Game:
                 return False
 
         # ROUND IMPLEMENTATION
-        all_spawned = self.chasers_spawned >= self.chasers_to_spawn
+        all_spawned = (
+            self.chasers_spawned >= self.chasers_to_spawn
+            and self.bouncers_spawned >= self.bouncers_to_spawn
+        )
         all_dead = len(self.chasers) == 0 and len(self.bouncers) == 0
 
         if all_spawned and all_dead:
             self.round_counter += 1
             self.chasers_to_spawn = 5 + self.round_counter
-            self.bouncers_to_spawn = 3 + self.round_counter
+            self.bouncers_to_spawn = (
+                3 + self.round_counter if self.round_counter >= 3 else 0
+            )
 
             self.chasers_spawned = 0
             self.bouncers_spawned = 0
@@ -275,13 +280,13 @@ class Game:
 
         side = random.choice(["left", "right", "top", "bottom"])
         if side == "left":
-            x, y = -20, random.randint(0, self.win_ht)
+            x, y = -20, random.randint(-20, self.win_ht + 20)
         elif side == "right":
-            x, y = self.win_wd + 20, random.randint(0, self.win_ht)
+            x, y = self.win_wd + 20, random.randint(-20, self.win_ht + 20)
         elif side == "top":
-            x, y = random.randint(0, self.win_wd), -20
+            x, y = random.randint(-20, self.win_wd + 20), -20
         else:
-            x, y = random.randint(0, self.win_wd), self.win_ht + 20
+            x, y = random.randint(-20, self.win_wd + 20), self.win_ht + 20
 
         self.chasers.add(Chaser(20, x, y, ORANGE))
         self.chasers_spawned += 1
@@ -317,10 +322,9 @@ class Game:
             return
         self.hp_pack_timer = now
 
-        hp_wd, hp_ht = 20, 20
         rand_hp_x = random.randint(40, self.win_wd - 40)
         rand_hp_y = random.randint(120, self.win_ht - 40)
-        self.hp_pack_group.add(HealthPack(hp_wd, hp_ht, rand_hp_x, rand_hp_y, GREEN))
+        self.hp_pack_group.add(HealthPack(60, rand_hp_x, rand_hp_y, GREEN))
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(

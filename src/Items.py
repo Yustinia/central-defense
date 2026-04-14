@@ -1,9 +1,9 @@
-from src.Entities import BoxEntity
+from src.Entities import CrossEntity
 
 
-class HealthPack(BoxEntity):
-    def __init__(self, ent_wd, ent_ht, x_cor, y_cor, color) -> None:
-        super().__init__(ent_wd, ent_ht, x_cor, y_cor, color)
+class HealthPack(CrossEntity):
+    def __init__(self, size, x_cor, y_cor, color) -> None:
+        super().__init__(size, x_cor, y_cor, color)
 
         self.heal_amt = 50
 

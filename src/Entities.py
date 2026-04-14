@@ -20,15 +20,6 @@ class BoxEntity(ABC, pygame.sprite.Sprite):
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
-    def update(self, keys, borders):
-        pass
-
-    def _movement(self, keys):
-        pass
-
-    def _collision(self, borders):
-        pass
-
 
 class CircEntity(ABC, pygame.sprite.Sprite):
     def __init__(self, radius, x_cor, y_cor, color) -> None:
@@ -48,11 +39,25 @@ class CircEntity(ABC, pygame.sprite.Sprite):
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
-    def update(self, keys, borders):
-        pass
 
-    def _movement(self, keys):
-        pass
+class CrossEntity(ABC, pygame.sprite.Sprite):
+    def __init__(self, size, x_cor, y_cor, color) -> None:
+        super().__init__()
 
-    def _collision(self, borders):
-        pass
+        self.size = size
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.color = color
+
+        self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
+
+        third = self.size // 3
+        # horizontal bar
+        pygame.draw.rect(self.image, self.color, (0, third, self.size, third))
+        # vertical bar
+        pygame.draw.rect(self.image, self.color, (third, 0, third, self.size))
+
+        self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
