@@ -7,7 +7,7 @@ from const.COLORS import BLACK, BLUE, GREEN, ORANGE, VIOLET, WHITE
 from const.FONTS import REGULAR, SUBTITLE_SZ
 from src.Abilities import Dash
 from src.Core import Background, Border
-from src.EnemySpawner import BouncerSpawner, ChaserSpawner, TankSpawner
+from src.EnemySpawner import BouncerSpawner, ChaserSpawner, TankSpawner, SniperSpawner
 from src.Entities import BoxEntity
 from src.ItemSpawner import HealthPackSpawner
 from src.Menu import GameOver, MainMenu
@@ -127,6 +127,7 @@ class Game:
         self.chaser_spawner = ChaserSpawner()
         self.bouncer_spawner = BouncerSpawner()
         self.tank_spawner = TankSpawner()
+        self.sniper_spawner = SniperSpawner()
 
         # WEAPON
         self.current_weapon_counter = 0
@@ -160,6 +161,8 @@ class Game:
             self.bouncer_spawner.try_spawn(self.win_wd, self.win_ht)
         if self.round_counter % 5 == 0:
             self.tank_spawner.try_spawn(self.win_wd, self.win_ht)
+        if self.round_counter >= 1:
+            self.sniper_spawner.try_spawn(self.win_wd, self.win_ht)
 
         self.player.update(keys, self.borders)
         self.projectiles.update(self.borders)
@@ -170,6 +173,9 @@ class Game:
         self.bouncer_spawner.group.update(self.borders)
         self.tank_spawner.group.update(
             self.player.rect.centerx, self.player.rect.centery
+        )
+        self.sniper_spawner.group.update(
+            self.player.rect.centerx, self.player.rect.centery, self.borders
         )
 
         if pygame.mouse.get_pressed()[0]:
@@ -198,6 +204,7 @@ class Game:
             self.chaser_spawner,
             self.bouncer_spawner,
             self.tank_spawner,
+            self.sniper_spawner,
         )
         for spawner in enemy_spawners:
             hitmarks = pygame.sprite.groupcollide(
@@ -208,7 +215,7 @@ class Game:
                     enemy.take_dmg(current_weapon.damage)
 
         # ENEMY PLAYER CONTACT
-        kill_on_contact = [self.bouncer_spawner]
+        kill_on_contact = [self.bouncer_spawner, self.sniper_spawner]
         for spawner in enemy_spawners:
             player_enemy_hitmarks = pygame.sprite.spritecollide(
                 self.player, spawner.group, spawner in kill_on_contact
@@ -223,11 +230,13 @@ class Game:
             self.chaser_spawner.all_spawned
             and self.bouncer_spawner.all_spawned
             and self.tank_spawner.all_spawned
+            and self.sniper_spawner.all_spawned
         )
         all_dead = (
             self.chaser_spawner.all_dead
             and self.bouncer_spawner.all_dead
             and self.tank_spawner.all_dead
+            and self.sniper_spawner.all_dead
         )
 
         if all_spawned and all_dead:
@@ -236,10 +245,18 @@ class Game:
             self.chaser_spawner.next_round(self.round_counter)
             self.bouncer_spawner.next_round(self.round_counter)
             self.tank_spawner.next_round(self.round_counter)
+            self.sniper_spawner.next_round(self.round_counter)
 
         return True
 
     def draw(self, screen):
+        spawners = (
+            self.chaser_spawner,
+            self.bouncer_spawner,
+            self.tank_spawner,
+            self.sniper_spawner,
+        )
+
         self.bg.draw(screen)
 
         self.hp_pack.group.draw(screen)
@@ -249,17 +266,10 @@ class Game:
 
         self.player.draw(screen)
 
-        for chaser in self.chaser_spawner.group:
-            chaser.draw(screen)
-            chaser.draw_health_bar(screen)
-
-        for bouncer in self.bouncer_spawner.group:
-            bouncer.draw(screen)
-            bouncer.draw_health_bar(screen)
-
-        for tank in self.tank_spawner.group:
-            tank.draw(screen)
-            tank.draw_health_bar(screen)
+        for spawner in spawners:
+            for enemy in spawner.group:
+                enemy.draw(screen)
+                enemy.draw_health_bar(screen)
 
         for border in self.borders:
             border.draw(screen)

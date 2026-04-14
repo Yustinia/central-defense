@@ -1,5 +1,4 @@
 import pygame
-from pygame.sprite import _Group
 
 
 class BoxEntity(pygame.sprite.Sprite):

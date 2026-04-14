@@ -2,10 +2,9 @@ import math
 import random
 
 import pygame
-from typing_extensions import override
 
 from const.COLORS import GREEN, WHITE
-from src.Entities import CircEntity
+from src.Entities import CircEntity, TriEntity
 
 
 class Chaser(CircEntity):
@@ -18,7 +17,6 @@ class Chaser(CircEntity):
         self.friction = random.uniform(0.94, 0.99)
         self.accel = random.uniform(0.50, 0.90)
 
-    @override
     def update(self, tar_x, tar_y):
         self._movement(tar_x, tar_y)
 
@@ -58,7 +56,6 @@ class Bouncer(CircEntity):
         self.dx = speed * random.choice([-3, -2, -1, 1, 2, 3])
         self.dy = speed * random.choice([-3, -2, -1, 1, 2, 3])
 
-    @override
     def update(self, borders):
         self._collision(borders)
 
@@ -102,7 +99,6 @@ class Tank(CircEntity):
         self.friction = 0.92
         self.accel = 0.3
 
-    @override
     def update(self, tar_x, tar_y):
         self._movement(tar_x, tar_y)
 
@@ -121,6 +117,57 @@ class Tank(CircEntity):
         self.health -= amount
         if self.health <= 0:
             self.kill()
+
+    def draw_health_bar(self, screen):
+        bar_wd = 80
+        bar_ht = 20
+
+        bar_x = self.rect.centerx - (bar_wd // 2)
+        bar_y = self.rect.top - (bar_ht * 2)
+
+        fill_wd = int(self.health / self.max_health * bar_wd)
+        pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_wd, bar_ht), 1)
+
+
+class Sniper(TriEntity):
+    def __init__(self, size, x_cor, y_cor, color, speed=50) -> None:
+        super().__init__(size, x_cor, y_cor, color)
+
+        self.speed = speed
+        self.dx, self.dy = 0, 0
+        self.health = self.max_health = 100
+
+        self.fuse_duration = 2000
+        self.spawn_time = pygame.time.get_ticks()
+        self.is_fused = True
+
+    def update(self, tar_x, tar_y, borders):
+        now = pygame.time.get_ticks()
+        if self.is_fused:
+            if now - self.spawn_time > self.fuse_duration:
+                self.is_fused = False
+
+                angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
+                self.dx = math.cos(angle) * self.speed
+                self.dy = math.sin(angle) * self.speed
+            else:
+                self._collision(borders)
+                return
+
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
+        self._collision(borders)
+
+    def take_dmg(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self.kill()
+
+    def _collision(self, borders):
+        for border in borders:
+            if self.rect.colliderect(border.rect):
+                self.kill()
 
     def draw_health_bar(self, screen):
         bar_wd = 80
