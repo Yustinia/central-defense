@@ -129,6 +129,7 @@ class Game:
         self.chasers_to_spawn = 6
         self.chasers_spawned = 0
         self.chaser_spawn_cd = 3700
+        self.chaser_spawn_cd_init = 3700
         self.chaser_spawn_timer = 0
         self.chasers = pygame.sprite.Group()
 
@@ -136,6 +137,7 @@ class Game:
         self.bouncers_to_spawn = 0  # 1
         self.bouncers_spawned = 0
         self.bouncer_spawn_cd = 8200
+        self.bouncer_spawn_cd_init = 8200
         self.bouncer_spawn_timer = 0
         self.bouncers = pygame.sprite.Group()
 
@@ -236,10 +238,19 @@ class Game:
 
         if all_spawned and all_dead:
             self.round_counter += 1
+
             self.chasers_to_spawn = 5 + self.round_counter
-            self.bouncers_to_spawn = (
-                1 + self.round_counter if self.round_counter >= 3 else 0
+            self.chaser_spawn_cd = max(
+                self.chaser_spawn_cd - 100, self.chaser_spawn_cd_init // 2
             )
+
+            if self.round_counter >= 3:
+                self.bouncers_to_spawn = 1 + self.round_counter
+                self.bouncer_spawn_cd = max(
+                    self.bouncer_spawn_cd - 120, self.bouncer_spawn_cd_init // 2
+                )
+            else:
+                self.bouncers_to_spawn = 0
 
             self.chasers_spawned = 0
             self.bouncers_spawned = 0
