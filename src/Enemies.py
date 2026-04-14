@@ -1,9 +1,10 @@
 import math
-import pygame
 import random
-from const.COLORS import GREEN
+
+import pygame
 from typing_extensions import override
 
+from const.COLORS import GREEN, WHITE
 from src.Entities import CircEntity
 
 
@@ -47,7 +48,7 @@ class Chaser(CircEntity):
 
         fill_wd = int(self.health / self.max_health * bar_wd)
         pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
-        pygame.draw.rect(screen, (255, 255, 255), (bar_x, bar_y, bar_wd, bar_ht), 1)
+        pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_wd, bar_ht), 1)
 
 
 class Bouncer(CircEntity):
@@ -89,4 +90,4 @@ class Bouncer(CircEntity):
 
         fill_wd = int(self.health / self.max_health * bar_wd)
         pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
-        pygame.draw.rect(screen, (255, 255, 255), (bar_x, bar_y, bar_wd, bar_ht), 1)
+        pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_wd, bar_ht), 1)
