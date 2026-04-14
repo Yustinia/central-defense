@@ -7,7 +7,7 @@ from const.COLORS import BLACK, BLUE, GREEN, ORANGE, VIOLET, WHITE
 from const.FONTS import REGULAR, SUBTITLE_SZ
 from src.Abilities import Dash
 from src.Core import Background, Border
-from src.Enemies import Bouncer, Chaser
+from src.Enemies import Bouncer, Chaser, Tank
 from src.Entities import BoxEntity
 from src.Items import HealthPack
 from src.Menu import GameOver, MainMenu
@@ -126,20 +126,25 @@ class Game:
         self.hp_pack_timer = 0
 
         # CHASER ENEMY
-        self.chasers_to_spawn = 6
+        self.chasers_to_spawn = self.chasers_to_spawn_init = 6
         self.chasers_spawned = 0
-        self.chaser_spawn_cd = 3700
-        self.chaser_spawn_cd_init = 3700
+        self.chaser_spawn_cd = self.chaser_spawn_cd_init = 3700
         self.chaser_spawn_timer = 0
         self.chasers = pygame.sprite.Group()
 
         # BOUNCER ENEMY
-        self.bouncers_to_spawn = 0  # 1
+        self.bouncers_to_spawn, self.bouncers_to_spawn_init = 0, -2
         self.bouncers_spawned = 0
-        self.bouncer_spawn_cd = 8200
-        self.bouncer_spawn_cd_init = 8200
+        self.bouncer_spawn_cd = self.bouncer_spawn_cd_init = 8200
         self.bouncer_spawn_timer = 0
         self.bouncers = pygame.sprite.Group()
+
+        # TANK ENEMY
+        self.tanks_to_spawn, self.tanks_to_spawn_init = 0, 1
+        self.tanks_spawned = 0
+        self.tank_spawn_cd = 5000
+        self.tank_spawn_timer = 0
+        self.tanks = pygame.sprite.Group()
 
         # WEAPON
         self.current_weapon_counter = 0
@@ -170,11 +175,15 @@ class Game:
 
         if self.round_counter >= 3:
             self._spawn_bouncer()
+        if self.round_counter % 5 == 0:
+            self._spawn_tank()
 
         self.player.update(keys, self.borders)
         self.projectiles.update(self.borders)
+
         self.chasers.update(self.player.rect.centerx, self.player.rect.centery)
         self.bouncers.update(self.borders)
+        self.tanks.update(self.player.rect.centerx, self.player.rect.centery)
 
         if pygame.mouse.get_pressed()[0]:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -212,6 +221,13 @@ class Game:
             for enemy in bouncers_hit:
                 enemy.take_dmg(current_weapon.damage)
 
+        tank_hitmarks = pygame.sprite.groupcollide(
+            self.projectiles, self.tanks, True, False
+        )
+        for projectile, tanks_hit in tank_hitmarks.items():
+            for enemy in tanks_hit:
+                enemy.take_dmg(current_weapon.damage)
+
         # ENEMY PLAYER HITMARKS
         player_chaser_hitmarks = pygame.sprite.spritecollide(
             self.player, self.chasers, False
@@ -229,31 +245,52 @@ class Game:
             if not self.player.is_alive:
                 return False
 
+        player_tank_hitmarks = pygame.sprite.spritecollide(
+            self.player, self.tanks, False
+        )
+        if player_tank_hitmarks:
+            self.player.take_damage(10)
+            if not self.player.is_alive:
+                return False
+
         # ROUND IMPLEMENTATION
         all_spawned = (
             self.chasers_spawned >= self.chasers_to_spawn
             and self.bouncers_spawned >= self.bouncers_to_spawn
+            and self.tanks_spawned >= self.tanks_to_spawn
         )
-        all_dead = len(self.chasers) == 0 and len(self.bouncers) == 0
+        all_dead = (
+            len(self.chasers) == 0 and len(self.bouncers) == 0 and len(self.tanks) == 0
+        )
 
         if all_spawned and all_dead:
             self.round_counter += 1
 
-            self.chasers_to_spawn = 5 + self.round_counter
+            self.chasers_to_spawn = self.chasers_to_spawn_init + self.round_counter
             self.chaser_spawn_cd = max(
                 self.chaser_spawn_cd - 100, self.chaser_spawn_cd_init // 2
             )
 
             if self.round_counter >= 3:
-                self.bouncers_to_spawn = 1 + self.round_counter
+                self.bouncers_to_spawn = (
+                    self.bouncers_to_spawn_init + self.round_counter
+                )
                 self.bouncer_spawn_cd = max(
                     self.bouncer_spawn_cd - 120, self.bouncer_spawn_cd_init // 2
                 )
             else:
                 self.bouncers_to_spawn = 0
 
+            if self.round_counter % 5 == 0:
+                self.tanks_to_spawn = self.tanks_to_spawn_init + (
+                    self.round_counter // 8
+                )
+            else:
+                self.tanks_to_spawn = 0
+
             self.chasers_spawned = 0
             self.bouncers_spawned = 0
+            self.tanks_spawned = 0
 
         return True
 
@@ -274,6 +311,10 @@ class Game:
         for bouncer in self.bouncers:
             bouncer.draw(screen)
             bouncer.draw_health_bar(screen)
+
+        for tank in self.tanks:
+            tank.draw(screen)
+            tank.draw_health_bar(screen)
 
         for border in self.borders:
             border.draw(screen)
@@ -328,6 +369,28 @@ class Game:
             self.bouncers.add(Bouncer(10, x, y, VIOLET))
 
         self.bouncers_spawned += 1
+
+    def _spawn_tank(self):
+        if self.tanks_spawned >= self.tanks_to_spawn:
+            return
+
+        now = pygame.time.get_ticks()
+        if now - self.tank_spawn_timer < self.tank_spawn_cd:
+            return
+        self.tank_spawn_timer = now
+
+        side = random.choice(["left", "right", "top", "bottom"])
+        if side == "left":
+            x, y = -20, random.randint(-20, self.win_ht + 20)
+        elif side == "right":
+            x, y = self.win_wd + 20, random.randint(-20, self.win_ht + 20)
+        elif side == "top":
+            x, y = random.randint(-20, self.win_wd + 20), -20
+        else:
+            x, y = random.randint(-20, self.win_wd + 20), self.win_ht + 20
+
+        self.tanks.add(Tank(50, x, y, VIOLET))
+        self.tanks_spawned += 1
 
     def _spawn_hp_pack(self):
         now = pygame.time.get_ticks()
