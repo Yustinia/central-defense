@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-from const.COLORS import ORANGE, VIOLET
+from const.COLORS import ORANGE, VIOLET, YELLOW
 from src.Enemies import Bouncer, Chaser, Tank, Sniper
 
 
@@ -111,7 +111,9 @@ class BouncerSpawner(BaseEnemySpawner):
 
 class TankSpawner(BaseEnemySpawner):
     def __init__(self) -> None:
-        super().__init__(hard_lim=5, to_spawn=0, to_spawn_init=1, spawn_cd=5000)
+        super().__init__(hard_lim=5, to_spawn=0, to_spawn_init=0, spawn_cd=5000)
+
+        self.every_round = 5
 
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
@@ -136,7 +138,7 @@ class TankSpawner(BaseEnemySpawner):
         self.spawned += 1
 
     def next_round(self, round_counter):
-        if round_counter % 5 == 0:
+        if round_counter % self.every_round == 0:
             self.to_spawn = min(
                 self.to_spawn_init + (round_counter // 5),
                 self.hard_lim,
@@ -149,7 +151,9 @@ class TankSpawner(BaseEnemySpawner):
 
 class SniperSpawner(BaseEnemySpawner):
     def __init__(self) -> None:
-        super().__init__(hard_lim=6, to_spawn=0, to_spawn_init=3, spawn_cd=4000)
+        super().__init__(hard_lim=8, to_spawn=0, to_spawn_init=-8, spawn_cd=4750)
+
+        self.pref_round = 10
 
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
@@ -171,13 +175,13 @@ class SniperSpawner(BaseEnemySpawner):
         else:
             x, y = random.randint(40, win_wd - 40), win_ht - 40
 
-        self.group.add(Sniper(50, x, y, ORANGE))
+        self.group.add(Sniper(20, x, y, YELLOW))
         self.spawned += 1
 
     def next_round(self, round_counter):
-        if round_counter >= 1:
+        if round_counter >= self.pref_round:
             self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
-            self.spawn_cd = max(self.spawn_cd - 200, self.spawn_cd_init // 3)
+            self.spawn_cd = max(self.spawn_cd - 200, self.spawn_cd_init // 2)
         else:
             self.to_spawn = 0
 

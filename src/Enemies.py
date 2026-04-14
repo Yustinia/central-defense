@@ -136,21 +136,33 @@ class Sniper(TriEntity):
 
         self.speed = speed
         self.dx, self.dy = 0, 0
-        self.health = self.max_health = 100
+        self.health = self.max_health = 25
 
         self.fuse_duration = 2000
         self.spawn_time = pygame.time.get_ticks()
         self.is_fused = True
 
+        # Store original image for rotation
+        self.original_image = self.image
+        self.angle = 0
+
     def update(self, tar_x, tar_y, borders):
         now = pygame.time.get_ticks()
         if self.is_fused:
+            self.angle = math.degrees(
+                math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
+            )
+            self.angle = -self.angle - 90
+            self.image = pygame.transform.rotate(self.original_image, self.angle)
+            old_center = self.rect.center
+            self.rect = self.image.get_rect()
+            self.rect.center = old_center
+
             if now - self.spawn_time > self.fuse_duration:
                 self.is_fused = False
-
-                angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
-                self.dx = math.cos(angle) * self.speed
-                self.dy = math.sin(angle) * self.speed
+                rad = math.radians(-self.angle - 90)
+                self.dx = math.cos(rad) * self.speed
+                self.dy = math.sin(rad) * self.speed
             else:
                 self._collision(borders)
                 return

@@ -159,9 +159,9 @@ class Game:
         self.chaser_spawner.try_spawn(self.win_wd, self.win_ht)
         if self.round_counter >= 3:
             self.bouncer_spawner.try_spawn(self.win_wd, self.win_ht)
-        if self.round_counter % 5 == 0:
+        if self.round_counter % self.tank_spawner.every_round == 0:
             self.tank_spawner.try_spawn(self.win_wd, self.win_ht)
-        if self.round_counter >= 1:
+        if self.round_counter >= self.sniper_spawner.pref_round:
             self.sniper_spawner.try_spawn(self.win_wd, self.win_ht)
 
         self.player.update(keys, self.borders)
@@ -221,9 +221,12 @@ class Game:
                 self.player, spawner.group, spawner in kill_on_contact
             )
             if player_enemy_hitmarks:
-                self.player.take_damage(10)
-                if not self.player.is_alive:
-                    return False
+                if spawner == self.sniper_spawner:
+                    self.player.take_damage(50)
+                else:
+                    self.player.take_damage(10)
+                    if not self.player.is_alive:
+                        return False
 
         # ROUND IMPLEMENTATION
         all_spawned = (
