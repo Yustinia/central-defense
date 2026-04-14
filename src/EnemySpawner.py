@@ -171,7 +171,7 @@ class SniperSpawner(BaseEnemySpawner):
         if side == "left":
             x, y = 60, random.randint(140, win_ht - 60)
         elif side == "right":
-            x, y = win_wd - 60, random.randint(120, win_ht - 60)
+            x, y = win_wd - 60, random.randint(140, win_ht - 60)
         elif side == "top":
             x, y = random.randint(60, win_wd - 60), 140
         else:

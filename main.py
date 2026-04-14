@@ -100,7 +100,7 @@ class Game:
         self.bg = Background(self.win_wd, self.win_ht, BLACK)
 
         # GAME BORDER
-        thickness = 10
+        thickness = 20
         self.borders = pygame.sprite.Group()
         border_list = [
             Border(thickness, self.win_ht, 0, 0, WHITE),  # left

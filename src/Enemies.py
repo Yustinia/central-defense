@@ -56,21 +56,38 @@ class Bouncer(CircEntity):
         self.dx = speed * random.choice([-3, -2, -1, 1, 2, 3])
         self.dy = speed * random.choice([-3, -2, -1, 1, 2, 3])
 
+        self.max_bounces = 5
+        self.current_bounce_count = 0
+
     def update(self, borders):
+        if self.current_bounce_count >= self.max_bounces:
+            self.kill()
+
         self._collision(borders)
 
     def _collision(self, borders):
+        x_bounced, y_bounced = False, False
+
         self.rect.x += int(self.dx)
         for border in borders:
             if self.rect.colliderect(border.rect):
                 self.rect.x -= int(self.dx)
                 self.dx *= -1
+                x_bounced = True
+                break
 
         self.rect.y += int(self.dy)
         for border in borders:
             if self.rect.colliderect(border.rect):
                 self.rect.y -= int(self.dy)
                 self.dy *= -1
+                y_bounced = True
+                break
+
+        if x_bounced:
+            self.current_bounce_count += 1
+        if y_bounced:
+            self.current_bounce_count += 1
 
     def take_dmg(self, amount):
         self.health -= amount
