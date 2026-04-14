@@ -126,14 +126,16 @@ class Game:
         self.hp_pack_timer = 0
 
         # CHASER ENEMY
-        self.max_chasers = 20
+        self.chasers_to_spawn = 5
+        self.chasers_spawned = 0
         self.chaser_spawn_cd = 3000
         self.chaser_spawn_timer = 0
         self.chasers = pygame.sprite.Group()
 
         # BOUNCER ENEMY
-        self.max_bouncers = 6
-        self.bouncer_spawn_cd = 10000
+        self.bouncers_to_spawn = 3
+        self.bouncers_spawned = 0
+        self.bouncer_spawn_cd = 7500
         self.bouncer_spawn_timer = 0
         self.bouncers = pygame.sprite.Group()
 
@@ -161,9 +163,11 @@ class Game:
     def update(self):
         keys = pygame.key.get_pressed()
 
-        self._spawn_chaser()
-        self._spawn_bouncer()
         self._spawn_hp_pack()
+        self._spawn_chaser()
+
+        if self.round_counter >= 3:
+            self._spawn_bouncer()
 
         self.player.update(keys, self.borders)
         self.projectiles.update(self.borders)
@@ -223,6 +227,18 @@ class Game:
             if not self.player.is_alive:
                 return False
 
+        # ROUND IMPLEMENTATION
+        all_spawned = self.chasers_spawned >= self.chasers_to_spawn
+        all_dead = len(self.chasers) == 0 and len(self.bouncers) == 0
+
+        if all_spawned and all_dead:
+            self.round_counter += 1
+            self.chasers_to_spawn = 5 + self.round_counter
+            self.bouncers_to_spawn = 3 + self.round_counter
+
+            self.chasers_spawned = 0
+            self.bouncers_spawned = 0
+
         return True
 
     def draw(self, screen):
@@ -249,7 +265,7 @@ class Game:
         self._show_ply_hp(screen)
 
     def _spawn_chaser(self):
-        if len(self.chasers) >= self.max_chasers:
+        if self.chasers_spawned >= self.chasers_to_spawn:
             return
 
         now = pygame.time.get_ticks()
@@ -268,9 +284,10 @@ class Game:
             x, y = random.randint(0, self.win_wd), self.win_ht + 20
 
         self.chasers.add(Chaser(20, x, y, ORANGE))
+        self.chasers_spawned += 1
 
     def _spawn_bouncer(self):
-        if len(self.bouncers) >= self.max_bouncers:
+        if self.bouncers_spawned >= self.bouncers_to_spawn:
             return
 
         now = pygame.time.get_ticks()
@@ -291,6 +308,8 @@ class Game:
                 x, y = random.randint(40, self.win_wd - 40), self.win_ht - 40
 
             self.bouncers.add(Bouncer(10, x, y, VIOLET))
+
+        self.bouncers_spawned += 1
 
     def _spawn_hp_pack(self):
         now = pygame.time.get_ticks()
