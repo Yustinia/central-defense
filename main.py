@@ -126,6 +126,7 @@ class Game:
         self.hp_pack_timer = 0
 
         # CHASER ENEMY
+        self.chaser_hard_lim = 20
         self.chasers_to_spawn = self.chasers_to_spawn_init = 2
         self.chasers_spawned = 0
         self.chaser_spawn_cd = self.chaser_spawn_cd_init = 3700
@@ -133,6 +134,7 @@ class Game:
         self.chasers = pygame.sprite.Group()
 
         # BOUNCER ENEMY
+        self.bouncer_hard_lim = 7
         self.bouncers_to_spawn, self.bouncers_to_spawn_init = 0, -2
         self.bouncers_spawned = 0
         self.bouncer_spawn_cd = self.bouncer_spawn_cd_init = 5600
@@ -140,6 +142,7 @@ class Game:
         self.bouncers = pygame.sprite.Group()
 
         # TANK ENEMY
+        self.tank_hard_lim = 5
         self.tanks_to_spawn, self.tanks_to_spawn_init = 0, 1
         self.tanks_spawned = 0
         self.tank_spawn_cd = 5000
@@ -266,14 +269,17 @@ class Game:
         if all_spawned and all_dead:
             self.round_counter += 1
 
-            self.chasers_to_spawn = self.chasers_to_spawn_init + self.round_counter
+            self.chasers_to_spawn = min(
+                self.chasers_to_spawn_init + self.round_counter, self.chaser_hard_lim
+            )
             self.chaser_spawn_cd = max(
                 self.chaser_spawn_cd - 400, self.chaser_spawn_cd_init // 5
             )
 
             if self.round_counter >= 3:
-                self.bouncers_to_spawn = (
-                    self.bouncers_to_spawn_init + self.round_counter
+                self.bouncers_to_spawn = min(
+                    self.bouncers_to_spawn_init + self.round_counter,
+                    self.bouncer_hard_lim,
                 )
                 self.bouncer_spawn_cd = max(
                     self.bouncer_spawn_cd - 700, self.bouncer_spawn_cd_init // 3
@@ -282,8 +288,9 @@ class Game:
                 self.bouncers_to_spawn = 0
 
             if self.round_counter % 5 == 0:
-                self.tanks_to_spawn = self.tanks_to_spawn_init + (
-                    self.round_counter // 8
+                self.tanks_to_spawn = min(
+                    self.tanks_to_spawn_init + (self.round_counter // 5),
+                    self.tank_hard_lim,
                 )
             else:
                 self.tanks_to_spawn = 0
@@ -431,7 +438,9 @@ class GameManager:
     def __init__(self, disp_wd, disp_ht, current_state) -> None:
         self.disp_wd = disp_wd
         self.disp_ht = disp_ht
-        self.screen = pygame.display.set_mode((self.disp_wd, self.disp_ht))
+        self.screen = pygame.display.set_mode(
+            (self.disp_wd, self.disp_ht), pygame.FULLSCREEN
+        )
         caption = pygame.display.set_caption("Central Defense")
         self.clock = pygame.time.Clock()
 
@@ -490,8 +499,9 @@ class GameManager:
 
 
 if __name__ == "__main__":
-    disp_wd, disp_ht = 1920, 1080
-
     pygame.init()
+
+    disp_info = pygame.display.Info()
+    disp_wd, disp_ht = disp_info.current_w, disp_info.current_h
     gm = GameManager(disp_wd, disp_ht, "MAINMENU")
     gm.runner(60)
