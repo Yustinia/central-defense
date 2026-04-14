@@ -249,6 +249,9 @@ class Game:
         self._show_ply_hp(screen)
 
     def _spawn_chaser(self):
+        if len(self.chasers) >= self.max_chasers:
+            return
+
         now = pygame.time.get_ticks()
         if now - self.chaser_spawn_timer < self.chaser_spawn_cd:
             return
@@ -324,7 +327,7 @@ class Game:
 
 
 class GameManager:
-    # STATES = ["MAINMENU", "RUNNING", "GAMEOVER"]
+    # STATES = ["MAINMENU", "PLAYING", "GAMEOVER"]
 
     def __init__(self, disp_wd, disp_ht, current_state) -> None:
         self.disp_wd = disp_wd
