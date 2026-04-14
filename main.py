@@ -20,13 +20,13 @@ class Player(BoxEntity):
     ) -> None:
         super().__init__(win_wd, win_ht, x_cor, y_cor, color)
 
-        self.health = 200
+        self.health = 500
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.friction = 0.85
 
-        self.min_health = 75
-        self.dmg_cd = 100
+        self.min_health = 250
+        self.dmg_cd = 500
         self.dmg_timer = 0
 
         self.projectile_grp = projectile_grp
