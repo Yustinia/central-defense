@@ -128,12 +128,12 @@ class Game:
         # CHASER ENEMY
         self.chasers_to_spawn = 6
         self.chasers_spawned = 0
-        self.chaser_spawn_cd = 2700
+        self.chaser_spawn_cd = 3700
         self.chaser_spawn_timer = 0
         self.chasers = pygame.sprite.Group()
 
         # BOUNCER ENEMY
-        self.bouncers_to_spawn = 0  # 3
+        self.bouncers_to_spawn = 0  # 1
         self.bouncers_spawned = 0
         self.bouncer_spawn_cd = 8200
         self.bouncer_spawn_timer = 0
@@ -238,7 +238,7 @@ class Game:
             self.round_counter += 1
             self.chasers_to_spawn = 5 + self.round_counter
             self.bouncers_to_spawn = (
-                3 + self.round_counter if self.round_counter >= 3 else 0
+                1 + self.round_counter if self.round_counter >= 3 else 0
             )
 
             self.chasers_spawned = 0
