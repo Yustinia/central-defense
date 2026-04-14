@@ -22,7 +22,6 @@ class Chaser(CircEntity):
     def update(self, tar_x, tar_y):
         self._movement(tar_x, tar_y)
 
-    @override
     def _movement(self, tar_x, tar_y):
         angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
 
@@ -107,7 +106,6 @@ class Tank(CircEntity):
     def update(self, tar_x, tar_y):
         self._movement(tar_x, tar_y)
 
-    @override
     def _movement(self, tar_x, tar_y):
         angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
 

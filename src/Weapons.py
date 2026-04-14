@@ -27,8 +27,8 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=(x_cor, y_cor))
 
     def update(self, borders):
-        self.rect.x += self.dx
-        self.rect.y += self.dy
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
 
         for border in borders:
             if self.rect.colliderect(border):
