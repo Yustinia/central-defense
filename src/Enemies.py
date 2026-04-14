@@ -1,6 +1,7 @@
 import math
+import pygame
 import random
-
+from const.COLORS import GREEN
 from typing_extensions import override
 
 from src.Entities import CircEntity
@@ -12,7 +13,7 @@ class Chaser(CircEntity):
 
         self.speed = speed
         self.dx, self.dy = 0, 0
-        self.health = 100
+        self.health = self.max_health = 100
         self.friction = random.uniform(0.94, 0.99)
         self.accel = random.uniform(0.50, 0.90)
 
@@ -37,12 +38,23 @@ class Chaser(CircEntity):
         if self.health <= 0:
             self.kill()
 
+    def draw_health_bar(self, screen):
+        bar_wd = 80
+        bar_ht = 20
+
+        bar_x = self.rect.centerx - (bar_wd // 2)
+        bar_y = self.rect.top - (bar_ht * 2)
+
+        fill_wd = int(self.health / self.max_health * bar_wd)
+        pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, (255, 255, 255), (bar_x, bar_y, bar_wd, bar_ht), 1)
+
 
 class Bouncer(CircEntity):
     def __init__(self, radius, x_cor, y_cor, color, speed=3) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
-        self.health = 10
+        self.health = self.max_health = 10
         self.dx = speed * random.choice([-3, -2, -1, 1, 2, 3])
         self.dy = speed * random.choice([-3, -2, -1, 1, 2, 3])
 
@@ -67,3 +79,14 @@ class Bouncer(CircEntity):
         self.health -= amount
         if self.health <= 0:
             self.kill()
+
+    def draw_health_bar(self, screen):
+        bar_wd = 80
+        bar_ht = 20
+
+        bar_x = self.rect.centerx - (bar_wd // 2)
+        bar_y = self.rect.top - (bar_ht * 2)
+
+        fill_wd = int(self.health / self.max_health * bar_wd)
+        pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, (255, 255, 255), (bar_x, bar_y, bar_wd, bar_ht), 1)

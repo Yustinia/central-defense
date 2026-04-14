@@ -258,9 +258,11 @@ class Game:
 
         for chaser in self.chasers:
             chaser.draw(screen)
+            chaser.draw_health_bar(screen)
 
         for bouncer in self.bouncers:
             bouncer.draw(screen)
+            bouncer.draw_health_bar(screen)
 
         for border in self.borders:
             border.draw(screen)
