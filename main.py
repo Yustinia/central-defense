@@ -154,7 +154,7 @@ class Game:
         self.current_weap_state = "PISTOL"  # [PISTOL, SHOTGUN, MACHINEGUN]
 
         # ROUNDS
-        self.round_counter = 16
+        self.round_counter = 1
 
         # FONTS
         self.subtitle_ft = pygame.font.Font(REGULAR, SUBTITLE_SZ)
