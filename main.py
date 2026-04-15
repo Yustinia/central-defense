@@ -10,7 +10,7 @@ from src.EnemySpawner import (
     TankSpawner,
 )
 from src.ItemSpawner import HealthPackSpawner
-from src.Menu import GameOver, MainMenu, PlayingMenu
+from src.Menu import GameOver, MainMenu, PauseMenu, PlayingMenu
 from src.Player import Player
 
 
@@ -241,7 +241,7 @@ class Game:
 
 
 class GameManager:
-    # STATES = ["MAINMENU", "PLAYING", "GAMEOVER"]
+    # STATES = ["MAINMENU", "PLAYING", "GAMEOVER", "PAUSED"]
 
     def __init__(self, disp_wd, disp_ht, current_state) -> None:
         self.disp_wd = disp_wd
@@ -261,6 +261,7 @@ class GameManager:
         # instantiate menu objects
         self.main_menu = MainMenu(self.disp_wd, self.disp_ht)
         self.game_over = GameOver(self.disp_wd, self.disp_ht)
+        self.pause_menu = PauseMenu(self.disp_wd, self.disp_ht)
 
     def event(self):
         for event in pygame.event.get():
@@ -270,6 +271,11 @@ class GameManager:
                 self.game_running = False
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.current_state in ["MAINMENU", "GAMEOVER"]:
+                    self.current_state = "PLAYING"
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                if self.current_state == "PLAYING":
+                    self.current_state = "PAUSED"
+                elif self.current_state == "PAUSED":
                     self.current_state = "PLAYING"
 
     def update(self):
@@ -286,6 +292,9 @@ class GameManager:
             case "GAMEOVER":
                 pass
 
+            case "PAUSED":
+                pass
+
     def draw(self):
         match self.current_state:
             case "MAINMENU":
@@ -294,6 +303,9 @@ class GameManager:
                 self.game.draw(self.screen)
             case "GAMEOVER":
                 self.game_over.draw(self.screen)
+            case "PAUSED":
+                self.game.draw(self.screen)
+                self.pause_menu.draw(self.screen)
 
     def runner(self, fps, should_log):
         while self.game_running:

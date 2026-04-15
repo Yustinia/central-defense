@@ -89,3 +89,32 @@ class PlayingMenu:
 
     def draw(self, screen):
         self.player.draw_health_bar(self.win_wd, self.win_ht, screen)
+
+
+class PauseMenu:
+    def __init__(self, win_wd, win_ht) -> None:
+        self.win_wd = win_wd
+        self.win_ht = win_ht
+
+        # Semi-transparent overlay
+        self.overlay = pygame.Surface((win_wd, win_ht))
+        self.overlay.set_alpha(180)
+        self.overlay.fill(BLACK)
+
+        self.header_ft = pygame.font.Font(BOLD, 100)
+        self.sub_ft = pygame.font.Font(REGULAR, 40)
+
+    def draw(self, screen):
+        screen.blit(self.overlay, (0, 0))
+
+        header_img = self.header_ft.render("PAUSED", True, WHITE)
+        header_rect = header_img.get_rect(
+            center=(self.win_wd // 2, self.win_ht // 2 - 50)
+        )
+        screen.blit(header_img, header_rect)
+
+        sub_img = self.sub_ft.render("Press ESC to Resume", True, WHITE)
+        sub_rect = sub_img.get_rect(center=(self.win_wd // 2, self.win_ht // 2 + 50))
+
+        if (pygame.time.get_ticks() // 500) % 2 == 0:
+            screen.blit(sub_img, sub_rect)
