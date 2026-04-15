@@ -9,13 +9,15 @@ from src.Weapons import Pistol
 
 
 class Chaser(CircEntity):
-    def __init__(self, radius, x_cor, y_cor, color, speed=2) -> None:
+    def __init__(
+        self, x_cor, y_cor, color, radius=20, health=100, damage=10, speed=2
+    ) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
         self.speed = speed
         self.dx, self.dy = 0, 0
-        self.health = self.max_health = 100
-        self.damage = 10
+        self.health = self.max_health = health
+        self.damage = damage
         self.friction = random.uniform(0.94, 0.99)
         self.accel = random.uniform(0.50, 0.90)
 
@@ -51,15 +53,25 @@ class Chaser(CircEntity):
 
 
 class Bouncer(CircEntity):
-    def __init__(self, radius, x_cor, y_cor, color, speed=3) -> None:
+    def __init__(
+        self,
+        x_cor,
+        y_cor,
+        color,
+        radius=10,
+        health=10,
+        damage=10,
+        max_bounces=5,
+        speed=3,
+    ) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
-        self.health = self.max_health = 10
+        self.health = self.max_health = health
         self.dx = speed * random.choice([-3, -2, -1, 1, 2, 3])
         self.dy = speed * random.choice([-3, -2, -1, 1, 2, 3])
-        self.damage = 10
+        self.damage = damage
 
-        self.max_bounces = 5
+        self.max_bounces = max_bounces
         self.current_bounce_count = 0
 
     def update(self, borders):
@@ -110,13 +122,15 @@ class Bouncer(CircEntity):
 
 
 class Tank(CircEntity):
-    def __init__(self, radius, x_cor, y_cor, color, speed=1) -> None:
+    def __init__(
+        self, x_cor, y_cor, color, radius=50, health=1000, damage=10, speed=1
+    ) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
         self.speed = speed
         self.dx, self.dy = 0, 0
-        self.health = self.max_health = 1000
-        self.damage = 10
+        self.health = self.max_health = health
+        self.damage = damage
         self.friction = 0.92
         self.accel = 0.3
 
@@ -152,15 +166,25 @@ class Tank(CircEntity):
 
 
 class Sniper(TriEntity):
-    def __init__(self, size, x_cor, y_cor, color, speed=50) -> None:
+    def __init__(
+        self,
+        x_cor,
+        y_cor,
+        color,
+        size=20,
+        health=25,
+        damage=25,
+        fuse_duration=2000,
+        speed=50,
+    ) -> None:
         super().__init__(size, x_cor, y_cor, color)
 
         self.speed = speed
         self.dx, self.dy = 0, 0
-        self.health = self.max_health = 25
-        self.damage = 25
+        self.health = self.max_health = health
+        self.damage = damage
 
-        self.fuse_duration = 2000
+        self.fuse_duration = fuse_duration
         self.spawn_time = pygame.time.get_ticks()
         self.is_fused = True
 
@@ -216,7 +240,16 @@ class Sniper(TriEntity):
 
 
 class Shooter(CircEntity):
-    def __init__(self, radius, x_cor, y_cor, color, projectile_grp) -> None:
+    def __init__(
+        self,
+        x_cor,
+        y_cor,
+        color,
+        projectile_grp,
+        radius=20,
+        health=150,
+        damage=10,
+    ) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
         self.health = self.max_health = 150
