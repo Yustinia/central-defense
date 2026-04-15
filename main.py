@@ -69,8 +69,8 @@ class Player(BoxEntity):
         self.health -= amount
 
         if self.health <= 0:
+            self.health = 0
             self.is_alive = False
-            return self.is_alive
 
         return self.is_alive
 
@@ -248,12 +248,10 @@ class Game:
                 self.player, spawner.group, spawner in kill_on_contact
             )
             if player_enemy_hitmarks:
-                if spawner == self.sniper_spawner:
-                    self.player.take_damage(50)
-                else:
-                    self.player.take_damage(10)
-                    if not self.player.is_alive:
-                        return False
+                enemy = player_enemy_hitmarks[0]
+                self.player.take_damage(enemy.damage)
+                if not self.player.is_alive:
+                    return False
 
         # SHOOTER PROJECTILES
         for shooter in self.shooter_spawner.group:

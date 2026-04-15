@@ -4,8 +4,8 @@ import random
 import pygame
 
 from const.COLORS import GREEN, WHITE
-from src.EnemyWeapons import Pistol
 from src.Entities import CircEntity, TriEntity
+from src.Weapons import Pistol
 
 
 class Chaser(CircEntity):
@@ -15,6 +15,7 @@ class Chaser(CircEntity):
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.health = self.max_health = 100
+        self.damage = 10
         self.friction = random.uniform(0.94, 0.99)
         self.accel = random.uniform(0.50, 0.90)
 
@@ -56,6 +57,7 @@ class Bouncer(CircEntity):
         self.health = self.max_health = 10
         self.dx = speed * random.choice([-3, -2, -1, 1, 2, 3])
         self.dy = speed * random.choice([-3, -2, -1, 1, 2, 3])
+        self.damage = 10
 
         self.max_bounces = 5
         self.current_bounce_count = 0
@@ -114,6 +116,7 @@ class Tank(CircEntity):
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.health = self.max_health = 1000
+        self.damage = 10
         self.friction = 0.92
         self.accel = 0.3
 
@@ -155,6 +158,7 @@ class Sniper(TriEntity):
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.health = self.max_health = 25
+        self.damage = 50
 
         self.fuse_duration = 2000
         self.spawn_time = pygame.time.get_ticks()
@@ -217,7 +221,8 @@ class Shooter(CircEntity):
 
         self.health = self.max_health = 150
         self.projectile_grp = pygame.sprite.Group()
-        self.pistol = Pistol(self.projectile_grp, self.rect)
+        self.pistol = Pistol(self.projectile_grp, self.rect, 500, 75, self.color)
+        self.damage = 10
 
     def update(self, tar_x, tar_y, borders):
         self.pistol.shoot(tar_x, tar_y)

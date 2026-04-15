@@ -57,11 +57,14 @@ class WeaponTemplate(ABC):
 
 
 class Pistol(WeaponTemplate):
-    def __init__(self, projectile_grp, player_rect) -> None:
+    def __init__(
+        self, projectile_grp, player_rect, shoot_cd=150, damage=20, color=BLUE
+    ) -> None:
         super().__init__()
 
-        self.shoot_cd = 150
-        self.damage = 20
+        self.shoot_cd = shoot_cd
+        self.damage = damage
+        self.color = color
         self.projectile_grp = projectile_grp
         self.rect = player_rect
 
@@ -70,16 +73,21 @@ class Pistol(WeaponTemplate):
         if self._on_cooldown():
             return
 
-        bullet = Bullet(5, self.rect.centerx, self.rect.centery, tar_x, tar_y, BLUE)
+        bullet = Bullet(
+            5, self.rect.centerx, self.rect.centery, tar_x, tar_y, self.color
+        )
         self.projectile_grp.add(bullet)
 
 
 class Shotgun(WeaponTemplate):
-    def __init__(self, projectile_grp, player_rect) -> None:
+    def __init__(
+        self, projectile_grp, player_rect, shoot_cd=750, damage=40, color=BLUE
+    ) -> None:
         super().__init__()
 
-        self.shoot_cd = 750
-        self.damage = 40
+        self.shoot_cd = shoot_cd
+        self.damage = damage
+        self.color = color
         self.projectile_grp = projectile_grp
         self.rect = player_rect
 
@@ -106,18 +114,21 @@ class Shotgun(WeaponTemplate):
                     self.rect.centery,
                     tar_x_off,
                     tar_y_off,
-                    BLUE,
+                    self.color,
                     20,
                 )
             )
 
 
 class MachineGun(WeaponTemplate):
-    def __init__(self, projectile_grp, player_rect) -> None:
+    def __init__(
+        self, projectile_grp, player_rect, shoot_cd=25, damage=10, color=BLUE
+    ) -> None:
         super().__init__()
 
-        self.shoot_cd = 25
-        self.damage = 10
+        self.shoot_cd = shoot_cd
+        self.damage = damage
+        self.color = color
         self.projectile_grp = projectile_grp
         self.rect = player_rect
 
@@ -134,6 +145,12 @@ class MachineGun(WeaponTemplate):
         tar_y_off = self.rect.centery + math.sin(angle) * 100
 
         bullet = Bullet(
-            5, self.rect.centerx, self.rect.centery, tar_x_off, tar_y_off, BLUE, 30
+            5,
+            self.rect.centerx,
+            self.rect.centery,
+            tar_x_off,
+            tar_y_off,
+            self.color,
+            30,
         )
         self.projectile_grp.add(bullet)
