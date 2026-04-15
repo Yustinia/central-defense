@@ -310,6 +310,7 @@ class GameManager:
                     "BOUNCER": len(self.game.bouncer_spawner.group),
                     "TANK": len(self.game.tank_spawner.group),
                     "SNIPER": len(self.game.sniper_spawner.group),
+                    "SHOOTER": len(self.game.shooter_spawner.group),
                 }
                 for key, value in logging.items():
                     print(f"{key}: {value}")
