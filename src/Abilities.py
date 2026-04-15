@@ -1,9 +1,9 @@
+import math
+
 import pygame
 
-from const.COLORS import WHITE, YELLOW, PLAT
+from const.COLORS import PLAT
 from src.Weapons import Bullet
-from src.Entities import OctEntity
-import math
 
 
 class Dash:
@@ -75,7 +75,7 @@ class PassiveHeal:
 
 
 class BulletBurst:
-    def __init__(self, burst_cd=15000, bullet_count=24) -> None:
+    def __init__(self, burst_cd=15000, bullet_count=16) -> None:
         self.burst_cd = burst_cd
         self.burst_timer = 0
         self.bullet_count = bullet_count

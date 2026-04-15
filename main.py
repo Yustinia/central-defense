@@ -137,8 +137,6 @@ class Game:
                 pack.kill()
 
         # PLAYER PROJECTILE HITS ENEMY
-        current_weapon = getattr(self.player, self.current_weap_state.lower())
-
         enemy_spawners = (
             self.chaser_spawner,
             self.bouncer_spawner,
@@ -152,7 +150,7 @@ class Game:
             )
             for projectile, enemies_hit in hitmarks.items():
                 for enemy in enemies_hit:
-                    enemy.take_dmg(current_weapon.damage)
+                    enemy.take_dmg(projectile.damage)
 
         # ENEMY AND PLAYER CONTACT
         kill_on_contact = [self.bouncer_spawner, self.sniper_spawner]

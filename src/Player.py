@@ -1,8 +1,8 @@
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLUE, GREEN, RED, WHITE, YELLOW, PLAT
-from src.Abilities import Dash, Shield, PassiveHeal, BulletBurst
+from const.COLORS import BLUE, GREEN, RED, WHITE, YELLOW
+from src.Abilities import BulletBurst, Dash, PassiveHeal, Shield
 from src.Entities import BoxEntity
 from src.Weapons import MachineGun, Pistol, Shotgun
 
@@ -100,8 +100,8 @@ class Player(BoxEntity):
         if keys[pygame.K_SPACE]:
             self.dx, self.dy = self.dash_ab.do_dash(self.dx, self.dy)
 
-        if keys[pygame.K_e]:
-            self.shield_ab.activate()
+        # if keys[pygame.K_e]:
+        #     self.shield_ab.activate()
 
         if keys[pygame.K_r]:
             if self.bullet_burst_ab.is_ready():
