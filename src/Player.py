@@ -116,7 +116,7 @@ class Player(BoxEntity):
         bar_ht = 20
 
         bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
-        bar_rect.center = (win_wd // 3, win_ht - 60)
+        bar_rect.center = ((win_wd // 3) + 60, win_ht - 60)
 
         fill_wd = int(self.health / self.max_health * bar_wd)
 
@@ -136,7 +136,7 @@ class Player(BoxEntity):
         bar_ht = 20
 
         bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
-        bar_rect.center = ((2 * win_wd) // 3, win_ht - 60)
+        bar_rect.center = (((2 * win_wd) // 3) - 60, win_ht - 60)
 
         if not self.shield_ab.can_be_activated and not self.shield_ab.is_active:
 
