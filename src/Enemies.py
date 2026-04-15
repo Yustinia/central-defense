@@ -240,8 +240,6 @@ class Shooter(CircEntity):
 
     def draw(self, screen):
         super().draw(screen)
-        for projectile in self.projectile_grp:
-            projectile.draw(screen)
 
     def draw_health_bar(self, screen):
         bar_wd = 80

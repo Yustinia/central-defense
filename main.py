@@ -219,8 +219,6 @@ class Game:
                 case "MACHINEGUN":
                     self.player.machinegun.shoot(mouse_x, mouse_y)
 
-        current_weapon = getattr(self.player, self.current_weap_state.lower())
-
         # OBJECTS
         hp_acq = pygame.sprite.spritecollide(self.player, self.hp_pack.group, False)
         for pack in self.hp_pack.group:
@@ -230,7 +228,9 @@ class Game:
                 pack.heal(self.player)
                 pack.kill()
 
-        # ENEMY PROJECTILE HITMARKS
+        # PLAYER PROJECTILE HITS ENEMY
+        current_weapon = getattr(self.player, self.current_weap_state.lower())
+
         enemy_spawners = (
             self.chaser_spawner,
             self.bouncer_spawner,
@@ -246,7 +246,7 @@ class Game:
                 for enemy in enemies_hit:
                     enemy.take_dmg(current_weapon.damage)
 
-        # ENEMY PLAYER CONTACT
+        # ENEMY AND PLAYER CONTACT
         kill_on_contact = [self.bouncer_spawner, self.sniper_spawner]
         for spawner in enemy_spawners:
             player_enemy_hitmarks = pygame.sprite.spritecollide(
@@ -259,8 +259,10 @@ class Game:
                     return False
 
         # ENEMY PROJECTILE AND PLAYER HIT
-        hits = pygame.sprite.spritecollide(self.player, self.enemy_projectiles, True)
-        for bullet in hits:
+        enemy_projectile = pygame.sprite.spritecollide(
+            self.player, self.enemy_projectiles, True
+        )
+        for bullet in enemy_projectile:
             self.player.take_damage(bullet.damage)
 
         # ROUND IMPLEMENTATION
@@ -304,7 +306,7 @@ class Game:
 
         self.hp_pack.group.draw(screen)
 
-        for projectile in self.player_projectiles:
+        for projectile in [self.player_projectiles, self.enemy_projectiles]:
             projectile.draw(screen)
 
         self.player.draw(screen)
