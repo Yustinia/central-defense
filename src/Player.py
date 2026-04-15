@@ -100,10 +100,10 @@ class Player(BoxEntity):
         if keys[pygame.K_SPACE]:
             self.dx, self.dy = self.dash_ab.do_dash(self.dx, self.dy)
 
-        # if keys[pygame.K_e]:
-        #     self.shield_ab.activate()
+        if keys[pygame.K_q]:
+            self.shield_ab.activate()
 
-        if keys[pygame.K_r]:
+        if keys[pygame.K_e]:
             if self.bullet_burst_ab.is_ready():
                 self.bullet_burst_ab.burst(
                     self.projectile_grp,
@@ -147,51 +147,61 @@ class Player(BoxEntity):
         pygame.draw.rect(screen, fill_color, (bar_rect.x, bar_rect.y, fill_wd, bar_ht))
         pygame.draw.rect(screen, WHITE, bar_rect, 1)
 
-    def draw_shield_bar(self, win_wd, win_ht, screen):
-        bar_wd = win_wd // 4
+    def draw_ability_bars(self, win_wd, win_ht, screen):
+        total_wd = win_wd // 4
         bar_ht = 20
+        half_wd = total_wd // 2
+        gap = 40
 
-        bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
-        bar_rect.center = (((2 * win_wd) // 3) - 60, win_ht - 60)
+        # anchor the whole right bar at the same position as before
+        total_rect = pygame.Rect(0, 0, total_wd, bar_ht)
+        total_rect.center = (((2 * win_wd) // 3) - 60, win_ht - 60)
 
+        # shield — left half
+        shield_rect = pygame.Rect(
+            total_rect.x, total_rect.y, half_wd - gap // 2, bar_ht
+        )
+
+        # burst — right half
+        burst_rect = pygame.Rect(
+            total_rect.x + half_wd + gap // 2, total_rect.y, half_wd - gap // 2, bar_ht
+        )
+
+        # SHIELD FILL
         if not self.shield_ab.can_be_activated and not self.shield_ab.is_active:
             now = pygame.time.get_ticks()
             elapsed = now - self.shield_ab.shield_timer
             progress = min(elapsed / self.shield_ab.shield_cd, 1.0)
-
-            fill_wd = int(progress * bar_wd)
-            fill_color = RED
-
+            shield_fill = int(progress * shield_rect.width)
+            shield_color = RED
         elif self.shield_ab.is_active:
-            fill_wd = int(
-                self.shield_ab.durability / self.shield_ab.durability_init * bar_wd
+            shield_fill = int(
+                self.shield_ab.durability
+                / self.shield_ab.durability_init
+                * shield_rect.width
             )
-            fill_color = YELLOW
-
+            shield_color = YELLOW
         else:
-            fill_wd = bar_wd
-            fill_color = GREEN
+            shield_fill = shield_rect.width
+            shield_color = GREEN
 
-        pygame.draw.rect(screen, fill_color, (bar_rect.x, bar_rect.y, fill_wd, bar_ht))
-        pygame.draw.rect(screen, WHITE, bar_rect, 1)
-
-    def draw_burst_bar(self, win_wd, win_ht, screen):
-        bar_wd = win_wd // 4
-        bar_ht = 20
-
-        bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
-        bar_rect.center = (((2 * win_wd) // 3) - 60, win_ht - 60)
-
+        # BURST FILL
         now = pygame.time.get_ticks()
         elapsed = now - self.bullet_burst_ab.burst_timer
         progress = min(elapsed / self.bullet_burst_ab.burst_cd, 1.0)
-
         if progress < 1.0:
-            fill_wd = int(progress * bar_wd)
-            fill_color = RED
+            burst_fill = int(progress * burst_rect.width)
+            burst_color = RED
         else:
-            fill_wd = bar_wd
-            fill_color = GREEN
+            burst_fill = burst_rect.width
+            burst_color = GREEN
 
-        pygame.draw.rect(screen, fill_color, (bar_rect.x, bar_rect.y, fill_wd, bar_ht))
-        pygame.draw.rect(screen, WHITE, bar_rect, 1)
+        pygame.draw.rect(
+            screen, shield_color, (shield_rect.x, shield_rect.y, shield_fill, bar_ht)
+        )
+        pygame.draw.rect(screen, WHITE, shield_rect, 1)
+
+        pygame.draw.rect(
+            screen, burst_color, (burst_rect.x, burst_rect.y, burst_fill, bar_ht)
+        )
+        pygame.draw.rect(screen, WHITE, burst_rect, 1)

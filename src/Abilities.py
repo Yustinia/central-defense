@@ -59,7 +59,7 @@ class Shield:
 
 
 class PassiveHeal:
-    def __init__(self, heal_cd=12000, heal_amt=10) -> None:
+    def __init__(self, heal_cd=21000, heal_amt=10) -> None:
         self.heal_cd = heal_cd
         self.heal_amt = heal_amt
         self.heal_timer = 0
@@ -87,27 +87,19 @@ class BulletBurst:
             return True
         return False
 
-    def burst(self, projectile_grp, x_cor, y_cor, color=PLAT, damage=100, speed=5):
+    def burst(self, projectile_grp, x_cor, y_cor, radius=10, color=PLAT, damage=100):
         now = pygame.time.get_ticks()
         self.burst_timer = now
         self.is_active = True
 
         angle_step = 360 / self.bullet_count
-        for i in range(self.bullet_count):
-            angle = math.radians(angle_step * i)
-            tar_x = x_cor + math.cos(angle) * 100
-            tar_y = y_cor + math.sin(angle) * 100
-            projectile_grp.add(
-                Bullet(
-                    5,
-                    x_cor,
-                    y_cor,
-                    tar_x,
-                    tar_y,
-                    color,
-                    damage,
-                    speed,
+        for ring_speed in (3, 5, 9):
+            for i in range(self.bullet_count):
+                angle = math.radians(angle_step * i)
+                tar_x = x_cor + math.cos(angle) * 100
+                tar_y = y_cor + math.sin(angle) * 100
+                projectile_grp.add(
+                    Bullet(10, x_cor, y_cor, tar_x, tar_y, color, damage, ring_speed)
                 )
-            )
 
         self.is_active = False
