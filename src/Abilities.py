@@ -22,8 +22,8 @@ class Dash:
 
 
 class Shield(OctEntity):
-    def __init__(self, size, x_cor, y_cor, color) -> None:
-        super().__init__(size, x_cor, y_cor, color)
+    def __init__(self, size, x_cor, y_cor) -> None:
+        super().__init__(size, x_cor, y_cor, YELLOW)
 
         self.shield_cd = 30000
         self.shield_timer = 0

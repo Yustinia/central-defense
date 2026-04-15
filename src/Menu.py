@@ -80,15 +80,33 @@ class GameOver:
         screen.blit(sub_img, sub_rect)
 
 
-class PlayingMenu:
-    def __init__(self, win_wd, win_ht, player_obj) -> None:
+class PlayingState:
+    def __init__(self, win_wd, win_ht) -> None:
         self.win_wd = win_wd
         self.win_ht = win_ht
 
-        self.player = player_obj
+        self.round_state_ft = pygame.font.Font(REGULAR, 90)
+        self.current_weap_ft = pygame.font.Font(REGULAR, 30)
 
-    def draw(self, screen):
-        self.player.draw_health_bar(self.win_wd, self.win_ht, screen)
+    def render_round(self, round_counter, screen):
+        round_counter_img = self.round_state_ft.render(
+            f"ROUND {round_counter}", True, WHITE
+        )
+        round_counter_img.set_alpha(8)
+        round_counter_rect = round_counter_img.get_rect(
+            center=(self.win_wd // 2, self.win_ht // 2)
+        )
+
+        screen.blit(round_counter_img, round_counter_rect)
+
+    def render_current_weap(self, current_weap, screen):
+        current_weap_img = self.current_weap_ft.render(current_weap, True, WHITE)
+        current_weap_img.set_alpha(32)
+        current_weap_rect = current_weap_img.get_rect(
+            midbottom=(self.win_wd // 2, self.win_ht - 80)
+        )
+
+        screen.blit(current_weap_img, current_weap_rect)
 
 
 class PauseMenu:

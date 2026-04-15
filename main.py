@@ -10,7 +10,7 @@ from src.EnemySpawner import (
     TankSpawner,
 )
 from src.ItemSpawner import HealthPackSpawner
-from src.Menu import GameOver, MainMenu, PauseMenu, PlayingMenu
+from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState
 from src.Player import Player
 
 
@@ -65,7 +65,7 @@ class Game:
         self.round_counter = 1
 
         # GUI
-        self.playing_gui = PlayingMenu(self.win_wd, self.win_ht, self.player)
+        self.playing_state = PlayingState(self.win_wd, self.win_ht)
 
     def event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
@@ -210,7 +210,12 @@ class Game:
         )
 
         self.bg.draw(screen)
-        self.playing_gui.draw(screen)
+
+        self.playing_state.render_round(self.round_counter, screen)
+        self.playing_state.render_current_weap(self.current_weap_state, screen)
+
+        self.player.draw_health_bar(self.win_wd, self.win_ht, screen)
+        self.player.draw_shield_bar(self.win_wd, self.win_ht, screen)
 
         self.hp_pack.group.draw(screen)
 
@@ -227,17 +232,6 @@ class Game:
 
         for border in self.borders:
             border.draw(screen)
-
-    # def _show_round(self, screen):
-    #     round_state_img = self.subtitle_ft.render(
-    #         f"Round {self.round_counter}", True, WHITE
-    #     )
-    #     round_state_img.set_alpha(16)
-    #     round_state_rect = round_state_img.get_rect(
-    #         center=(self.win_wd // 2, self.win_ht // 2)
-    #     )
-
-    #     screen.blit(round_state_img, round_state_rect)
 
 
 class GameManager:

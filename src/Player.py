@@ -1,7 +1,7 @@
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLUE, RED, WHITE, YELLOW
+from const.COLORS import BLUE, RED, WHITE, YELLOW, GREEN
 from src.Abilities import Dash, Shield
 from src.Entities import BoxEntity
 from src.Weapons import MachineGun, Pistol, Shotgun
@@ -31,7 +31,7 @@ class Player(BoxEntity):
 
         # Abilities
         self.dash_ab = Dash()
-        self.shield_ab = Shield(100, x_cor, y_cor, BLUE)
+        self.shield_ab = Shield(100, x_cor, y_cor)
 
         # States
         self.is_alive = True
@@ -95,11 +95,11 @@ class Player(BoxEntity):
         self.dy *= self.friction
 
     def draw_health_bar(self, win_wd, win_ht, screen):
-        bar_wd = win_wd // 3
+        bar_wd = win_wd // 4
         bar_ht = 20
 
         bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
-        bar_rect.center = (win_wd // 2, win_ht - 60)
+        bar_rect.center = (win_wd // 3, win_ht - 60)
 
         fill_wd = int(self.health / self.max_health * bar_wd)
 
@@ -111,7 +111,34 @@ class Player(BoxEntity):
         else:
             fill_color = BLUE
 
-        # Draw fill
         pygame.draw.rect(screen, fill_color, (bar_rect.x, bar_rect.y, fill_wd, bar_ht))
-        # Draw border
+        pygame.draw.rect(screen, WHITE, bar_rect, 1)
+
+    def draw_shield_bar(self, win_wd, win_ht, screen):
+        bar_wd = win_wd // 4
+        bar_ht = 20
+
+        bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
+        bar_rect.center = ((2 * win_wd) // 3, win_ht - 60)
+
+        if not self.shield_ab.can_be_activated and not self.shield_ab.is_active:
+
+            now = pygame.time.get_ticks()
+            elapsed = now - self.shield_ab.shield_timer
+            progress = min(elapsed / self.shield_ab.shield_cd, 1.0)
+
+            fill_wd = int(progress * bar_wd)
+            fill_color = RED
+
+        elif self.shield_ab.is_active:
+            fill_wd = int(
+                self.shield_ab.durability / self.shield_ab.durability_init * bar_wd
+            )
+            fill_color = YELLOW
+
+        else:
+            fill_wd = bar_wd
+            fill_color = GREEN
+
+        pygame.draw.rect(screen, fill_color, (bar_rect.x, bar_rect.y, fill_wd, bar_ht))
         pygame.draw.rect(screen, WHITE, bar_rect, 1)
