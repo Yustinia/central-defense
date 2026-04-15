@@ -73,8 +73,7 @@ class Player(BoxEntity):
 
         self.health -= amount
 
-        if self.health <= 0 or self.health == 0:
-            self.health = 0
+        if self.health <= 10 or self.health <= 0:
             self.is_alive = False
 
         return self.is_alive
