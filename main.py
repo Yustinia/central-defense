@@ -272,6 +272,7 @@ class Game:
         )
 
         self.bg.draw(screen)
+        self._show_round(screen)
 
         self.hp_pack.group.draw(screen)
 
@@ -290,7 +291,6 @@ class Game:
             border.draw(screen)
 
         self._show_weap_state(screen)
-        self._show_round(screen)
         self._show_ply_hp(screen)
         self._show_shield_durability(screen)
 
@@ -304,9 +304,12 @@ class Game:
 
     def _show_round(self, screen):
         round_state_img = self.subtitle_ft.render(
-            f"Round: {self.round_counter}", True, BLACK
+            f"Round {self.round_counter}", True, WHITE
         )
-        round_state_rect = round_state_img.get_rect(topright=(self.win_wd - 10, 20))
+        round_state_img.set_alpha(16)
+        round_state_rect = round_state_img.get_rect(
+            center=(self.win_wd // 2, self.win_ht // 2)
+        )
 
         screen.blit(round_state_img, round_state_rect)
 
