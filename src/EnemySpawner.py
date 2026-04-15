@@ -93,11 +93,11 @@ class BouncerSpawner(BaseEnemySpawner):
             side = random.choice(["left", "right", "top", "bottom"])
 
             if side == "left":
-                x, y = 40, random.randint(120, win_ht - 40)
+                x, y = 40, random.randint(40, win_ht - 40)
             elif side == "right":
-                x, y = win_wd - 40, random.randint(120, win_ht - 40)
+                x, y = win_wd - 40, random.randint(40, win_ht - 40)
             elif side == "top":
-                x, y = random.randint(40, win_wd - 40), 120
+                x, y = random.randint(40, win_wd - 40), 40
             else:
                 x, y = random.randint(40, win_wd - 40), win_ht - 40
 
@@ -180,11 +180,11 @@ class SniperSpawner(BaseEnemySpawner):
         side = random.choice(["left", "right", "top", "bottom"])
 
         if side == "left":
-            x, y = 60, random.randint(140, win_ht - 60)
+            x, y = 60, random.randint(60, win_ht - 60)
         elif side == "right":
-            x, y = win_wd - 60, random.randint(140, win_ht - 60)
+            x, y = win_wd - 60, random.randint(60, win_ht - 60)
         elif side == "top":
-            x, y = random.randint(60, win_wd - 60), 140
+            x, y = random.randint(60, win_wd - 60), 60
         else:
             x, y = random.randint(60, win_wd - 60), win_ht - 60
 

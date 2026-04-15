@@ -36,7 +36,7 @@ class Player(BoxEntity):
 
         # Abilities
         self.dash_ab = Dash()
-        self.shield_ab = Shield(80, x_cor, y_cor, YELLOW)
+        self.shield_ab = Shield(100, x_cor, y_cor, YELLOW)
 
         # States
         self.is_alive = True
@@ -112,7 +112,7 @@ class Game:
         border_list = [
             Border(thickness, self.win_ht, 0, 0, WHITE),  # left
             Border(thickness, self.win_ht, self.win_wd - thickness, 0, WHITE),  # right
-            Border(self.win_wd, 100, 0, 0, WHITE),  # up
+            Border(self.win_wd, thickness, 0, 0, WHITE),  # up
             Border(self.win_wd, thickness, 0, self.win_ht - thickness, WHITE),  # down
         ]
         for border in border_list:
@@ -290,9 +290,9 @@ class Game:
         for border in self.borders:
             border.draw(screen)
 
-        self._show_weap_state(screen)
-        self._show_ply_hp(screen)
-        self._show_shield_durability(screen)
+        # self._show_weap_state(screen)
+        # self._show_ply_hp(screen)
+        # self._show_shield_durability(screen)
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(

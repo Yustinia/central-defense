@@ -33,6 +33,8 @@ class Shield(OctEntity):
         self.durability = self.durability_init = 150
         self.can_be_activated = False
 
+        self.image.set_alpha(64)
+
     def update(self, player_x, player_y):
         self.movement(player_x, player_y)
 
