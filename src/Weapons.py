@@ -1,6 +1,6 @@
 import math
 import random
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 import pygame
 from typing_extensions import override
@@ -38,7 +38,7 @@ class Bullet(pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
 
 
-class WeaponTemplate:
+class WeaponTemplate(ABC):
     def __init__(self) -> None:
         self.shoot_cd = 100
         self.shoot_timer = 0

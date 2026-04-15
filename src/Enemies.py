@@ -4,6 +4,7 @@ import random
 import pygame
 
 from const.COLORS import GREEN, WHITE
+from src.EnemyWeapons import Pistol
 from src.Entities import CircEntity, TriEntity
 
 
@@ -197,6 +198,41 @@ class Sniper(TriEntity):
         for border in borders:
             if self.rect.colliderect(border.rect):
                 self.kill()
+
+    def draw_health_bar(self, screen):
+        bar_wd = 80
+        bar_ht = 20
+
+        bar_x = self.rect.centerx - (bar_wd // 2)
+        bar_y = self.rect.top - (bar_ht * 2)
+
+        fill_wd = int(self.health / self.max_health * bar_wd)
+        pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_wd, bar_ht), 1)
+
+
+class Shooter(CircEntity):
+    def __init__(self, radius, x_cor, y_cor, color) -> None:
+        super().__init__(radius, x_cor, y_cor, color)
+
+        self.health = self.max_health = 150
+        self.projectile_grp = pygame.sprite.Group()
+        self.pistol = Pistol(self.projectile_grp, self.rect)
+
+    def update(self, tar_x, tar_y, borders):
+        self.pistol.shoot(tar_x, tar_y)
+        self.projectile_grp.update(borders)
+
+    def take_dmg(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self.projectile_grp.empty()
+            self.kill()
+
+    def draw(self, screen):
+        super().draw(screen)
+        for projectile in self.projectile_grp:
+            projectile.draw(screen)
 
     def draw_health_bar(self, screen):
         bar_wd = 80

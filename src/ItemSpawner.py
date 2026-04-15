@@ -37,5 +37,5 @@ class HealthPackSpawner(BaseItemSpawner):
             return
 
         rand_hp_x = random.randint(40, win_wd - 40)
-        rand_hp_y = random.randint(120, win_ht - 40)
+        rand_hp_y = random.randint(40, win_ht - 40)
         self.group.add(HealthPack(60, rand_hp_x, rand_hp_y, GREEN))

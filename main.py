@@ -1,11 +1,18 @@
 import pygame
+from pygame.sprite import spritecollide
 from typing_extensions import override
 
 from const.COLORS import BLACK, BLUE, CYAN, GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
 from const.FONTS import REGULAR, SUBTITLE_SZ
 from src.Abilities import Dash, Shield
 from src.Core import Background, Border
-from src.EnemySpawner import BouncerSpawner, ChaserSpawner, SniperSpawner, TankSpawner
+from src.EnemySpawner import (
+    BouncerSpawner,
+    ChaserSpawner,
+    ShooterSpawner,
+    SniperSpawner,
+    TankSpawner,
+)
 from src.Entities import BoxEntity
 from src.ItemSpawner import HealthPackSpawner
 from src.Menu import GameOver, MainMenu
@@ -36,7 +43,7 @@ class Player(BoxEntity):
 
         # Abilities
         self.dash_ab = Dash()
-        self.shield_ab = Shield(100, x_cor, y_cor, YELLOW)
+        self.shield_ab = Shield(100, x_cor, y_cor, CYAN)
 
         # States
         self.is_alive = True
@@ -135,13 +142,14 @@ class Game:
         self.bouncer_spawner = BouncerSpawner()
         self.tank_spawner = TankSpawner()
         self.sniper_spawner = SniperSpawner()
+        self.shooter_spawner = ShooterSpawner()
 
         # WEAPON
         self.current_weapon_counter = 0
         self.current_weap_state = "PISTOL"  # [PISTOL, SHOTGUN, MACHINEGUN]
 
         # ROUNDS
-        self.round_counter = 1
+        self.round_counter = 16
 
         # FONTS
         self.subtitle_ft = pygame.font.Font(REGULAR, SUBTITLE_SZ)
@@ -170,6 +178,8 @@ class Game:
             self.tank_spawner.try_spawn(self.win_wd, self.win_ht)
         if self.round_counter >= self.sniper_spawner.pref_round:
             self.sniper_spawner.try_spawn(self.win_wd, self.win_ht)
+        if self.round_counter >= self.shooter_spawner.pref_round:
+            self.shooter_spawner.try_spawn(self.win_wd, self.win_ht)
 
         self.player.update(keys, self.borders)
         self.projectiles.update(self.borders)
@@ -184,6 +194,11 @@ class Game:
             self.player.rect.centery,
         )
         self.sniper_spawner.group.update(
+            self.player.rect.centerx,
+            self.player.rect.centery,
+            self.borders,
+        )
+        self.shooter_spawner.group.update(
             self.player.rect.centerx,
             self.player.rect.centery,
             self.borders,
@@ -216,6 +231,7 @@ class Game:
             self.bouncer_spawner,
             self.tank_spawner,
             self.sniper_spawner,
+            self.shooter_spawner,
         )
         for spawner in enemy_spawners:
             hitmarks = pygame.sprite.groupcollide(
@@ -239,18 +255,26 @@ class Game:
                     if not self.player.is_alive:
                         return False
 
+        # SHOOTER PROJECTILES
+        for shooter in self.shooter_spawner.group:
+            shooter_proj_grp = shooter.projectile_grp
+            if pygame.sprite.spritecollide(self.player, shooter_proj_grp, True):
+                self.player.take_damage(shooter.pistol.damage)
+
         # ROUND IMPLEMENTATION
         all_spawned = (
             self.chaser_spawner.all_spawned
             and self.bouncer_spawner.all_spawned
             and self.tank_spawner.all_spawned
             and self.sniper_spawner.all_spawned
+            and self.shooter_spawner.all_spawned
         )
         all_dead = (
             self.chaser_spawner.all_dead
             and self.bouncer_spawner.all_dead
             and self.tank_spawner.all_dead
             and self.sniper_spawner.all_dead
+            and self.shooter_spawner.all_dead
         )
 
         if all_spawned and all_dead:
@@ -260,6 +284,7 @@ class Game:
             self.bouncer_spawner.next_round(self.round_counter)
             self.tank_spawner.next_round(self.round_counter)
             self.sniper_spawner.next_round(self.round_counter)
+            self.shooter_spawner.next_round(self.round_counter)
 
         return True
 
@@ -269,6 +294,7 @@ class Game:
             self.bouncer_spawner,
             self.tank_spawner,
             self.sniper_spawner,
+            self.shooter_spawner,
         )
 
         self.bg.draw(screen)
@@ -291,12 +317,12 @@ class Game:
             border.draw(screen)
 
         # self._show_weap_state(screen)
-        # self._show_ply_hp(screen)
+        self._show_ply_hp(screen)
         # self._show_shield_durability(screen)
 
     def _show_weap_state(self, screen):
         weap_state_img = self.subtitle_ft.render(
-            f"Current Weapon: {self.current_weap_state}", True, BLACK
+            f"Current Weapon: {self.current_weap_state}", True, WHITE
         )
         weap_state_rect = weap_state_img.get_rect(topleft=(10, 20))
 
@@ -314,7 +340,7 @@ class Game:
         screen.blit(round_state_img, round_state_rect)
 
     def _show_ply_hp(self, screen):
-        ply_hp_img = self.subtitle_ft.render(f"HP: {self.player.health}", True, BLACK)
+        ply_hp_img = self.subtitle_ft.render(f"HP: {self.player.health}", True, WHITE)
         ply_hp_rect = ply_hp_img.get_rect(center=(self.win_wd // 2, 40))
 
         screen.blit(ply_hp_img, ply_hp_rect)
