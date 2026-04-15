@@ -126,12 +126,18 @@ class Game:
             self.borders.add(border)
 
         # PELLETS
-        self.projectiles = pygame.sprite.Group()
+        self.player_projectiles = pygame.sprite.Group()
+        self.enemy_projectiles = pygame.sprite.Group()
 
         # PLAYER
         ply_wd, ply_ht = 40, 40
         self.player = Player(
-            ply_wd, ply_ht, self.win_wd // 2, self.win_ht // 2, BLUE, self.projectiles
+            ply_wd,
+            ply_ht,
+            self.win_wd // 2,
+            self.win_ht // 2,
+            BLUE,
+            self.player_projectiles,
         )
 
         # OBJECTS
@@ -142,7 +148,7 @@ class Game:
         self.bouncer_spawner = BouncerSpawner()
         self.tank_spawner = TankSpawner()
         self.sniper_spawner = SniperSpawner()
-        self.shooter_spawner = ShooterSpawner()
+        self.shooter_spawner = ShooterSpawner(self.enemy_projectiles)
 
         # WEAPON
         self.current_weapon_counter = 0
@@ -182,7 +188,7 @@ class Game:
             self.shooter_spawner.try_spawn(self.win_wd, self.win_ht)
 
         self.player.update(keys, self.borders)
-        self.projectiles.update(self.borders)
+        self.player_projectiles.update(self.borders)
 
         self.chaser_spawner.group.update(
             self.player.rect.centerx,
@@ -235,7 +241,7 @@ class Game:
         )
         for spawner in enemy_spawners:
             hitmarks = pygame.sprite.groupcollide(
-                self.projectiles, spawner.group, True, False
+                self.player_projectiles, spawner.group, True, False
             )
             for projectile, enemies_hit in hitmarks.items():
                 for enemy in enemies_hit:
@@ -253,11 +259,10 @@ class Game:
                 if not self.player.is_alive:
                     return False
 
-        # SHOOTER PROJECTILES
-        for shooter in self.shooter_spawner.group:
-            shooter_proj_grp = shooter.projectile_grp
-            if pygame.sprite.spritecollide(self.player, shooter_proj_grp, True):
-                self.player.take_damage(shooter.pistol.damage)
+        # ENEMY PROJECTILE AND PLAYER HIT
+        hits = pygame.sprite.spritecollide(self.player, self.enemy_projectiles, True)
+        for bullet in hits:
+            self.player.take_damage(bullet.damage)
 
         # ROUND IMPLEMENTATION
         all_spawned = (
@@ -300,7 +305,7 @@ class Game:
 
         self.hp_pack.group.draw(screen)
 
-        for projectile in self.projectiles:
+        for projectile in self.player_projectiles:
             projectile.draw(screen)
 
         self.player.draw(screen)

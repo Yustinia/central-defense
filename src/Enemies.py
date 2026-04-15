@@ -216,12 +216,18 @@ class Sniper(TriEntity):
 
 
 class Shooter(CircEntity):
-    def __init__(self, radius, x_cor, y_cor, color) -> None:
+    def __init__(self, radius, x_cor, y_cor, color, projectile_grp) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
         self.health = self.max_health = 150
-        self.projectile_grp = pygame.sprite.Group()
-        self.pistol = Pistol(self.projectile_grp, self.rect, 500, 75, self.color)
+        self.projectile_grp = projectile_grp
+        self.pistol = Pistol(
+            self.projectile_grp,
+            self.rect,
+            500,
+            75,
+            self.color,
+        )
         self.damage = 10
 
     def update(self, tar_x, tar_y, borders):
@@ -231,7 +237,6 @@ class Shooter(CircEntity):
     def take_dmg(self, amount):
         self.health -= amount
         if self.health <= 0:
-            self.projectile_grp.empty()
             self.kill()
 
     def draw(self, screen):

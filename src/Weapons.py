@@ -9,11 +9,14 @@ from const.COLORS import BLUE
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, radius, x_cor, y_cor, tar_x, tar_y, color, speed=10) -> None:
+    def __init__(
+        self, radius, x_cor, y_cor, tar_x, tar_y, color, damage, speed=10
+    ) -> None:
         super().__init__()
 
         self.radius = radius
         self.speed = speed
+        self.damage = damage
         self.tar_x = tar_x
         self.tar_y = tar_y
         self.color = color
@@ -42,7 +45,6 @@ class WeaponTemplate(ABC):
     def __init__(self) -> None:
         self.shoot_cd = 100
         self.shoot_timer = 0
-        self.damage = 10
 
     @abstractmethod
     def shoot(self, tar_x, tar_y): ...
@@ -58,12 +60,19 @@ class WeaponTemplate(ABC):
 
 class Pistol(WeaponTemplate):
     def __init__(
-        self, projectile_grp, player_rect, shoot_cd=150, damage=20, color=BLUE
+        self,
+        projectile_grp,
+        player_rect,
+        shoot_cd=150,
+        damage=20,
+        color=BLUE,
+        speed=10,
     ) -> None:
         super().__init__()
 
         self.shoot_cd = shoot_cd
         self.damage = damage
+        self.speed = speed
         self.color = color
         self.projectile_grp = projectile_grp
         self.rect = player_rect
@@ -74,19 +83,33 @@ class Pistol(WeaponTemplate):
             return
 
         bullet = Bullet(
-            5, self.rect.centerx, self.rect.centery, tar_x, tar_y, self.color
+            5,
+            self.rect.centerx,
+            self.rect.centery,
+            tar_x,
+            tar_y,
+            self.color,
+            self.damage,
+            self.speed,
         )
         self.projectile_grp.add(bullet)
 
 
 class Shotgun(WeaponTemplate):
     def __init__(
-        self, projectile_grp, player_rect, shoot_cd=750, damage=40, color=BLUE
+        self,
+        projectile_grp,
+        player_rect,
+        shoot_cd=750,
+        damage=40,
+        color=BLUE,
+        speed=20,
     ) -> None:
         super().__init__()
 
         self.shoot_cd = shoot_cd
         self.damage = damage
+        self.speed = speed
         self.color = color
         self.projectile_grp = projectile_grp
         self.rect = player_rect
@@ -115,19 +138,27 @@ class Shotgun(WeaponTemplate):
                     tar_x_off,
                     tar_y_off,
                     self.color,
-                    20,
+                    self.damage,
+                    self.speed,
                 )
             )
 
 
 class MachineGun(WeaponTemplate):
     def __init__(
-        self, projectile_grp, player_rect, shoot_cd=25, damage=10, color=BLUE
+        self,
+        projectile_grp,
+        player_rect,
+        shoot_cd=25,
+        damage=10,
+        color=BLUE,
+        speed=30,
     ) -> None:
         super().__init__()
 
         self.shoot_cd = shoot_cd
         self.damage = damage
+        self.speed = speed
         self.color = color
         self.projectile_grp = projectile_grp
         self.rect = player_rect
@@ -151,6 +182,7 @@ class MachineGun(WeaponTemplate):
             tar_x_off,
             tar_y_off,
             self.color,
-            30,
+            self.damage,
+            self.speed,
         )
         self.projectile_grp.add(bullet)
