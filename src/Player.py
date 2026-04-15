@@ -40,8 +40,8 @@ class Player(BoxEntity):
 
         # Abilities
         self.dash_ab = Dash()
-        self.shield_ab = Shield()
         self.passive_heal_ab = PassiveHeal()
+        self.shield_ab = Shield()
         self.bullet_burst_ab = BulletBurst()
 
         # States

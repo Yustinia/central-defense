@@ -7,9 +7,9 @@ import math
 
 
 class Dash:
-    def __init__(self) -> None:
-        self.dash_spd = 5
-        self.dash_cd = 500
+    def __init__(self, dash_spd=5, dash_cd=500) -> None:
+        self.dash_spd = dash_spd
+        self.dash_cd = dash_cd
         self.dash_timer = 0
 
     def do_dash(self, dx, dy):
@@ -24,13 +24,15 @@ class Dash:
 
 
 class Shield:
-    def __init__(self) -> None:
-        self.shield_cd = 30000
+    def __init__(
+        self, shield_cd=30000, shield_duration=12000, shield_durability=150
+    ) -> None:
+        self.shield_cd = shield_cd
         self.shield_timer = 0
-        self.shield_duration = 12000
+        self.shield_duration = shield_duration
         self.active_timer = 0
         self.is_active = False
-        self.durability = self.durability_init = 150
+        self.durability = self.durability_init = shield_durability
         self.can_be_activated = False
 
     def update(self):
@@ -57,9 +59,9 @@ class Shield:
 
 
 class PassiveHeal:
-    def __init__(self) -> None:
-        self.heal_cd = 12000
-        self.heal_amt = 10
+    def __init__(self, heal_cd=12000, heal_amt=10) -> None:
+        self.heal_cd = heal_cd
+        self.heal_amt = heal_amt
         self.heal_timer = 0
         self.is_active = True
 
@@ -73,10 +75,10 @@ class PassiveHeal:
 
 
 class BulletBurst:
-    def __init__(self) -> None:
-        self.burst_cd = 15000
+    def __init__(self, burst_cd=15000, bullet_count=24) -> None:
+        self.burst_cd = burst_cd
         self.burst_timer = 0
-        self.bullet_count = 16
+        self.bullet_count = bullet_count
         self.is_active = False
 
     def is_ready(self):
