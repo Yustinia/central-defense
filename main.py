@@ -382,8 +382,20 @@ class GameManager:
             case "GAMEOVER":
                 self.game_over.draw(self.screen)
 
-    def runner(self, fps):
+    def runner(self, fps, should_log):
         while self.game_running:
+            if should_log:
+                logging = {
+                    "ROUND": self.game.round_counter,
+                    "CHASER": len(self.game.chaser_spawner.group),
+                    "BOUNCER": len(self.game.bouncer_spawner.group),
+                    "TANK": len(self.game.tank_spawner.group),
+                    "SNIPER": len(self.game.sniper_spawner.group),
+                }
+                for key, value in logging.items():
+                    print(f"{key}: {value}")
+                print()
+
             self.event()
             self.update()
             self.draw()
@@ -399,4 +411,4 @@ if __name__ == "__main__":
     disp_info = pygame.display.Info()
     disp_wd, disp_ht = disp_info.current_w, disp_info.current_h
     gm = GameManager(disp_wd, disp_ht, "MAINMENU")
-    gm.runner(60)
+    gm.runner(60, True)

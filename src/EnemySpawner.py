@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import pygame
 
 from const.COLORS import ORANGE, VIOLET, YELLOW
-from src.Enemies import Bouncer, Chaser, Tank, Sniper
+from src.Enemies import Bouncer, Chaser, Sniper, Tank
 
 
 class BaseEnemySpawner(ABC):
@@ -38,6 +38,8 @@ class ChaserSpawner(BaseEnemySpawner):
     def __init__(self) -> None:
         super().__init__(hard_lim=14, to_spawn=2, to_spawn_init=2, spawn_cd=3700)
 
+        self.down_round = 20
+
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
             return
@@ -61,17 +63,22 @@ class ChaserSpawner(BaseEnemySpawner):
         self.spawned += 1
 
     def next_round(self, round_counter):
-        self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
-        self.spawn_cd = max(self.spawn_cd - 400, self.spawn_cd_init // 5)
+        if round_counter >= self.down_round:
+            self.to_spawn = 0
+            self.spawn_cd = self.spawn_cd_init
+        else:
+            self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
+            self.spawn_cd = max(self.spawn_cd - 400, self.spawn_cd_init // 5)
 
         self.reset()
 
 
 class BouncerSpawner(BaseEnemySpawner):
     def __init__(self) -> None:
-        super().__init__(hard_lim=7, to_spawn=0, to_spawn_init=-2, spawn_cd=5600)
+        super().__init__(hard_lim=4, to_spawn=0, to_spawn_init=-2, spawn_cd=5600)
 
         self.pref_round = 3
+        self.down_round = 17
 
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
@@ -99,7 +106,10 @@ class BouncerSpawner(BaseEnemySpawner):
         self.spawned += 1
 
     def next_round(self, round_counter):
-        if round_counter >= self.pref_round:
+        if round_counter >= self.down_round:
+            self.to_spawn = 0
+            self.spawn_cd = self.spawn_cd_init
+        elif round_counter >= self.pref_round:
             self.to_spawn = min(
                 self.to_spawn_init + round_counter,
                 self.hard_lim,
@@ -153,9 +163,10 @@ class TankSpawner(BaseEnemySpawner):
 
 class SniperSpawner(BaseEnemySpawner):
     def __init__(self) -> None:
-        super().__init__(hard_lim=8, to_spawn=0, to_spawn_init=-8, spawn_cd=4750)
+        super().__init__(hard_lim=30, to_spawn=0, to_spawn_init=-8, spawn_cd=4750)
 
         self.pref_round = 10
+        self.up_round = 17
 
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
@@ -181,7 +192,10 @@ class SniperSpawner(BaseEnemySpawner):
         self.spawned += 1
 
     def next_round(self, round_counter):
-        if round_counter >= self.pref_round:
+        if round_counter >= self.up_round:
+            self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
+            self.spawn_cd = max(self.spawn_cd - 800, self.spawn_cd_init // 12)
+        elif round_counter >= self.pref_round:
             self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
             self.spawn_cd = max(self.spawn_cd - 200, self.spawn_cd_init // 2)
         else:
