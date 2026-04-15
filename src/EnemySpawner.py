@@ -206,7 +206,7 @@ class SniperSpawner(BaseEnemySpawner):
 
 class ShooterSpawner(BaseEnemySpawner):
     def __init__(self, projectile_grp) -> None:
-        super().__init__(hard_lim=4, to_spawn=0, to_spawn_init=-13, spawn_cd=6720)
+        super().__init__(hard_lim=4, to_spawn=0, to_spawn_init=-14, spawn_cd=6720)
 
         self.projectile_grp = projectile_grp
         self.pref_round = 17
@@ -228,7 +228,7 @@ class ShooterSpawner(BaseEnemySpawner):
 
     def next_round(self, round_counter):
         if round_counter >= self.pref_round:
-            self.to_spawn = min(self.spawn_cd_init + round_counter, self.hard_lim)
+            self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
         else:
             self.to_spawn = 0
 

@@ -230,9 +230,8 @@ class Shooter(CircEntity):
         )
         self.damage = 10
 
-    def update(self, tar_x, tar_y, borders):
+    def update(self, tar_x, tar_y):
         self.pistol.shoot(tar_x, tar_y)
-        self.projectile_grp.update(borders)
 
     def take_dmg(self, amount):
         self.health -= amount

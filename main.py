@@ -1,5 +1,4 @@
 import pygame
-from pygame.sprite import spritecollide
 from typing_extensions import override
 
 from const.COLORS import BLACK, BLUE, CYAN, GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
@@ -189,6 +188,7 @@ class Game:
 
         self.player.update(keys, self.borders)
         self.player_projectiles.update(self.borders)
+        self.enemy_projectiles.update(self.borders)
 
         self.chaser_spawner.group.update(
             self.player.rect.centerx,
@@ -207,7 +207,6 @@ class Game:
         self.shooter_spawner.group.update(
             self.player.rect.centerx,
             self.player.rect.centery,
-            self.borders,
         )
 
         if pygame.mouse.get_pressed()[0]:
