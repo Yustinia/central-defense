@@ -10,7 +10,7 @@ from const.COLORS import BLUE, PLAT
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(
-        self, radius, x_cor, y_cor, tar_x, tar_y, color, damage, speed=10
+        self, radius, x_cor, y_cor, tar_x, tar_y, color=PLAT, damage=10, speed=10
     ) -> None:
         super().__init__()
 

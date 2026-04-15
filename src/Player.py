@@ -1,8 +1,8 @@
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLUE, GREEN, RED, WHITE, YELLOW
-from src.Abilities import Dash, Shield, PassiveHeal
+from const.COLORS import BLUE, GREEN, RED, WHITE, YELLOW, PLAT
+from src.Abilities import Dash, Shield, PassiveHeal, BulletBurst
 from src.Entities import BoxEntity
 from src.Weapons import MachineGun, Pistol, Shotgun
 
@@ -42,6 +42,7 @@ class Player(BoxEntity):
         self.dash_ab = Dash()
         self.shield_ab = Shield()
         self.passive_heal_ab = PassiveHeal()
+        self.bullet_burst_ab = BulletBurst()
 
         # States
         self.is_alive = True
@@ -102,6 +103,14 @@ class Player(BoxEntity):
         if keys[pygame.K_e]:
             self.shield_ab.activate()
 
+        if keys[pygame.K_r]:
+            if self.bullet_burst_ab.is_ready():
+                self.bullet_burst_ab.burst(
+                    self.projectile_grp,
+                    self.rect.centerx,
+                    self.rect.centery,
+                )
+
     def _collision(self, borders):
         self.rect.x += int(self.dx)
         for border in borders:
@@ -159,6 +168,27 @@ class Player(BoxEntity):
             )
             fill_color = YELLOW
 
+        else:
+            fill_wd = bar_wd
+            fill_color = GREEN
+
+        pygame.draw.rect(screen, fill_color, (bar_rect.x, bar_rect.y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, WHITE, bar_rect, 1)
+
+    def draw_burst_bar(self, win_wd, win_ht, screen):
+        bar_wd = win_wd // 4
+        bar_ht = 20
+
+        bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
+        bar_rect.center = (((2 * win_wd) // 3) - 60, win_ht - 60)
+
+        now = pygame.time.get_ticks()
+        elapsed = now - self.bullet_burst_ab.burst_timer
+        progress = min(elapsed / self.bullet_burst_ab.burst_cd, 1.0)
+
+        if progress < 1.0:
+            fill_wd = int(progress * bar_wd)
+            fill_color = RED
         else:
             fill_wd = bar_wd
             fill_color = GREEN

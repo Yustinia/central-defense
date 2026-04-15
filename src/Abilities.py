@@ -1,7 +1,9 @@
 import pygame
 
-from const.COLORS import WHITE, YELLOW
+from const.COLORS import WHITE, YELLOW, PLAT
+from src.Weapons import Bullet
 from src.Entities import OctEntity
+import math
 
 
 class Dash:
@@ -68,3 +70,42 @@ class PassiveHeal:
             return True
 
         return False
+
+
+class BulletBurst:
+    def __init__(self) -> None:
+        self.burst_cd = 15000
+        self.burst_timer = 0
+        self.bullet_count = 16
+        self.is_active = False
+
+    def is_ready(self):
+        now = pygame.time.get_ticks()
+        if not self.is_active and now - self.burst_timer > self.burst_cd:
+            return True
+        return False
+
+    def burst(self, projectile_grp, x_cor, y_cor, color=PLAT, damage=100, speed=5):
+        now = pygame.time.get_ticks()
+        self.burst_timer = now
+        self.is_active = True
+
+        angle_step = 360 / self.bullet_count
+        for i in range(self.bullet_count):
+            angle = math.radians(angle_step * i)
+            tar_x = x_cor + math.cos(angle) * 100
+            tar_y = y_cor + math.sin(angle) * 100
+            projectile_grp.add(
+                Bullet(
+                    5,
+                    x_cor,
+                    y_cor,
+                    tar_x,
+                    tar_y,
+                    color,
+                    damage,
+                    speed,
+                )
+            )
+
+        self.is_active = False

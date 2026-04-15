@@ -216,7 +216,8 @@ class Game:
         self.playing_state.render_current_weap(self.current_weap_state, screen)
 
         self.player.draw_health_bar(self.win_wd, self.win_ht, screen)
-        self.player.draw_shield_bar(self.win_wd, self.win_ht, screen)
+        # self.player.draw_shield_bar(self.win_wd, self.win_ht, screen)
+        self.player.draw_burst_bar(self.win_wd, self.win_ht, screen)
 
         self.hp_pack.group.draw(screen)
 
