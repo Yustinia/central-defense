@@ -4,6 +4,10 @@ from const.COLORS import BLACK, BLUE, ORANGE, WHITE
 from const.FONTS import BOLD, REGULAR
 from src.Core import Background, Border
 from src.Player import Player
+from src._MEIPASS import resource_path
+
+BOLD = resource_path(BOLD)
+REGULAR = resource_path(REGULAR)
 
 
 class MainMenu:
