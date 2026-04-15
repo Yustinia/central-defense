@@ -2,7 +2,7 @@ import pygame
 from typing_extensions import override
 
 from const.COLORS import BLUE, GREEN, RED, WHITE, YELLOW
-from src.Abilities import Dash, Shield
+from src.Abilities import Dash, Shield, PassiveHeal
 from src.Entities import BoxEntity
 from src.Weapons import MachineGun, Pistol, Shotgun
 
@@ -41,6 +41,7 @@ class Player(BoxEntity):
         # Abilities
         self.dash_ab = Dash()
         self.shield_ab = Shield()
+        self.passive_heal_ab = PassiveHeal()
 
         # States
         self.is_alive = True
@@ -49,6 +50,7 @@ class Player(BoxEntity):
     def update(self, keys, borders):
         self.shield_ab.update()
         self._update_visual()
+        self._passive_heal()
 
         self._movement(keys)
         self._collision(borders)
@@ -58,6 +60,12 @@ class Player(BoxEntity):
             self.image.fill(YELLOW)
         else:
             self.image.fill(BLUE)
+
+    def _passive_heal(self):
+        if self.passive_heal_ab.is_ready():
+            self.health = min(
+                self.health + self.passive_heal_ab.heal_amt, self.max_health
+            )
 
     def take_damage(self, amount):
         now = pygame.time.get_ticks()

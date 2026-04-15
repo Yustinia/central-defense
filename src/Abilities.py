@@ -52,3 +52,19 @@ class Shield:
         self.shield_timer = now
         self.active_timer = now
         self.durability = self.durability_init
+
+
+class PassiveHeal:
+    def __init__(self) -> None:
+        self.heal_cd = 12000
+        self.heal_amt = 10
+        self.heal_timer = 0
+        self.is_active = True
+
+    def is_ready(self):
+        now = pygame.time.get_ticks()
+        if now - self.heal_timer > self.heal_cd:
+            self.heal_timer = now
+            return True
+
+        return False

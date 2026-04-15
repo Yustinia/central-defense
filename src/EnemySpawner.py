@@ -197,7 +197,7 @@ class SniperSpawner(BaseEnemySpawner):
             self.spawn_cd = max(self.spawn_cd - 800, self.spawn_cd_init // 12)
         elif round_counter >= self.pref_round:
             self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
-            self.spawn_cd = max(self.spawn_cd - 200, self.spawn_cd_init // 2)
+            self.spawn_cd = max(self.spawn_cd - 400, self.spawn_cd_init // 2)
         else:
             self.to_spawn = 0
 
