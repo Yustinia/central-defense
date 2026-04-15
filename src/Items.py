@@ -1,3 +1,5 @@
+import pygame
+
 from src.Entities import CrossEntity
 
 

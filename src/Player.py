@@ -1,7 +1,7 @@
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLUE, RED, WHITE, YELLOW, GREEN
+from const.COLORS import BLUE, GREEN, RED, WHITE, YELLOW
 from src.Abilities import Dash, Shield
 from src.Entities import BoxEntity
 from src.Weapons import MachineGun, Pistol, Shotgun
@@ -138,7 +138,6 @@ class Player(BoxEntity):
         bar_rect.center = (((2 * win_wd) // 3) - 60, win_ht - 60)
 
         if not self.shield_ab.can_be_activated and not self.shield_ab.is_active:
-
             now = pygame.time.get_ticks()
             elapsed = now - self.shield_ab.shield_timer
             progress = min(elapsed / self.shield_ab.shield_cd, 1.0)

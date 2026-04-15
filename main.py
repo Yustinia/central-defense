@@ -81,6 +81,16 @@ class Game:
     def update(self):
         keys = pygame.key.get_pressed()
 
+        if pygame.mouse.get_pressed()[0]:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            match self.current_weap_state:
+                case "PISTOL":
+                    self.player.pistol.shoot(mouse_x, mouse_y)
+                case "SHOTGUN":
+                    self.player.shotgun.shoot(mouse_x, mouse_y)
+                case "MACHINEGUN":
+                    self.player.machinegun.shoot(mouse_x, mouse_y)
+
         self.hp_pack.try_spawn(self.win_wd, self.win_ht)
 
         # SPAWNER UPDATES
@@ -116,16 +126,6 @@ class Game:
             self.player.rect.centerx,
             self.player.rect.centery,
         )
-
-        if pygame.mouse.get_pressed()[0]:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            match self.current_weap_state:
-                case "PISTOL":
-                    self.player.pistol.shoot(mouse_x, mouse_y)
-                case "SHOTGUN":
-                    self.player.shotgun.shoot(mouse_x, mouse_y)
-                case "MACHINEGUN":
-                    self.player.machinegun.shoot(mouse_x, mouse_y)
 
         # OBJECTS
         hp_acq = pygame.sprite.spritecollide(self.player, self.hp_pack.group, False)
@@ -163,6 +163,7 @@ class Game:
             if player_enemy_hitmarks:
                 enemy = player_enemy_hitmarks[0]
                 self.player.take_damage(enemy.damage)
+
                 if not self.player.is_alive:
                     return False
 
