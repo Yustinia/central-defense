@@ -25,22 +25,39 @@ class Player(BoxEntity):
         self.projectile_grp = projectile_grp
 
         # Weapons
-        self.pistol = Pistol(self.projectile_grp, self.rect)
-        self.shotgun = Shotgun(self.projectile_grp, self.rect)
-        self.machinegun = MachineGun(self.projectile_grp, self.rect)
+        self.pistol = Pistol(
+            self.projectile_grp,
+            self.rect,
+        )
+        self.shotgun = Shotgun(
+            self.projectile_grp,
+            self.rect,
+        )
+        self.machinegun = MachineGun(
+            self.projectile_grp,
+            self.rect,
+        )
 
         # Abilities
         self.dash_ab = Dash()
-        self.shield_ab = Shield(100, x_cor, y_cor)
+        self.shield_ab = Shield()
 
         # States
         self.is_alive = True
 
     @override
     def update(self, keys, borders):
+        self.shield_ab.update()
+        self._update_visual()
+
         self._movement(keys)
-        self.shield_ab.update(self.rect.centerx, self.rect.centery)
         self._collision(borders)
+
+    def _update_visual(self):
+        if self.shield_ab.is_active:
+            self.image.fill(YELLOW)
+        else:
+            self.image.fill(BLUE)
 
     def take_damage(self, amount):
         now = pygame.time.get_ticks()

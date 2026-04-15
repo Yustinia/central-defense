@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLUE
+from const.COLORS import BLUE, PLAT
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -65,7 +65,7 @@ class Pistol(WeaponTemplate):
         player_rect,
         shoot_cd=150,
         damage=20,
-        color=BLUE,
+        color=PLAT,
         speed=10,
     ) -> None:
         super().__init__()
@@ -102,7 +102,7 @@ class Shotgun(WeaponTemplate):
         player_rect,
         shoot_cd=750,
         damage=40,
-        color=BLUE,
+        color=PLAT,
         speed=20,
     ) -> None:
         super().__init__()
@@ -151,7 +151,7 @@ class MachineGun(WeaponTemplate):
         player_rect,
         shoot_cd=25,
         damage=10,
-        color=BLUE,
+        color=PLAT,
         speed=30,
     ) -> None:
         super().__init__()

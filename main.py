@@ -223,7 +223,6 @@ class Game:
             projectile.draw(screen)
 
         self.player.draw(screen)
-        self.player.shield_ab.draw(screen)
 
         for spawner in spawners:
             for enemy in spawner.group:

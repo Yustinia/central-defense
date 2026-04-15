@@ -21,10 +21,8 @@ class Dash:
         return dx * self.dash_spd, dy * self.dash_spd
 
 
-class Shield(OctEntity):
-    def __init__(self, size, x_cor, y_cor) -> None:
-        super().__init__(size, x_cor, y_cor, YELLOW)
-
+class Shield:
+    def __init__(self) -> None:
         self.shield_cd = 30000
         self.shield_timer = 0
         self.shield_duration = 12000
@@ -33,12 +31,9 @@ class Shield(OctEntity):
         self.durability = self.durability_init = 150
         self.can_be_activated = False
 
-        self.image.set_alpha(64)
-
-    def update(self, player_x, player_y):
-        self.movement(player_x, player_y)
-
+    def update(self):
         now = pygame.time.get_ticks()
+
         if self.is_active and now - self.active_timer > self.shield_duration:
             self.is_active = False
             self.can_be_activated = False
@@ -46,9 +41,6 @@ class Shield(OctEntity):
 
         if not self.can_be_activated and now - self.shield_timer > self.shield_cd:
             self.can_be_activated = True
-
-    def movement(self, player_x, player_y):
-        self.rect.center = (player_x, player_y)
 
     def activate(self):
         if not self.can_be_activated:
@@ -60,7 +52,3 @@ class Shield(OctEntity):
         self.shield_timer = now
         self.active_timer = now
         self.durability = self.durability_init
-
-    def draw(self, screen):
-        if self.is_active:
-            screen.blit(self.image, self.rect)
