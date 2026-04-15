@@ -158,7 +158,7 @@ class Sniper(TriEntity):
         self.speed = speed
         self.dx, self.dy = 0, 0
         self.health = self.max_health = 25
-        self.damage = 50
+        self.damage = 25
 
         self.fuse_duration = 2000
         self.spawn_time = pygame.time.get_ticks()
@@ -225,7 +225,7 @@ class Shooter(CircEntity):
             self.projectile_grp,
             self.rect,
             500,
-            75,
+            50,
             self.color,
         )
         self.damage = 10

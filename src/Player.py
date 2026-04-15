@@ -19,7 +19,7 @@ class Player(BoxEntity):
         self.friction = 0.85
 
         self.min_health = 250
-        self.dmg_cd = 250
+        self.dmg_cd = 125
         self.dmg_timer = 0
 
         self.projectile_grp = projectile_grp
