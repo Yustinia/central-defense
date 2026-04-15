@@ -1,9 +1,6 @@
 import pygame
-from typing_extensions import override
 
-from const.COLORS import BLACK, BLUE, CYAN, GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
-from const.FONTS import REGULAR, SUBTITLE_SZ
-from src.Abilities import Dash, Shield
+from const.COLORS import BLACK, BLUE, GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
 from src.Core import Background, Border
 from src.EnemySpawner import (
     BouncerSpawner,
@@ -12,98 +9,9 @@ from src.EnemySpawner import (
     SniperSpawner,
     TankSpawner,
 )
-from src.Entities import BoxEntity
 from src.ItemSpawner import HealthPackSpawner
-from src.Menu import GameOver, MainMenu
-from src.Weapons import MachineGun, Pistol, Shotgun
-
-
-class Player(BoxEntity):
-    def __init__(
-        self, win_wd, win_ht, x_cor, y_cor, color, projectile_grp, speed=1
-    ) -> None:
-        super().__init__(win_wd, win_ht, x_cor, y_cor, color)
-
-        self.health = 500
-        self.speed = speed
-        self.dx, self.dy = 0, 0
-        self.friction = 0.85
-
-        self.min_health = 250
-        self.dmg_cd = 250
-        self.dmg_timer = 0
-
-        self.projectile_grp = projectile_grp
-
-        # Weapons
-        self.pistol = Pistol(self.projectile_grp, self.rect)
-        self.shotgun = Shotgun(self.projectile_grp, self.rect)
-        self.machinegun = MachineGun(self.projectile_grp, self.rect)
-
-        # Abilities
-        self.dash_ab = Dash()
-        self.shield_ab = Shield(100, x_cor, y_cor, CYAN)
-
-        # States
-        self.is_alive = True
-
-    @override
-    def update(self, keys, borders):
-        self._movement(keys)
-        self.shield_ab.update(self.rect.centerx, self.rect.centery)
-        self._collision(borders)
-
-    def take_damage(self, amount):
-        now = pygame.time.get_ticks()
-        if now - self.dmg_timer < self.dmg_cd:
-            return self.is_alive
-        self.dmg_timer = now
-
-        if self.shield_ab.is_active:
-            self.shield_ab.durability -= amount
-            if self.shield_ab.durability <= 0:
-                self.shield_ab.is_active = False
-            return self.is_alive
-
-        self.health -= amount
-
-        if self.health <= 0 or self.health == 0:
-            self.health = 0
-            self.is_alive = False
-
-        return self.is_alive
-
-    def _movement(self, keys):
-        if keys[pygame.K_a]:
-            self.dx -= self.speed
-        if keys[pygame.K_d]:
-            self.dx += self.speed
-        if keys[pygame.K_w]:
-            self.dy -= self.speed
-        if keys[pygame.K_s]:
-            self.dy += self.speed
-
-        if keys[pygame.K_SPACE]:
-            self.dx, self.dy = self.dash_ab.do_dash(self.dx, self.dy)
-
-        if keys[pygame.K_e]:
-            self.shield_ab.activate()
-
-    def _collision(self, borders):
-        self.rect.x += int(self.dx)
-        for border in borders:
-            if self.rect.colliderect(border.rect):
-                self.rect.x -= int(self.dx)
-                self.dx = 0
-
-        self.rect.y += int(self.dy)
-        for border in borders:
-            if self.rect.colliderect(border.rect):
-                self.rect.y -= int(self.dy)
-                self.dy = 0
-
-        self.dx *= self.friction
-        self.dy *= self.friction
+from src.Menu import GameOver, MainMenu, PlayingMenu
+from src.Player import Player
 
 
 class Game:
@@ -156,8 +64,8 @@ class Game:
         # ROUNDS
         self.round_counter = 1
 
-        # FONTS
-        self.subtitle_ft = pygame.font.Font(REGULAR, SUBTITLE_SZ)
+        # GUI
+        self.playing_gui = PlayingMenu(self.win_wd, self.win_ht, self.player)
 
     def event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
@@ -302,7 +210,7 @@ class Game:
         )
 
         self.bg.draw(screen)
-        self._show_round(screen)
+        self.playing_gui.draw(screen)
 
         self.hp_pack.group.draw(screen)
 
@@ -320,44 +228,16 @@ class Game:
         for border in self.borders:
             border.draw(screen)
 
-        # self._show_weap_state(screen)
-        self._show_ply_hp(screen)
-        # self._show_shield_durability(screen)
+    # def _show_round(self, screen):
+    #     round_state_img = self.subtitle_ft.render(
+    #         f"Round {self.round_counter}", True, WHITE
+    #     )
+    #     round_state_img.set_alpha(16)
+    #     round_state_rect = round_state_img.get_rect(
+    #         center=(self.win_wd // 2, self.win_ht // 2)
+    #     )
 
-    def _show_weap_state(self, screen):
-        weap_state_img = self.subtitle_ft.render(
-            f"Current Weapon: {self.current_weap_state}", True, WHITE
-        )
-        weap_state_rect = weap_state_img.get_rect(topleft=(10, 20))
-
-        screen.blit(weap_state_img, weap_state_rect)
-
-    def _show_round(self, screen):
-        round_state_img = self.subtitle_ft.render(
-            f"Round {self.round_counter}", True, WHITE
-        )
-        round_state_img.set_alpha(16)
-        round_state_rect = round_state_img.get_rect(
-            center=(self.win_wd // 2, self.win_ht // 2)
-        )
-
-        screen.blit(round_state_img, round_state_rect)
-
-    def _show_ply_hp(self, screen):
-        ply_hp_img = self.subtitle_ft.render(f"HP: {self.player.health}", True, WHITE)
-        ply_hp_rect = ply_hp_img.get_rect(center=(self.win_wd // 2, 40))
-
-        screen.blit(ply_hp_img, ply_hp_rect)
-
-    def _show_shield_durability(self, screen):
-        shield_dur_img = self.subtitle_ft.render(
-            f"Shield: {self.player.shield_ab.durability}",
-            True,
-            YELLOW if self.player.shield_ab.can_be_activated else BLACK,
-        )
-        shield_dur_rect = shield_dur_img.get_rect(center=(self.win_wd // 2, 70))
-
-        screen.blit(shield_dur_img, shield_dur_rect)
+    #     screen.blit(round_state_img, round_state_rect)
 
 
 class GameManager:
