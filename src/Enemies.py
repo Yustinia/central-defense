@@ -246,22 +246,25 @@ class Shooter(CircEntity):
         y_cor,
         color,
         projectile_grp,
+        shoot_cd=500,
         radius=20,
         health=150,
-        damage=10,
+        damage=50,
     ) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
-        self.health = self.max_health = 150
+        self.health = self.max_health = health
+        self.shoot_cd = shoot_cd
+        self.damage = damage
+
         self.projectile_grp = projectile_grp
         self.pistol = Pistol(
             self.projectile_grp,
             self.rect,
-            500,
-            50,
+            self.shoot_cd,
+            self.damage,
             self.color,
         )
-        self.damage = 10
 
     def update(self, tar_x, tar_y):
         self.pistol.shoot(tar_x, tar_y)

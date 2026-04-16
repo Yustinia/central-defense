@@ -238,9 +238,9 @@ class LaserGun(WeaponTemplate):
         self,
         projectile_grp,
         player_rect,
-        thickness=4,
+        thickness=8,
         shoot_cd=25,
-        damage=5,
+        damage=2,
         duration=25,
         color=RED,
     ) -> None:
