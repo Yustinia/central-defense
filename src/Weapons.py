@@ -240,7 +240,7 @@ class LaserGun(WeaponTemplate):
         player_rect,
         thickness=4,
         shoot_cd=25,
-        damage=100,
+        damage=5,
         duration=25,
         color=RED,
     ) -> None:

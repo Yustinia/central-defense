@@ -32,8 +32,9 @@ class Game:
         for border in border_list:
             self.borders.add(border)
 
-        # PELLETS
+        # EJECTION COLLETCION
         self.player_projectiles = pygame.sprite.Group()
+        self.player_beams = pygame.sprite.Group()
         self.enemy_projectiles = pygame.sprite.Group()
 
         # PLAYER
@@ -45,6 +46,7 @@ class Game:
             self.win_ht // 2,
             BLUE,
             self.player_projectiles,
+            self.player_beams,
         )
 
         # OBJECTS
@@ -110,6 +112,7 @@ class Game:
 
         self.player.update(keys, self.borders)
         self.player_projectiles.update(self.borders)
+        self.player_beams.update(self.borders)
         self.enemy_projectiles.update(self.borders)
 
         self.chaser_spawner.group.update(
@@ -150,12 +153,19 @@ class Game:
         )
 
         for spawner in enemy_spawners:
-            hitmarks = pygame.sprite.groupcollide(
+            projectile_hitmarks = pygame.sprite.groupcollide(
                 self.player_projectiles, spawner.group, True, False
             )
-            for projectile, enemies_hit in hitmarks.items():
+            for projectile, enemies_hit in projectile_hitmarks.items():
                 for enemy in enemies_hit:
                     enemy.take_dmg(projectile.damage)
+
+            beam_hitmars = pygame.sprite.groupcollide(
+                self.player_beams, spawner.group, False, False
+            )
+            for beam, enemies_hit in beam_hitmars.items():
+                for enemy in enemies_hit:
+                    enemy.take_dmg(beam.damage)
 
         # ENEMY AND PLAYER CONTACT
         kill_on_contact = [self.bouncer_spawner, self.sniper_spawner]
@@ -223,8 +233,12 @@ class Game:
 
         self.hp_pack.group.draw(screen)
 
-        for projectile in [self.player_projectiles, self.enemy_projectiles]:
-            projectile.draw(screen)
+        for ejection in (
+            self.player_projectiles,
+            self.player_beams,
+            self.enemy_projectiles,
+        ):
+            ejection.draw(screen)
 
         self.player.draw(screen)
 

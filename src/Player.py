@@ -9,7 +9,7 @@ from src.Weapons import LaserGun, MachineGun, Pistol, Shotgun
 
 class Player(BoxEntity):
     def __init__(
-        self, win_wd, win_ht, x_cor, y_cor, color, projectile_grp, speed=1
+        self, win_wd, win_ht, x_cor, y_cor, color, projectile_grp, beam_grp, speed=1
     ) -> None:
         super().__init__(win_wd, win_ht, x_cor, y_cor, color)
 
@@ -23,6 +23,7 @@ class Player(BoxEntity):
         self.dmg_timer = 0
 
         self.projectile_grp = projectile_grp
+        self.beam_grp = beam_grp
 
         # Weapons
         self.pistol = Pistol(
@@ -37,7 +38,7 @@ class Player(BoxEntity):
             self.projectile_grp,
             self.rect,
         )
-        self.lasergun = LaserGun(self.projectile_grp, self.rect)
+        self.lasergun = LaserGun(self.beam_grp, self.rect)
 
         # Abilities
         self.dash_ab = Dash()

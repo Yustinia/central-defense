@@ -30,6 +30,7 @@ class MainMenu:
             self.flr.rect.top - (ply_ht // 2) - padding,
             BLUE,
             None,
+            None,
         )
 
         self.header_ft = pygame.font.Font(BOLD, 120)
