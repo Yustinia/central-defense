@@ -237,7 +237,7 @@ class ShooterSpawner(BaseEnemySpawner):
 
 class ExploderSpawner(BaseEnemySpawner):
     def __init__(self, projectile_grp) -> None:
-        super().__init__(hard_lim=5, to_spawn=0, to_spawn_init=-18, spawn_cd=3120)
+        super().__init__(hard_lim=6, to_spawn=0, to_spawn_init=-18, spawn_cd=3120)
 
         self.projectile_grp = projectile_grp
         self.pref_round = 20

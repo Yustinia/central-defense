@@ -298,7 +298,7 @@ class Exploder(OctEntity):
         projectile_grp,
         size=50,
         fuse_dur=6000,
-        damage=75,
+        damage=50,
         health=50,
         speed=5,
     ) -> None:
@@ -342,7 +342,7 @@ class Exploder(OctEntity):
 
         self.explode()
 
-    def explode(self, bullet_count=6):
+    def explode(self, bullet_count=16):
         angle_step = 360 / bullet_count
         for i in range(bullet_count):
             angle = math.radians(angle_step * i)
@@ -365,3 +365,14 @@ class Exploder(OctEntity):
         self.health -= amount
         if self.health <= 0:
             self.explode()
+
+    def draw_health_bar(self, screen):
+        bar_wd = 80
+        bar_ht = 20
+
+        bar_x = self.rect.centerx - (bar_wd // 2)
+        bar_y = self.rect.top - (bar_ht * 2)
+
+        fill_wd = int(self.health / self.max_health * bar_wd)
+        pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_wd, bar_ht), 1)

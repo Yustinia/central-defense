@@ -66,7 +66,7 @@ class Game:
         self.current_weap_state = "PISTOL"  # [PISTOL, SHOTGUN, MACHINEGUN, LASERGUN]
 
         # ROUNDS
-        self.round_counter = 1
+        self.round_counter = 19
 
         # GUI
         self.playing_state = PlayingState(self.win_wd, self.win_ht)
@@ -345,6 +345,7 @@ class GameManager:
                     "TANK": len(self.game.tank_spawner.group),
                     "SNIPER": len(self.game.sniper_spawner.group),
                     "SHOOTER": len(self.game.shooter_spawner.group),
+                    "EXPLODER": len(self.game.exploder_spawner.group),
                 }
                 for key, value in logging.items():
                     print(f"{key}: {value}")
