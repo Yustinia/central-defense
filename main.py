@@ -300,11 +300,17 @@ class GameManager:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.current_state in ["MAINMENU", "GAMEOVER"]:
                     self.current_state = "PLAYING"
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                if self.current_state == "PLAYING":
-                    self.current_state = "PAUSED"
-                elif self.current_state == "PAUSED":
-                    self.current_state = "PLAYING"
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if self.current_state == "PLAYING":
+                        self.current_state = "PAUSED"
+                    elif self.current_state == "PAUSED":
+                        self.current_state = "PLAYING"
+
+                if event.key == pygame.K_q:
+                    if self.current_state == "PAUSED":
+                        self.current_state = "MAINMENU"
+                        self.game = Game(self.disp_wd, self.disp_ht)
 
     def update(self):
         match self.current_state:
