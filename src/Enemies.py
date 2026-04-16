@@ -3,9 +3,9 @@ import random
 
 import pygame
 
-from const.COLORS import GREEN, WHITE, ORANGE, VIOLET, YELLOW, RED
-from src.Entities import CircEntity, TriEntity, OctEntity
-from src.Weapons import Pistol, Bullet
+from const.COLORS import GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
+from src.Entities import CircEntity, OctEntity, TriEntity
+from src.Weapons import Bullet, Pistol
 
 
 class Chaser(CircEntity):
@@ -261,9 +261,9 @@ class Shooter(CircEntity):
         self.pistol = Pistol(
             self.projectile_grp,
             self.rect,
-            self.shoot_cd,
-            self.damage,
-            self.color,
+            shoot_cd=self.shoot_cd,
+            damage=damage,
+            color=color,
         )
 
     def update(self, tar_x, tar_y):
