@@ -233,10 +233,6 @@ class Game:
         self.bg.draw(screen)
 
         self.playing_state.render_round(self.round_counter, screen)
-        self.playing_state.render_current_weap(self.current_weap_state, screen)
-
-        self.player.draw_health_bar(self.win_wd, self.win_ht, screen)
-        self.player.draw_ability_bars(self.win_wd, self.win_ht, screen)
 
         self.hp_pack.group.draw(screen)
 

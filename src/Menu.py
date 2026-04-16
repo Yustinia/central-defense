@@ -100,15 +100,6 @@ class PlayingState:
 
         screen.blit(round_counter_img, round_counter_rect)
 
-    def render_current_weap(self, current_weap, screen):
-        current_weap_img = self.current_weap_ft.render(current_weap, True, WHITE)
-        current_weap_img.set_alpha(32)
-        current_weap_rect = current_weap_img.get_rect(
-            midbottom=(self.win_wd // 2, self.win_ht - 80)
-        )
-
-        screen.blit(current_weap_img, current_weap_rect)
-
 
 class PauseMenu:
     def __init__(self, win_wd, win_ht) -> None:
