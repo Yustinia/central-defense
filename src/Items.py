@@ -1,5 +1,5 @@
-from src.Entities import CrossEntity
 from const.COLORS import GREEN
+from src.Entities import CrossEntity
 
 
 class HealthPack(CrossEntity):

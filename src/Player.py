@@ -1,7 +1,7 @@
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLUE, GREEN, RED, WHITE, YELLOW, BLACK
+from const.COLORS import BLACK, BLUE, GREEN, RED, WHITE, YELLOW
 from const.FONTS import REGULAR
 from src.Abilities import BulletBurst, Dash, PassiveHeal, Shield
 from src.Entities import BoxEntity
