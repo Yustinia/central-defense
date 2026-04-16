@@ -63,6 +63,7 @@ class Pistol(WeaponTemplate):
         self,
         projectile_grp,
         player_rect,
+        rad=5,
         shoot_cd=150,
         damage=20,
         color=PLAT,
@@ -70,6 +71,7 @@ class Pistol(WeaponTemplate):
     ) -> None:
         super().__init__()
 
+        self.rad = rad
         self.shoot_cd = shoot_cd
         self.damage = damage
         self.speed = speed
@@ -83,7 +85,7 @@ class Pistol(WeaponTemplate):
             return
 
         bullet = Bullet(
-            5,
+            self.rad,
             self.rect.centerx,
             self.rect.centery,
             tar_x,
@@ -100,6 +102,7 @@ class Shotgun(WeaponTemplate):
         self,
         projectile_grp,
         player_rect,
+        rad=10,
         shoot_cd=750,
         damage=40,
         color=PLAT,
@@ -107,6 +110,7 @@ class Shotgun(WeaponTemplate):
     ) -> None:
         super().__init__()
 
+        self.rad = rad
         self.shoot_cd = shoot_cd
         self.damage = damage
         self.speed = speed
@@ -132,7 +136,7 @@ class Shotgun(WeaponTemplate):
             tar_y_off = self.rect.centery + math.sin(angle) * 100
             self.projectile_grp.add(
                 Bullet(
-                    10,
+                    self.rad,
                     self.rect.centerx,
                     self.rect.centery,
                     tar_x_off,
@@ -149,6 +153,7 @@ class MachineGun(WeaponTemplate):
         self,
         projectile_grp,
         player_rect,
+        rad=5,
         shoot_cd=25,
         damage=10,
         color=PLAT,
@@ -156,6 +161,7 @@ class MachineGun(WeaponTemplate):
     ) -> None:
         super().__init__()
 
+        self.rad = rad
         self.shoot_cd = shoot_cd
         self.damage = damage
         self.speed = speed
@@ -176,7 +182,7 @@ class MachineGun(WeaponTemplate):
         tar_y_off = self.rect.centery + math.sin(angle) * 100
 
         bullet = Bullet(
-            5,
+            self.rad,
             self.rect.centerx,
             self.rect.centery,
             tar_x_off,

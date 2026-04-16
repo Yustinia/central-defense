@@ -1,8 +1,10 @@
 import pygame
 
+from const.COLORS import BLACK, WHITE
+
 
 class Background:
-    def __init__(self, win_wd, win_ht, color) -> None:
+    def __init__(self, win_wd, win_ht, color=BLACK) -> None:
         self.win_wd = win_wd
         self.win_ht = win_ht
         self.color = color
@@ -16,7 +18,7 @@ class Background:
 
 
 class Border(pygame.sprite.Sprite):
-    def __init__(self, bor_wd, bor_ht, x_cor, y_cor, color) -> None:
+    def __init__(self, bor_wd, bor_ht, x_cor, y_cor, color=WHITE) -> None:
         super().__init__()
 
         self.bor_wd = bor_wd

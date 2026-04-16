@@ -9,7 +9,15 @@ from src.Weapons import LaserGun, MachineGun, Pistol, Shotgun
 
 class Player(BoxEntity):
     def __init__(
-        self, win_wd, win_ht, x_cor, y_cor, color, projectile_grp, beam_grp, speed=1
+        self,
+        x_cor,
+        y_cor,
+        projectile_grp,
+        beam_grp,
+        speed=1,
+        win_wd: int = 40,
+        win_ht: int = 40,
+        color=BLUE,
     ) -> None:
         super().__init__(win_wd, win_ht, x_cor, y_cor, color)
 

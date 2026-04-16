@@ -1,14 +1,13 @@
 import pygame
 
-from const.COLORS import BLACK, BLUE, GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
 from src.Core import Background, Border
 from src.EnemySpawner import (
     BouncerSpawner,
     ChaserSpawner,
+    ExploderSpawner,
     ShooterSpawner,
     SniperSpawner,
     TankSpawner,
-    ExploderSpawner,
 )
 from src.ItemSpawner import HealthPackSpawner
 from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState
@@ -19,16 +18,16 @@ class Game:
     def __init__(self, win_wd, win_ht) -> None:
         self.win_wd = win_wd
         self.win_ht = win_ht
-        self.bg = Background(self.win_wd, self.win_ht, BLACK)
+        self.bg = Background(self.win_wd, self.win_ht)
 
         # GAME BORDER
         thickness = 30
         self.borders = pygame.sprite.Group()
         border_list = [
-            Border(thickness, self.win_ht, 0, 0, WHITE),  # left
-            Border(thickness, self.win_ht, self.win_wd - thickness, 0, WHITE),  # right
-            Border(self.win_wd, thickness, 0, 0, WHITE),  # up
-            Border(self.win_wd, thickness, 0, self.win_ht - thickness, WHITE),  # down
+            Border(thickness, self.win_ht, 0, 0),  # left
+            Border(thickness, self.win_ht, self.win_wd - thickness, 0),  # right
+            Border(self.win_wd, thickness, 0, 0),  # up
+            Border(self.win_wd, thickness, 0, self.win_ht - thickness),  # down
         ]
         for border in border_list:
             self.borders.add(border)
@@ -39,13 +38,9 @@ class Game:
         self.enemy_projectiles = pygame.sprite.Group()
 
         # PLAYER
-        ply_wd, ply_ht = 40, 40
         self.player = Player(
-            ply_wd,
-            ply_ht,
             self.win_wd // 2,
             self.win_ht // 2,
-            BLUE,
             self.player_projectiles,
             self.player_beams,
         )

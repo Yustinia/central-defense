@@ -59,7 +59,7 @@ class ChaserSpawner(BaseEnemySpawner):
         else:
             x, y = random.randint(-20, win_wd + 20), win_ht + 20
 
-        self.group.add(Chaser(x, y, ORANGE))
+        self.group.add(Chaser(x, y))
         self.spawned += 1
 
     def next_round(self, round_counter):
@@ -101,7 +101,7 @@ class BouncerSpawner(BaseEnemySpawner):
             else:
                 x, y = random.randint(40, win_wd - 40), win_ht - 40
 
-            self.group.add(Bouncer(x, y, VIOLET))
+            self.group.add(Bouncer(x, y))
 
         self.spawned += 1
 
@@ -146,7 +146,7 @@ class TankSpawner(BaseEnemySpawner):
         else:
             x, y = random.randint(-20, win_wd + 20), win_ht + 20
 
-        self.group.add(Tank(x, y, VIOLET))
+        self.group.add(Tank(x, y))
         self.spawned += 1
 
     def next_round(self, round_counter):
@@ -188,7 +188,7 @@ class SniperSpawner(BaseEnemySpawner):
         else:
             x, y = random.randint(60, win_wd - 60), win_ht - 60
 
-        self.group.add(Sniper(x, y, YELLOW))
+        self.group.add(Sniper(x, y))
         self.spawned += 1
 
     def next_round(self, round_counter):
@@ -223,7 +223,7 @@ class ShooterSpawner(BaseEnemySpawner):
         rand_x = random.randint(40, win_wd - 40)
         rand_y = random.randint(40, win_ht - 40)
 
-        self.group.add(Shooter(rand_x, rand_y, RED, self.projectile_grp))
+        self.group.add(Shooter(rand_x, rand_y, self.projectile_grp))
         self.spawned += 1
 
     def next_round(self, round_counter):
@@ -261,7 +261,7 @@ class ExploderSpawner(BaseEnemySpawner):
         else:
             x, y = random.randint(-20, win_wd + 20), win_ht + 20
 
-        self.group.add(Exploder(x, y, YELLOW, self.projectile_grp))
+        self.group.add(Exploder(x, y, self.projectile_grp))
         self.spawned += 1
 
     def next_round(self, round_counter):

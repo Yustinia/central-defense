@@ -3,14 +3,14 @@ import random
 
 import pygame
 
-from const.COLORS import GREEN, WHITE
+from const.COLORS import GREEN, WHITE, ORANGE, VIOLET, YELLOW, RED
 from src.Entities import CircEntity, TriEntity, OctEntity
 from src.Weapons import Pistol, Bullet
 
 
 class Chaser(CircEntity):
     def __init__(
-        self, x_cor, y_cor, color, radius=20, health=100, damage=10, speed=2
+        self, x_cor, y_cor, color=ORANGE, radius=20, health=100, damage=10, speed=2
     ) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
@@ -57,7 +57,7 @@ class Bouncer(CircEntity):
         self,
         x_cor,
         y_cor,
-        color,
+        color=VIOLET,
         radius=10,
         health=10,
         damage=10,
@@ -123,7 +123,7 @@ class Bouncer(CircEntity):
 
 class Tank(CircEntity):
     def __init__(
-        self, x_cor, y_cor, color, radius=50, health=1000, damage=10, speed=1
+        self, x_cor, y_cor, color=VIOLET, radius=50, health=1000, damage=10, speed=1
     ) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
@@ -170,7 +170,7 @@ class Sniper(TriEntity):
         self,
         x_cor,
         y_cor,
-        color,
+        color=YELLOW,
         size=20,
         health=25,
         damage=25,
@@ -244,8 +244,8 @@ class Shooter(CircEntity):
         self,
         x_cor,
         y_cor,
-        color,
         projectile_grp,
+        color=RED,
         shoot_cd=500,
         radius=20,
         health=150,
@@ -294,8 +294,8 @@ class Exploder(OctEntity):
         self,
         x_cor,
         y_cor,
-        color,
         projectile_grp,
+        color=YELLOW,
         size=50,
         fuse_dur=6000,
         damage=50,
