@@ -35,6 +35,7 @@ class CircEntity(pygame.sprite.Sprite):
             self.image, self.color, (self.radius, self.radius), self.radius
         )
         self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+        self.mask = pygame.mask.from_surface(self.image)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
@@ -80,6 +81,7 @@ class TriEntity(pygame.sprite.Sprite):
         ]
         pygame.draw.polygon(self.image, self.color, tri_pts)
         self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+        self.mask = pygame.mask.from_surface(self.image)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)

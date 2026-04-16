@@ -160,10 +160,14 @@ class Game:
                 for enemy in enemies_hit:
                     enemy.take_dmg(projectile.damage)
 
-            beam_hitmars = pygame.sprite.groupcollide(
-                self.player_beams, spawner.group, False, False
+            beam_hitmarks = pygame.sprite.groupcollide(
+                self.player_beams,
+                spawner.group,
+                False,
+                False,
+                collided=pygame.sprite.collide_mask,
             )
-            for beam, enemies_hit in beam_hitmars.items():
+            for beam, enemies_hit in beam_hitmarks.items():
                 for enemy in enemies_hit:
                     enemy.take_dmg(beam.damage)
 
