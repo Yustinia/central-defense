@@ -255,6 +255,7 @@ class Game:
 
         self.player.draw_health_bar(self.win_wd, self.win_ht, screen)
         self.player.draw_ability_bar(self.win_wd, self.win_ht, screen)
+        self.player.display_current_weap(self.win_wd, self.current_weap_state, screen)
 
 
 class GameManager:

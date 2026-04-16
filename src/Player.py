@@ -266,3 +266,13 @@ class Player(BoxEntity):
 
         screen.blit(shield_label, shield_label_rect)
         screen.blit(burst_label, burst_label_rect)
+
+    def display_current_weap(self, win_wd, current_weap, screen):
+        top_padding = 40
+        font = pygame.font.Font(REGULAR, 30)
+
+        weap_label = font.render(current_weap, True, WHITE)
+        weap_label.set_alpha(32)
+        weap_label_rect = weap_label.get_rect(midtop=(win_wd // 2, top_padding))
+
+        screen.blit(weap_label, weap_label_rect)
