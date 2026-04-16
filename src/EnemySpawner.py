@@ -206,7 +206,7 @@ class SniperSpawner(BaseEnemySpawner):
 
 class ShooterSpawner(BaseEnemySpawner):
     def __init__(self, projectile_grp) -> None:
-        super().__init__(hard_lim=4, to_spawn=0, to_spawn_init=-14, spawn_cd=6720)
+        super().__init__(hard_lim=4, to_spawn=0, to_spawn_init=-14, spawn_cd=4990)
 
         self.projectile_grp = projectile_grp
         self.pref_round = 17
@@ -237,7 +237,7 @@ class ShooterSpawner(BaseEnemySpawner):
 
 class ExploderSpawner(BaseEnemySpawner):
     def __init__(self, projectile_grp) -> None:
-        super().__init__(hard_lim=6, to_spawn=0, to_spawn_init=-18, spawn_cd=3120)
+        super().__init__(hard_lim=8, to_spawn=0, to_spawn_init=-18, spawn_cd=3120)
 
         self.projectile_grp = projectile_grp
         self.pref_round = 20
@@ -251,10 +251,17 @@ class ExploderSpawner(BaseEnemySpawner):
             return
         self.spawn_timer = now
 
-        rand_x = random.randint(40, win_wd - 40)
-        rand_y = random.randint(40, win_ht - 40)
+        side = random.choice(["left", "right", "top", "bottom"])
+        if side == "left":
+            x, y = -20, random.randint(-20, win_ht + 20)
+        elif side == "right":
+            x, y = win_wd + 20, random.randint(-20, win_ht + 20)
+        elif side == "top":
+            x, y = random.randint(-20, win_wd + 20), -20
+        else:
+            x, y = random.randint(-20, win_wd + 20), win_ht + 20
 
-        self.group.add(Exploder(rand_x, rand_y, YELLOW, self.projectile_grp))
+        self.group.add(Exploder(x, y, YELLOW, self.projectile_grp))
         self.spawned += 1
 
     def next_round(self, round_counter):
