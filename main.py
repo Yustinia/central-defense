@@ -9,6 +9,7 @@ from src.EnemySpawner import (
     SniperSpawner,
     TankSpawner,
 )
+from src.BossSpawner import VenusSpawner
 from src.ItemSpawner import HealthPackSpawner
 from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState
 from src.Player import Player
@@ -56,6 +57,22 @@ class Game:
         self.shooter_spawner = ShooterSpawner(self.enemy_projectiles)
         self.exploder_spawner = ExploderSpawner(self.enemy_projectiles)
 
+        # BOSS SPAWNERS
+        self.venus_spawner = VenusSpawner(
+            self.enemy_projectiles,
+        )
+
+        # ALL SPAWNERS
+        self.all_entity_spawners = (
+            self.chaser_spawner,
+            self.bouncer_spawner,
+            self.tank_spawner,
+            self.sniper_spawner,
+            self.shooter_spawner,
+            self.exploder_spawner,
+            self.venus_spawner,
+        )
+
         # WEAPON
         self.current_weapon_counter = 0
         self.current_weap_state = "PISTOL"  # [PISTOL, SHOTGUN, MACHINEGUN, LASERGUN]
@@ -94,20 +111,20 @@ class Game:
                 case "LASERGUN":
                     self.player.lasergun.shoot(mouse_x, mouse_y)
 
+        # OBJECT UPDATES
         self.hp_pack.try_spawn(self.win_wd, self.win_ht)
 
-        # SPAWNER UPDATES
-        self.chaser_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
-        self.bouncer_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
-        self.tank_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
-        self.sniper_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
-        self.shooter_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
-        self.exploder_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
+        hp_acq = pygame.sprite.spritecollide(self.player, self.hp_pack.group, False)
+        for pack in self.hp_pack.group:
+            if self.player.health >= self.player.min_health:
+                pack.kill()
+            elif hp_acq:
+                pack.heal(self.player)
+                pack.kill()
 
-        self.player.update(keys, self.borders)
-        self.player_projectiles.update(self.borders)
-        self.player_beams.update(self.borders)
-        self.enemy_projectiles.update(self.borders)
+        # SPAWNER UPDATES
+        for spawner in self.all_entity_spawners:
+            spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
 
         self.chaser_spawner.group.update(
             self.player.rect.centerx,
@@ -131,27 +148,22 @@ class Game:
             self.player.rect.centerx,
             self.player.rect.centery,
         )
-
-        # OBJECTS
-        hp_acq = pygame.sprite.spritecollide(self.player, self.hp_pack.group, False)
-        for pack in self.hp_pack.group:
-            if self.player.health >= self.player.min_health:
-                pack.kill()
-            elif hp_acq:
-                pack.heal(self.player)
-                pack.kill()
-
-        # PLAYER PROJECTILE HITS ENEMY
-        enemy_spawners = (
-            self.chaser_spawner,
-            self.bouncer_spawner,
-            self.tank_spawner,
-            self.sniper_spawner,
-            self.shooter_spawner,
-            self.exploder_spawner,
+        self.venus_spawner.group.update(
+            self.player.rect.centerx,
+            self.player.rect.centery,
+            self.borders,
         )
 
-        for spawner in enemy_spawners:
+        # PLAYER UPDATES
+        self.player.update(keys, self.borders)
+        self.player_projectiles.update(self.borders)
+        self.player_beams.update(self.borders)
+
+        # ENEMY UPDATES
+        self.enemy_projectiles.update(self.borders)
+
+        # PLAYER PROJECTILE HITS ENEMY
+        for spawner in self.all_entity_spawners:
             projectile_hitmarks = pygame.sprite.groupcollide(
                 self.player_projectiles, spawner.group, True, False
             )
@@ -172,7 +184,7 @@ class Game:
 
         # ENEMY AND PLAYER CONTACT
         kill_on_contact = [self.bouncer_spawner, self.sniper_spawner]
-        for spawner in enemy_spawners:
+        for spawner in self.all_entity_spawners:
             player_enemy_hitmarks = pygame.sprite.spritecollide(
                 self.player, spawner.group, spawner in kill_on_contact
             )
@@ -182,28 +194,16 @@ class Game:
 
         # ENEMY PROJECTILE AND PLAYER HIT
         enemy_projectile = pygame.sprite.spritecollide(
-            self.player, self.enemy_projectiles, True
+            self.player,
+            self.enemy_projectiles,
+            True,
         )
         for bullet in enemy_projectile:
             self.player.take_damage(bullet.damage)
 
         # ROUND IMPLEMENTATION
-        all_spawned = (
-            self.chaser_spawner.all_spawned
-            and self.bouncer_spawner.all_spawned
-            and self.tank_spawner.all_spawned
-            and self.sniper_spawner.all_spawned
-            and self.shooter_spawner.all_spawned
-            and self.exploder_spawner.all_spawned
-        )
-        all_dead = (
-            self.chaser_spawner.all_dead
-            and self.bouncer_spawner.all_dead
-            and self.tank_spawner.all_dead
-            and self.sniper_spawner.all_dead
-            and self.shooter_spawner.all_dead
-            and self.exploder_spawner.all_dead
-        )
+        all_spawned = all(spawner.all_spawned for spawner in self.all_entity_spawners)
+        all_dead = all(spawner.all_dead for spawner in self.all_entity_spawners)
 
         if all_spawned and all_dead:
             self.round_counter += 1
@@ -220,15 +220,6 @@ class Game:
         return True
 
     def draw(self, screen):
-        spawners = (
-            self.chaser_spawner,
-            self.bouncer_spawner,
-            self.tank_spawner,
-            self.sniper_spawner,
-            self.shooter_spawner,
-            self.exploder_spawner,
-        )
-
         self.bg.draw(screen)
 
         self.playing_state.render_round(self.round_counter, screen)
@@ -244,7 +235,7 @@ class Game:
 
         self.player.draw(screen)
 
-        for spawner in spawners:
+        for spawner in self.all_entity_spawners:
             for enemy in spawner.group:
                 enemy.draw(screen)
                 enemy.draw_health_bar(screen)

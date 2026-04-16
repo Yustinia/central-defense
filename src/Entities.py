@@ -96,7 +96,6 @@ class OctEntity(pygame.sprite.Sprite):
         self.y_cor = y_cor
         self.color = color
 
-        # Create a transparent surface
         self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
 
         center_offset = self.size // 2
@@ -113,6 +112,47 @@ class OctEntity(pygame.sprite.Sprite):
 
         pygame.draw.polygon(self.image, self.color, oct_pts)
         self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+
+class StarEntity(pygame.sprite.Sprite):
+    def __init__(
+        self, size, x_cor, y_cor, color, num_points=5, depth_ratio=0.4
+    ) -> None:
+        super().__init__()
+
+        self.size = size
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.color = color
+
+        self.num_points = num_points
+        self.total_vertices = num_points * 2
+
+        self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
+
+        center_offset = self.size // 2
+        outer_radius = self.size // 2
+        inner_radius = outer_radius * depth_ratio
+
+        star_pts = []
+        angle_step = 360 / self.total_vertices
+
+        for i in range(self.total_vertices):
+            angle_rad = math.radians(angle_step * i - 90)
+
+            curr_radius = outer_radius if i % 2 == 0 else inner_radius
+
+            x = center_offset + curr_radius * math.cos(angle_rad)
+            y = center_offset + curr_radius * math.sin(angle_rad)
+            star_pts.append((x, y))
+
+        pygame.draw.polygon(self.image, self.color, star_pts)
+
+        self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+        self.mask = pygame.mask.from_surface(self.image)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)

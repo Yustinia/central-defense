@@ -242,7 +242,7 @@ class Laser(pygame.sprite.Sprite):
 class LaserGun(WeaponTemplate):
     def __init__(
         self,
-        projectile_grp,
+        beam_grp,
         player_rect,
         thickness=8,
         shoot_cd=25,
@@ -252,7 +252,7 @@ class LaserGun(WeaponTemplate):
     ) -> None:
         super().__init__()
 
-        self.projectile_grp = projectile_grp
+        self.beam_grp = beam_grp
         self.player_rect = player_rect
 
         self.thickness = thickness
@@ -266,7 +266,7 @@ class LaserGun(WeaponTemplate):
         if self._on_cooldown():
             return
 
-        self.projectile_grp.add(
+        self.beam_grp.add(
             Laser(
                 self.player_rect.centerx,
                 self.player_rect.centery,
