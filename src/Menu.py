@@ -51,7 +51,7 @@ class MainMenu:
 
         screen.blit(header_img, header_rect)
 
-        if (pygame.time.get_ticks() // 500) % 2 == 0:
+        if (pygame.time.get_ticks() // 1000) % 2 == 0:
             screen.blit(sub_img, sub_rect)
 
 
@@ -127,13 +127,19 @@ class PauseMenu:
         screen.blit(self.overlay, (0, 0))
 
         header_img = self.header_ft.render("PAUSED", True, WHITE)
-        header_rect = header_img.get_rect(
-            center=(self.win_wd // 2, self.win_ht // 2 - 50)
-        )
+        header_rect = header_img.get_rect(center=(self.win_wd // 2, self.win_ht // 2))
         screen.blit(header_img, header_rect)
 
-        sub_img = self.sub_ft.render("Press ESC to Resume", True, WHITE)
-        sub_rect = sub_img.get_rect(center=(self.win_wd // 2, self.win_ht // 2 + 50))
+        esc_img = self.sub_ft.render("Press ESC to Resume", True, WHITE)
+        esc_rect = esc_img.get_rect(
+            centerx=self.win_wd // 2, top=header_rect.bottom + 50
+        )
 
-        if (pygame.time.get_ticks() // 500) % 2 == 0:
-            screen.blit(sub_img, sub_rect)
+        quit_img = self.sub_ft.render("Q to Quit", True, WHITE)
+        quit_rect = quit_img.get_rect(
+            centerx=self.win_wd // 2, top=esc_rect.bottom + 25
+        )
+
+        if (pygame.time.get_ticks() // 1000) % 2 == 0:
+            screen.blit(esc_img, esc_rect)
+            screen.blit(quit_img, quit_rect)
