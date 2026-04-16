@@ -253,6 +253,9 @@ class Game:
         for border in self.borders:
             border.draw(screen)
 
+        self.player.draw_health_bar(self.win_wd, self.win_ht, screen)
+        self.player.draw_ability_bar(self.win_wd, self.win_ht, screen)
+
 
 class GameManager:
     # STATES = ["MAINMENU", "PLAYING", "GAMEOVER", "PAUSED"]

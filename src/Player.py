@@ -1,7 +1,7 @@
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLUE, GREEN, RED, WHITE, YELLOW
+from const.COLORS import BLUE, GREEN, RED, WHITE, YELLOW, BLACK
 from const.FONTS import REGULAR
 from src.Abilities import BulletBurst, Dash, PassiveHeal, Shield
 from src.Entities import BoxEntity
@@ -137,3 +137,132 @@ class Player(BoxEntity):
 
         self.dx *= self.friction
         self.dy *= self.friction
+
+    def draw_health_bar(self, win_wd, win_ht, screen):
+        bar_wd = 500
+        bar_ht = 20
+        bot_padding = 5
+        top_padding = 10
+        side_padding = 8
+        font = pygame.font.Font(REGULAR, 30)
+
+        bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
+        bar_rect.bottom = win_ht - bot_padding
+        bar_rect.right = (win_wd // 2) - side_padding
+
+        hp_label = font.render("Health", True, WHITE)
+        hp_label.set_alpha(32)
+        hp_label_rect = hp_label.get_rect(
+            midbottom=(bar_rect.centerx, bar_rect.top - top_padding)
+        )
+
+        health_ratio = max(0, self.health) / self.max_health
+        current_health_wd = bar_wd * health_ratio
+
+        if health_ratio <= 0.25:
+            fill_color = RED
+        elif health_ratio <= 0.50:
+            fill_color = YELLOW
+        else:
+            fill_color = GREEN
+
+        pygame.draw.rect(
+            screen,
+            BLACK,
+            bar_rect,
+        )  # BG
+
+        fill_rect = pygame.Rect(
+            bar_rect.left,
+            bar_rect.top,
+            current_health_wd,
+            bar_ht,
+        )
+        pygame.draw.rect(
+            screen,
+            fill_color,
+            fill_rect,
+        )  # FILL
+        pygame.draw.rect(
+            screen,
+            BLACK,
+            bar_rect,
+            2,
+        )  # BORDER
+
+        screen.blit(hp_label, hp_label_rect)
+
+    def draw_ability_bar(self, win_wd, win_ht, screen):
+        bar_wd = 250
+        bar_ht = 20
+        bot_padding = 5
+        top_padding = 10
+        side_padding = 8
+        gap = 16
+        font = pygame.font.Font(REGULAR, 30)
+
+        shield_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
+        shield_rect.bottom = win_ht - bot_padding
+        shield_rect.left = (win_wd // 2) + side_padding
+
+        shield_label = font.render("Shield [Q]", True, WHITE)
+        shield_label.set_alpha(32)
+        shield_label_rect = shield_label.get_rect(
+            midbottom=(shield_rect.centerx, shield_rect.top - top_padding)
+        )
+
+        burst_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
+        burst_rect.bottom = win_ht - bot_padding
+        burst_rect.left = shield_rect.right + gap
+
+        burst_label = font.render("Burst [E]", True, WHITE)
+        burst_label.set_alpha(32)
+        burst_label_rect = burst_label.get_rect(
+            midbottom=(burst_rect.centerx, burst_rect.top - top_padding)
+        )
+
+        # BAR BG
+        pygame.draw.rect(screen, BLACK, shield_rect)
+        pygame.draw.rect(screen, BLACK, burst_rect)
+
+        # SHIELD FILL
+        if not self.shield_ab.can_be_activated and not self.shield_ab.is_active:
+            now = pygame.time.get_ticks()
+            elapsed = now - self.shield_ab.shield_timer
+            progress = min(elapsed / self.shield_ab.shield_cd, 1.0)
+            shield_fill = int(progress * bar_wd)
+            shield_color = RED
+        elif self.shield_ab.is_active:
+            shield_fill = int(
+                self.shield_ab.durability / self.shield_ab.durability_init * bar_wd
+            )
+            shield_color = YELLOW
+        else:
+            shield_fill = bar_wd
+            shield_color = GREEN
+
+        # BURST FILL
+        now = pygame.time.get_ticks()
+        elapsed = now - self.bullet_burst_ab.burst_timer
+        progress = min(elapsed / self.bullet_burst_ab.burst_cd, 1.0)
+        if progress < 1.0:
+            burst_fill = int(progress * bar_wd)
+            burst_color = RED
+        else:
+            burst_fill = bar_wd
+            burst_color = GREEN
+
+        # BAR FILL
+        pygame.draw.rect(
+            screen, shield_color, (shield_rect.x, shield_rect.y, shield_fill, bar_ht)
+        )
+        pygame.draw.rect(
+            screen, burst_color, (burst_rect.x, burst_rect.y, burst_fill, bar_ht)
+        )
+
+        # BAR BORDER
+        pygame.draw.rect(screen, BLACK, shield_rect, 2)
+        pygame.draw.rect(screen, BLACK, burst_rect, 2)
+
+        screen.blit(shield_label, shield_label_rect)
+        screen.blit(burst_label, burst_label_rect)
