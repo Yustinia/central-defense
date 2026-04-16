@@ -180,9 +180,6 @@ class Game:
                 enemy = player_enemy_hitmarks[0]
                 self.player.take_damage(enemy.damage)
 
-                if not self.player.is_alive:
-                    return False
-
         # ENEMY PROJECTILE AND PLAYER HIT
         enemy_projectile = pygame.sprite.spritecollide(
             self.player, self.enemy_projectiles, True
@@ -218,6 +215,8 @@ class Game:
             self.shooter_spawner.next_round(self.round_counter)
             self.exploder_spawner.next_round(self.round_counter)
 
+        if not self.player.is_alive:
+            return False
         return True
 
     def draw(self, screen):
