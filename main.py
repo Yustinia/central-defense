@@ -59,7 +59,7 @@ class Game:
 
         # WEAPON
         self.current_weapon_counter = 0
-        self.current_weap_state = "PISTOL"  # [PISTOL, SHOTGUN, MACHINEGUN]
+        self.current_weap_state = "PISTOL"  # [PISTOL, SHOTGUN, MACHINEGUN, LASERGUN]
 
         # ROUNDS
         self.round_counter = 1
@@ -69,7 +69,7 @@ class Game:
 
     def event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
-            self.current_weapon_counter = (self.current_weapon_counter + 1) % 3
+            self.current_weapon_counter = (self.current_weapon_counter + 1) % 4
             match self.current_weapon_counter:
                 case 0:
                     self.current_weap_state = "PISTOL"
@@ -77,6 +77,8 @@ class Game:
                     self.current_weap_state = "SHOTGUN"
                 case 2:
                     self.current_weap_state = "MACHINEGUN"
+                case 3:
+                    self.current_weap_state = "LASERGUN"
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -90,6 +92,8 @@ class Game:
                     self.player.shotgun.shoot(mouse_x, mouse_y)
                 case "MACHINEGUN":
                     self.player.machinegun.shoot(mouse_x, mouse_y)
+                case "LASERGUN":
+                    self.player.lasergun.shoot(mouse_x, mouse_y)
 
         self.hp_pack.try_spawn(self.win_wd, self.win_ht)
 
@@ -144,6 +148,7 @@ class Game:
             self.sniper_spawner,
             self.shooter_spawner,
         )
+
         for spawner in enemy_spawners:
             hitmarks = pygame.sprite.groupcollide(
                 self.player_projectiles, spawner.group, True, False

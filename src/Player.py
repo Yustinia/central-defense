@@ -4,7 +4,7 @@ from typing_extensions import override
 from const.COLORS import BLUE, GREEN, RED, WHITE, YELLOW
 from src.Abilities import BulletBurst, Dash, PassiveHeal, Shield
 from src.Entities import BoxEntity
-from src.Weapons import MachineGun, Pistol, Shotgun
+from src.Weapons import LaserGun, MachineGun, Pistol, Shotgun
 
 
 class Player(BoxEntity):
@@ -37,6 +37,7 @@ class Player(BoxEntity):
             self.projectile_grp,
             self.rect,
         )
+        self.lasergun = LaserGun(self.projectile_grp, self.rect)
 
         # Abilities
         self.dash_ab = Dash()

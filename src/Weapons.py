@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLUE, PLAT
+from const.COLORS import BLUE, PLAT, RED
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -186,3 +186,89 @@ class MachineGun(WeaponTemplate):
             self.speed,
         )
         self.projectile_grp.add(bullet)
+
+
+class Laser(pygame.sprite.Sprite):
+    def __init__(
+        self,
+        x_cor,
+        y_cor,
+        tar_x,
+        tar_y,
+        thickness=4,
+        color=RED,
+        damage=5,
+        duration=25,
+    ) -> None:
+        super().__init__()
+
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.tar_x = tar_x
+        self.tar_y = tar_y
+        self.spawned = pygame.time.get_ticks()
+
+        self.thickness = thickness
+        self.color = color
+        self.damage = damage
+        self.duration = duration
+
+        dx = tar_x - x_cor
+        dy = tar_y - y_cor
+        length = math.hypot(dx, dy)
+        angle = math.degrees(math.atan2(dy, dx))
+
+        self.image = pygame.Surface((length, self.thickness), pygame.SRCALPHA)
+        self.image.fill(self.color)
+        self.image = pygame.transform.rotate(self.image, -angle)
+        self.rect = self.image.get_rect(center=(x_cor + dx / 2, y_cor + dy / 2))
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self, borders):
+        now = pygame.time.get_ticks()
+        if now - self.spawned > self.duration:
+            self.kill()
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+
+class LaserGun(WeaponTemplate):
+    def __init__(
+        self,
+        projectile_grp,
+        player_rect,
+        thickness=4,
+        shoot_cd=25,
+        damage=100,
+        duration=25,
+        color=RED,
+    ) -> None:
+        super().__init__()
+
+        self.projectile_grp = projectile_grp
+        self.player_rect = player_rect
+
+        self.thickness = thickness
+        self.shoot_cd = shoot_cd
+        self.damage = damage
+        self.duration = duration
+        self.color = color
+
+    @override
+    def shoot(self, tar_x, tar_y):
+        if self._on_cooldown():
+            return
+
+        self.projectile_grp.add(
+            Laser(
+                self.player_rect.centerx,
+                self.player_rect.centery,
+                tar_x,
+                tar_y,
+                self.thickness,
+                self.color,
+                self.damage,
+                self.duration,
+            )
+        )
