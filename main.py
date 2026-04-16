@@ -8,6 +8,7 @@ from src.EnemySpawner import (
     ShooterSpawner,
     SniperSpawner,
     TankSpawner,
+    ExploderSpawner,
 )
 from src.ItemSpawner import HealthPackSpawner
 from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState
@@ -58,6 +59,7 @@ class Game:
         self.tank_spawner = TankSpawner()
         self.sniper_spawner = SniperSpawner()
         self.shooter_spawner = ShooterSpawner(self.enemy_projectiles)
+        self.exploder_spawner = ExploderSpawner(self.enemy_projectiles)
 
         # WEAPON
         self.current_weapon_counter = 0
@@ -109,6 +111,8 @@ class Game:
             self.sniper_spawner.try_spawn(self.win_wd, self.win_ht)
         if self.round_counter >= self.shooter_spawner.pref_round:
             self.shooter_spawner.try_spawn(self.win_wd, self.win_ht)
+        if self.round_counter >= self.exploder_spawner.pref_round:
+            self.exploder_spawner.try_spawn(self.win_wd, self.win_ht)
 
         self.player.update(keys, self.borders)
         self.player_projectiles.update(self.borders)
@@ -133,6 +137,10 @@ class Game:
             self.player.rect.centerx,
             self.player.rect.centery,
         )
+        self.exploder_spawner.group.update(
+            self.player.rect.centerx,
+            self.player.rect.centery,
+        )
 
         # OBJECTS
         hp_acq = pygame.sprite.spritecollide(self.player, self.hp_pack.group, False)
@@ -150,6 +158,7 @@ class Game:
             self.tank_spawner,
             self.sniper_spawner,
             self.shooter_spawner,
+            self.exploder_spawner,
         )
 
         for spawner in enemy_spawners:
@@ -198,6 +207,7 @@ class Game:
             and self.tank_spawner.all_spawned
             and self.sniper_spawner.all_spawned
             and self.shooter_spawner.all_spawned
+            and self.exploder_spawner.all_spawned
         )
         all_dead = (
             self.chaser_spawner.all_dead
@@ -205,6 +215,7 @@ class Game:
             and self.tank_spawner.all_dead
             and self.sniper_spawner.all_dead
             and self.shooter_spawner.all_dead
+            and self.exploder_spawner.all_dead
         )
 
         if all_spawned and all_dead:
@@ -215,6 +226,7 @@ class Game:
             self.tank_spawner.next_round(self.round_counter)
             self.sniper_spawner.next_round(self.round_counter)
             self.shooter_spawner.next_round(self.round_counter)
+            self.exploder_spawner.next_round(self.round_counter)
 
         return True
 
@@ -225,6 +237,7 @@ class Game:
             self.tank_spawner,
             self.sniper_spawner,
             self.shooter_spawner,
+            self.exploder_spawner,
         )
 
         self.bg.draw(screen)

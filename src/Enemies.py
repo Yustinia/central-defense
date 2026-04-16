@@ -4,8 +4,8 @@ import random
 import pygame
 
 from const.COLORS import GREEN, WHITE
-from src.Entities import CircEntity, TriEntity
-from src.Weapons import Pistol
+from src.Entities import CircEntity, TriEntity, OctEntity
+from src.Weapons import Pistol, Bullet
 
 
 class Chaser(CircEntity):
@@ -287,3 +287,81 @@ class Shooter(CircEntity):
         fill_wd = int(self.health / self.max_health * bar_wd)
         pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
         pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_wd, bar_ht), 1)
+
+
+class Exploder(OctEntity):
+    def __init__(
+        self,
+        x_cor,
+        y_cor,
+        color,
+        projectile_grp,
+        size=50,
+        fuse_dur=6000,
+        damage=75,
+        health=50,
+        speed=5,
+    ) -> None:
+        super().__init__(size, x_cor, y_cor, color)
+
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.color = color
+        self.projectile_grp = projectile_grp
+
+        self.fuse_dur = fuse_dur
+        self.fuse_timer = pygame.time.get_ticks()
+        self.damage = damage
+        self.health = self.max_health = health
+        self.speed = speed
+
+        self.dx, self.dy = 0, 0
+        self.friction = 0.92
+        self.accel = 0.32
+
+    def update(self, tar_x, tar_y):
+        self.explode_timer()
+        self._movement(tar_x, tar_y)
+
+    def _movement(self, tar_x, tar_y):
+        angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
+
+        self.dx += math.cos(angle) * self.accel
+        self.dy += math.sin(angle) * self.accel
+        self.dx *= self.friction
+        self.dy *= self.friction
+
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
+
+    def explode_timer(self):
+        now = pygame.time.get_ticks()
+        if now - self.fuse_timer < self.fuse_dur:
+            return
+        self.fuse_timer = now
+
+        self.explode()
+
+    def explode(self, bullet_count=6):
+        angle_step = 360 / bullet_count
+        for i in range(bullet_count):
+            angle = math.radians(angle_step * i)
+            tar_x = self.rect.centerx + math.cos(angle) * 100
+            tar_y = self.rect.centery + math.sin(angle) * 100
+            self.projectile_grp.add(
+                Bullet(
+                    5,
+                    self.rect.centerx,
+                    self.rect.centery,
+                    tar_x,
+                    tar_y,
+                    self.color,
+                    self.damage,
+                )
+            )
+        self.kill()
+
+    def take_dmg(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self.explode()

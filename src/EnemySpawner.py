@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import pygame
 
 from const.COLORS import ORANGE, RED, VIOLET, YELLOW
-from src.Enemies import Bouncer, Chaser, Shooter, Sniper, Tank
+from src.Enemies import Bouncer, Chaser, Shooter, Sniper, Tank, Exploder
 
 
 class BaseEnemySpawner(ABC):
@@ -229,6 +229,38 @@ class ShooterSpawner(BaseEnemySpawner):
     def next_round(self, round_counter):
         if round_counter >= self.pref_round:
             self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
+        else:
+            self.to_spawn = 0
+
+        self.reset()
+
+
+class ExploderSpawner(BaseEnemySpawner):
+    def __init__(self, projectile_grp) -> None:
+        super().__init__(hard_lim=5, to_spawn=0, to_spawn_init=-18, spawn_cd=3120)
+
+        self.projectile_grp = projectile_grp
+        self.pref_round = 20
+
+    def try_spawn(self, win_wd, win_ht):
+        if self.spawned >= self.to_spawn:
+            return
+
+        now = pygame.time.get_ticks()
+        if now - self.spawn_timer < self.spawn_cd:
+            return
+        self.spawn_timer = now
+
+        rand_x = random.randint(40, win_wd - 40)
+        rand_y = random.randint(40, win_ht - 40)
+
+        self.group.add(Exploder(rand_x, rand_y, YELLOW, self.projectile_grp))
+        self.spawned += 1
+
+    def next_round(self, round_counter):
+        if round_counter >= self.pref_round:
+            self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
+            self.spawn_cd = max(self.spawn_cd - 200, self.spawn_cd_init // 4)
         else:
             self.to_spawn = 0
 
