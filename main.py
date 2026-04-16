@@ -97,17 +97,12 @@ class Game:
         self.hp_pack.try_spawn(self.win_wd, self.win_ht)
 
         # SPAWNER UPDATES
-        self.chaser_spawner.try_spawn(self.win_wd, self.win_ht)
-        if self.round_counter >= self.bouncer_spawner.pref_round:
-            self.bouncer_spawner.try_spawn(self.win_wd, self.win_ht)
-        if self.round_counter % self.tank_spawner.every_round == 0:
-            self.tank_spawner.try_spawn(self.win_wd, self.win_ht)
-        if self.round_counter >= self.sniper_spawner.pref_round:
-            self.sniper_spawner.try_spawn(self.win_wd, self.win_ht)
-        if self.round_counter >= self.shooter_spawner.pref_round:
-            self.shooter_spawner.try_spawn(self.win_wd, self.win_ht)
-        if self.round_counter >= self.exploder_spawner.pref_round:
-            self.exploder_spawner.try_spawn(self.win_wd, self.win_ht)
+        self.chaser_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
+        self.bouncer_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
+        self.tank_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
+        self.sniper_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
+        self.shooter_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
+        self.exploder_spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
 
         self.player.update(keys, self.borders)
         self.player_projectiles.update(self.borders)

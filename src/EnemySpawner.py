@@ -27,7 +27,7 @@ class BaseEnemySpawner(ABC):
         self.spawned = 0
 
     @abstractmethod
-    def try_spawn(self, win_wd, win_ht): ...
+    def try_spawn(self, win_wd, win_ht, round_counter): ...
 
     @abstractmethod
     def next_round(self, round_counter): ...
@@ -39,7 +39,10 @@ class ChaserSpawner(BaseEnemySpawner):
 
         self.down_round = 20
 
-    def try_spawn(self, win_wd, win_ht):
+    def try_spawn(self, win_wd, win_ht, round_counter):
+        if round_counter >= self.down_round:  # remove enemy past R20
+            return
+
         if self.spawned >= self.to_spawn:
             return
 
@@ -79,7 +82,12 @@ class BouncerSpawner(BaseEnemySpawner):
         self.pref_round = 3
         self.down_round = 17
 
-    def try_spawn(self, win_wd, win_ht):
+    def try_spawn(self, win_wd, win_ht, round_counter):
+        if round_counter < self.pref_round:  # start spawning at R3
+            return
+        if round_counter >= self.down_round:  # stop spawning at R17
+            return
+
         if self.spawned >= self.to_spawn:
             return
 
@@ -126,7 +134,10 @@ class TankSpawner(BaseEnemySpawner):
 
         self.every_round = 5
 
-    def try_spawn(self, win_wd, win_ht):
+    def try_spawn(self, win_wd, win_ht, round_counter):
+        if round_counter % self.every_round != 0:  # spawn every 5 rounds
+            return
+
         if self.spawned >= self.to_spawn:
             return
 
@@ -167,7 +178,10 @@ class SniperSpawner(BaseEnemySpawner):
         self.pref_round = 10
         self.up_round = 17
 
-    def try_spawn(self, win_wd, win_ht):
+    def try_spawn(self, win_wd, win_ht, round_counter):
+        if round_counter < self.pref_round:  # spawn at R10
+            return
+
         if self.spawned >= self.to_spawn:
             return
 
@@ -210,7 +224,10 @@ class ShooterSpawner(BaseEnemySpawner):
         self.projectile_grp = projectile_grp
         self.pref_round = 17
 
-    def try_spawn(self, win_wd, win_ht):
+    def try_spawn(self, win_wd, win_ht, round_counter):
+        if round_counter < self.pref_round:  # spawn at R17
+            return
+
         if self.spawned >= self.to_spawn:
             return
 
@@ -241,7 +258,10 @@ class ExploderSpawner(BaseEnemySpawner):
         self.projectile_grp = projectile_grp
         self.pref_round = 20
 
-    def try_spawn(self, win_wd, win_ht):
+    def try_spawn(self, win_wd, win_ht, round_counter):
+        if round_counter < self.pref_round:  # spawn at R20
+            return
+
         if self.spawned >= self.to_spawn:
             return
 
