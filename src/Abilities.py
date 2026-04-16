@@ -59,7 +59,7 @@ class Shield:
 
 
 class PassiveHeal:
-    def __init__(self, heal_cd=21000, heal_amt=10) -> None:
+    def __init__(self, heal_cd=20000, heal_amt=10) -> None:
         self.heal_cd = heal_cd
         self.heal_amt = heal_amt
         self.heal_timer = 0
@@ -75,7 +75,7 @@ class PassiveHeal:
 
 
 class BulletBurst:
-    def __init__(self, burst_cd=15000, bullet_count=16) -> None:
+    def __init__(self, burst_cd=18000, bullet_count=16) -> None:
         self.burst_cd = burst_cd
         self.burst_timer = 0
         self.bullet_count = bullet_count
@@ -99,7 +99,9 @@ class BulletBurst:
                 tar_x = x_cor + math.cos(angle) * 100
                 tar_y = y_cor + math.sin(angle) * 100
                 projectile_grp.add(
-                    Bullet(10, x_cor, y_cor, tar_x, tar_y, color, damage, ring_speed)
+                    Bullet(
+                        radius, x_cor, y_cor, tar_x, tar_y, color, damage, ring_speed
+                    )
                 )
 
         self.is_active = False
