@@ -221,7 +221,7 @@ class ShooterSpawner(BaseEnemySpawner):
 
         self.projectile_grp = projectile_grp
         self.pref_round = 15
-        self.up_round = 25
+        self.up_round = 20
 
     def try_spawn(self, win_wd, win_ht, round_counter):
         if round_counter < self.pref_round:  # spawn at R15
@@ -255,13 +255,14 @@ class ShooterSpawner(BaseEnemySpawner):
 
 class ExploderSpawner(BaseEnemySpawner):
     def __init__(self, projectile_grp) -> None:
-        super().__init__(hard_lim=8, to_spawn=0, to_spawn_init=-18, spawn_cd=3120)
+        super().__init__(hard_lim=8, to_spawn=0, to_spawn_init=-14, spawn_cd=3120)
 
         self.projectile_grp = projectile_grp
-        self.pref_round = 20
+        self.pref_round = 17
+        self.up_round = 25
 
     def try_spawn(self, win_wd, win_ht, round_counter):
-        if round_counter < self.pref_round:  # spawn at R20
+        if round_counter < self.pref_round:  # spawn at R17
             return
 
         if self.spawned >= self.to_spawn:
@@ -286,7 +287,10 @@ class ExploderSpawner(BaseEnemySpawner):
         self.spawned += 1
 
     def next_round(self, round_counter):
-        if round_counter >= self.pref_round:
+        if round_counter >= self.up_round:
+            self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
+            self.spawn_cd = max(self.spawn_cd - 500, self.spawn_cd_init // 8)
+        elif round_counter >= self.pref_round:
             self.to_spawn = min(self.to_spawn_init + round_counter, self.hard_lim)
             self.spawn_cd = max(self.spawn_cd - 200, self.spawn_cd_init // 4)
         else:

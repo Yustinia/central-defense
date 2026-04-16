@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-from const.COLORS import GREEN
 from src.Items import HealthPack
 
 

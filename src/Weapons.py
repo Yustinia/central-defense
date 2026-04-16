@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 import pygame
 from typing_extensions import override
 
-from const.COLORS import BLUE, PLAT, RED
+from const.COLORS import PLAT, RED
 
 
 class Bullet(pygame.sprite.Sprite):
