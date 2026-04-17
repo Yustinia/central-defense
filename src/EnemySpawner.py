@@ -37,10 +37,10 @@ class ChaserSpawner(BaseEnemySpawner):
     def __init__(self) -> None:
         super().__init__(hard_lim=14, to_spawn=2, to_spawn_init=2, spawn_cd=3700)
 
-        self.down_round = 15
+        self.down_round = 10
 
     def try_spawn(self, win_wd, win_ht, round_counter):
-        if round_counter >= self.down_round:  # remove enemy past R20
+        if round_counter >= self.down_round:
             return
 
         if self.spawned >= self.to_spawn:
@@ -79,12 +79,12 @@ class BouncerSpawner(BaseEnemySpawner):
         super().__init__(hard_lim=4, to_spawn=0, to_spawn_init=-2, spawn_cd=5600)
 
         self.pref_round = 3
-        self.down_round = 18
+        self.down_round = 14
 
     def try_spawn(self, win_wd, win_ht, round_counter):
-        if round_counter < self.pref_round:  # start spawning at R3
+        if round_counter < self.pref_round:
             return
-        if round_counter >= self.down_round:  # stop spawning at R18
+        if round_counter >= self.down_round:
             return
 
         if self.spawned >= self.to_spawn:
@@ -128,13 +128,13 @@ class BouncerSpawner(BaseEnemySpawner):
 
 class TankSpawner(BaseEnemySpawner):
     def __init__(self) -> None:
-        super().__init__(hard_lim=5, to_spawn=0, to_spawn_init=0, spawn_cd=5000)
+        super().__init__(hard_lim=5, to_spawn=0, to_spawn_init=1, spawn_cd=5000)
 
-        self.every_round = 5
-        self.down_round = 30
+        self.every_round = 4
+        self.down_round = 20
 
     def try_spawn(self, win_wd, win_ht, round_counter):
-        if round_counter % self.every_round != 0:  # spawn every 5 rounds
+        if round_counter % self.every_round != 0:
             return
         if round_counter >= self.down_round:
             return
@@ -167,7 +167,7 @@ class TankSpawner(BaseEnemySpawner):
             self.to_spawn = 0
         elif round_counter % self.every_round == 0:
             self.to_spawn = min(
-                self.to_spawn_init + (round_counter // 5),
+                self.to_spawn_init + (round_counter // 6),
                 self.hard_lim,
             )
         else:
@@ -176,14 +176,14 @@ class TankSpawner(BaseEnemySpawner):
 
 class SniperSpawner(BaseEnemySpawner):
     def __init__(self) -> None:
-        super().__init__(hard_lim=30, to_spawn=0, to_spawn_init=-8, spawn_cd=4750)
+        super().__init__(hard_lim=30, to_spawn=0, to_spawn_init=-5, spawn_cd=4750)
 
-        self.pref_round = 10
-        self.up_round = 18
-        self.down_round = 30
+        self.pref_round = 7
+        self.up_round = 12
+        self.down_round = 20
 
     def try_spawn(self, win_wd, win_ht, round_counter):
-        if round_counter < self.pref_round:  # spawn at R10
+        if round_counter < self.pref_round:
             return
         if round_counter >= self.down_round:
             return
@@ -227,15 +227,15 @@ class SniperSpawner(BaseEnemySpawner):
 
 class ShooterSpawner(BaseEnemySpawner):
     def __init__(self, projectile_grp) -> None:
-        super().__init__(hard_lim=4, to_spawn=0, to_spawn_init=-14, spawn_cd=4990)
+        super().__init__(hard_lim=4, to_spawn=0, to_spawn_init=-9, spawn_cd=4990)
 
         self.projectile_grp = projectile_grp
-        self.pref_round = 15
-        self.up_round = 20
-        self.down_round = 30
+        self.pref_round = 10
+        self.up_round = 15
+        self.down_round = 20
 
     def try_spawn(self, win_wd, win_ht, round_counter):
-        if round_counter < self.pref_round:  # spawn at R15
+        if round_counter < self.pref_round:
             return
         if round_counter >= self.down_round:
             return
@@ -270,15 +270,15 @@ class ShooterSpawner(BaseEnemySpawner):
 
 class ExploderSpawner(BaseEnemySpawner):
     def __init__(self, projectile_grp) -> None:
-        super().__init__(hard_lim=8, to_spawn=0, to_spawn_init=-14, spawn_cd=3120)
+        super().__init__(hard_lim=8, to_spawn=0, to_spawn_init=-11, spawn_cd=3120)
 
         self.projectile_grp = projectile_grp
-        self.pref_round = 17
-        self.up_round = 25
-        self.down_round = 30
+        self.pref_round = 13
+        self.up_round = 17
+        self.down_round = 20
 
     def try_spawn(self, win_wd, win_ht, round_counter):
-        if round_counter < self.pref_round:  # spawn at R17
+        if round_counter < self.pref_round:
             return
         if round_counter >= self.down_round:
             return

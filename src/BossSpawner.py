@@ -36,7 +36,7 @@ class VenusSpawner(BaseBossSpawner):
 
         self.projectile_grp = projectile_grp
         self.sniper_grp = sniper_grp
-        self.every_round = 30
+        self.every_round = 20
 
     def try_spawn(self, win_wd, win_ht, round_counter):
         if round_counter % self.every_round != 0:
