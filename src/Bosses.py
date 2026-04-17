@@ -5,7 +5,7 @@ import pygame
 
 from const.COLORS import BLACK, BLUE, GREEN, ORANGE, PLAT, RED, VIOLET, WHITE, YELLOW
 from const.FONTS import REGULAR
-from src.Enemies import Sniper
+from src.Enemies import Sniper, Exploder
 from src.Entities import GlassEntity, StarEntity
 from src.Weapons import Bullet, Pistol
 
@@ -357,6 +357,7 @@ class MilkyWay(GlassEntity):
         x_cor,
         y_cor,
         projectile_grp,
+        exploder_grp,
         health=15000,
         damage=25,
         size=250,
@@ -366,6 +367,7 @@ class MilkyWay(GlassEntity):
         super().__init__(size, x_cor, y_cor, color)
 
         self.projectile_grp = projectile_grp
+        self.exploder_grp = exploder_grp
         self.orig_image = self.image
 
         self.health = self.max_health = health
@@ -427,6 +429,9 @@ class MilkyWay(GlassEntity):
 
         self.burst_atk_timer = 0
         self.burst_atk_cd = 1300
+
+        self.exploder_spawn_cd = 1500
+        self.exploder_spawn_timer = 0
 
     # ==================
     # CORE
@@ -499,6 +504,7 @@ class MilkyWay(GlassEntity):
                     bullet_rot["rad"],
                     bullet_rot["bullet_cd"],
                 )
+                self._spawn_enemies(win_wd, win_ht, self.exploder_spawn_cd)
             case 2:
                 self._burst_atk()
                 self._rainfall(
@@ -509,6 +515,7 @@ class MilkyWay(GlassEntity):
                     rf_params["bullet_cd"],
                     random.choice(rf_params["bullet_count"]),
                 )
+                self._spawn_enemies(win_wd, win_ht, self.exploder_spawn_cd)
             case 3:
                 if dist > 500:
                     self._burst_atk()
@@ -623,8 +630,23 @@ class MilkyWay(GlassEntity):
             )
             self.projectile_grp.add(spawn_bullet)
 
-    def _spawn_enemies(self, enemy_cd):
-        pass
+    def _spawn_enemies(self, win_wd, win_ht, enemy_cd):
+        now = pygame.time.get_ticks()
+        if now - self.exploder_spawn_timer < enemy_cd:
+            return
+        self.exploder_spawn_timer = now
+
+        side = random.choice(["left", "right", "top", "bottom"])
+        if side == "left":
+            x, y = -20, random.randint(-20, win_ht + 20)
+        elif side == "right":
+            x, y = win_wd + 20, random.randint(-20, win_ht + 20)
+        elif side == "top":
+            x, y = random.randint(-20, win_wd + 20), -20
+        else:
+            x, y = random.randint(-20, win_wd + 20), win_ht + 20
+
+        self.exploder_grp.add(Exploder(x, y, self.projectile_grp))
 
     def _explode(self, bullet_count=16):
         angle_step = 360 / bullet_count

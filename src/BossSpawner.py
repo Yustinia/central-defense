@@ -36,7 +36,7 @@ class VenusSpawner(BaseBossSpawner):
 
         self.projectile_grp = projectile_grp
         self.sniper_grp = sniper_grp
-        self.every_round = 20
+        self.every_round = 25
 
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
@@ -64,11 +64,12 @@ class VenusSpawner(BaseBossSpawner):
 
 
 class MilkyWaySpawner(BaseBossSpawner):
-    def __init__(self, projectile_grp) -> None:
+    def __init__(self, projectile_grp, exploder_grp) -> None:
         super().__init__(hard_lim=1, to_spawn=0, to_spawn_init=1)
 
         self.projectile_grp = projectile_grp
-        self.every_round = 25
+        self.exploder_grp = exploder_grp
+        self.every_round = 20
 
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
@@ -80,6 +81,7 @@ class MilkyWaySpawner(BaseBossSpawner):
                 center_x,
                 center_y,
                 self.projectile_grp,
+                self.exploder_grp,
             )
         )
 

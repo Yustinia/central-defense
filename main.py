@@ -62,7 +62,10 @@ class Game:
             self.enemy_projectiles,
             self.sniper_spawner.group,
         )
-        self.milkyway_spawner = MilkyWaySpawner(self.enemy_projectiles)
+        self.milkyway_spawner = MilkyWaySpawner(
+            self.enemy_projectiles,
+            self.exploder_spawner.group,
+        )
 
         # ALL SPAWNERS
         self.all_entity_spawners = (
