@@ -116,11 +116,12 @@ class Game:
         self.hp_pack.try_spawn(self.win_wd, self.win_ht)
 
         hp_acq = pygame.sprite.spritecollide(self.player, self.hp_pack.group, False)
-        for pack in self.hp_pack.group:
-            if self.player.health >= self.player.min_health:
-                pack.kill()
-            elif hp_acq:
-                pack.heal(self.player)
+        for pack in hp_acq:
+            if self.player.health <= self.player.min_health:
+                if self.player.health + pack.heal_amt >= self.player.max_health:
+                    self.player.health = self.player.max_health
+                else:
+                    pack.heal(self.player)
                 pack.kill()
 
         # SPAWNER UPDATES

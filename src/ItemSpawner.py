@@ -29,7 +29,7 @@ class BaseItemSpawner(ABC):
 
 class HealthPackSpawner(BaseItemSpawner):
     def __init__(self) -> None:
-        super().__init__(spawn_cd=25000, group_type="single")
+        super().__init__(spawn_cd=15000, group_type="single")
 
     def try_spawn(self, win_wd, win_ht):
         if not self.timer():

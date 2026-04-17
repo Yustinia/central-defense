@@ -28,7 +28,7 @@ class Player(BoxEntity):
         self.dx, self.dy = 0, 0
         self.friction = 0.85
 
-        self.min_health = 250
+        self.min_health = 300
         self.dmg_cd = 125
         self.dmg_timer = 0
 

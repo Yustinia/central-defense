@@ -6,7 +6,7 @@ class HealthPack(CrossEntity):
     def __init__(self, x_cor, y_cor, color=GREEN, size=60) -> None:
         super().__init__(size, x_cor, y_cor, color)
 
-        self.heal_amt = 200
+        self.heal_amt = 300
 
     def heal(self, player):
         player.health += self.heal_amt
