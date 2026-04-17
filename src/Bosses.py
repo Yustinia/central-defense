@@ -160,10 +160,13 @@ class Venus(StarEntity):
         match self.phase:
             case 1:
                 self._ranged_atk(tar_x, tar_y)
+                self._burst_atk()
             case 2:
                 if dist <= 300:
                     self._burst_atk()
+                    self._ranged_atk(tar_x, tar_y)
                 elif dist <= 500:
+                    self._varied_burst_atk()
                     self._ranged_atk(tar_x, tar_y)
                 else:
                     self._varied_burst_atk()
