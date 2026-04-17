@@ -13,4 +13,4 @@ run:
 
 # build game
 build:
-    {{ PY }} -m PyInstaller --onefile --add-data "assets{{ SEP }}assets" --add-data "const{{ SEP }}const" --add-data "src{{ SEP }}src" main.py --name "Central Defense"
+    {{ PY }} -m PyInstaller --onefile --add-data "assets{{ SEP }}assets" --add-data "const{{ SEP }}const" --add-data "src{{ SEP }}src" --add-data "sounds{{ SEP }}sounds" main.py --name "Central Defense"
