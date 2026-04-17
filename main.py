@@ -74,6 +74,17 @@ class Game:
             self.venus_spawner,
         )
 
+        self.all_enemy_spawners = (
+            self.chaser_spawner,
+            self.bouncer_spawner,
+            self.tank_spawner,
+            self.sniper_spawner,
+            self.shooter_spawner,
+            self.exploder_spawner,
+        )
+
+        self.all_boss_spawners = (self.venus_spawner,)
+
         # WEAPON
         self.current_weapon_counter = 0
         self.current_weap_state = "PISTOL"  # [PISTOL, SHOTGUN, MACHINEGUN, LASERGUN]
@@ -229,17 +240,22 @@ class Game:
 
         self.player.draw(screen)
 
-        for spawner in self.all_entity_spawners:
+        for spawner in self.all_enemy_spawners:
             for enemy in spawner.group:
                 enemy.draw(screen)
                 enemy.draw_health_bar(screen)
+
+        for spawner in self.all_boss_spawners:
+            for boss in spawner.group:
+                boss.draw(screen)
+                boss.draw_health_bar(self.win_wd, screen)
 
         for border in self.borders:
             border.draw(screen)
 
         self.player.draw_health_bar(self.win_wd, self.win_ht, screen)
         self.player.draw_ability_bar(self.win_wd, self.win_ht, screen)
-        self.player.display_current_weap(self.win_wd, self.current_weap_state, screen)
+        self.player.display_current_weap(self.win_ht, self.current_weap_state, screen)
 
 
 class GameManager:

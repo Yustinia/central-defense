@@ -7,6 +7,7 @@ from const.COLORS import BLACK, BLUE, GREEN, ORANGE, PLAT, RED, VIOLET, WHITE, Y
 from src.Enemies import Sniper
 from src.Entities import StarEntity
 from src.Weapons import Bullet, Pistol
+from const.FONTS import REGULAR
 
 
 class Venus(StarEntity):
@@ -324,13 +325,20 @@ class Venus(StarEntity):
     # DRAW
     # ==================
 
-    def draw_health_bar(self, screen):
-        bar_wd = 80
+    def draw_health_bar(self, win_wd, screen):
+        bar_wd = 400
         bar_ht = 20
+        gap = 5
 
-        bar_x = self.rect.centerx - (bar_wd // 2)
-        bar_y = self.rect.top - (bar_ht * 2)
+        bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
+        bar_rect.midtop = (win_wd // 2, 40)
 
         fill_wd = int(self.health / self.max_health * bar_wd)
-        pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
-        pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_wd, bar_ht), 1)
+        pygame.draw.rect(screen, RED, (bar_rect.x, bar_rect.y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, WHITE, bar_rect, 2)
+
+        font = pygame.font.Font(REGULAR, 40)
+        name_img = font.render("Venus", True, WHITE)
+        name_img.set_alpha(128)
+        name_rect = name_img.get_rect(midtop=(bar_rect.centerx, bar_rect.bottom + gap))
+        screen.blit(name_img, name_rect)
