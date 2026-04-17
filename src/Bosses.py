@@ -11,8 +11,9 @@ from src.Weapons import Bullet, Pistol
 
 class Venus(StarEntity):
     PHASE_THRESHOLDS = {
-        3: 0.30,
-        2: 0.60,
+        4: 0.15,
+        3: 0.40,
+        2: 0.75,
         1: 1.00,
     }
 
@@ -26,7 +27,7 @@ class Venus(StarEntity):
         color=RED,
         num_points=5,
         depth_ratio=0.4,
-        health=12000,
+        health=15000,
         damage=25,
     ) -> None:
         super().__init__(size, x_cor, y_cor, color, num_points, depth_ratio)
@@ -52,6 +53,10 @@ class Venus(StarEntity):
                 "friction": 0.94,
                 "accel": 0.88,
             },
+            4: {
+                "friction": 0.94,
+                "accel": "0.90",
+            },
         }
         # atk timers
         self.burst_atk_cd = 3000
@@ -60,7 +65,10 @@ class Venus(StarEntity):
         self.varied_burst_atk_cd = 800
         self.varied_burst_atk_timer = 0
 
-        self.spawn_enemy_cd = 500
+        self.spawn_enemy_params = {
+            3: {"spawn_enemy_cd": 1200},
+            4: {"spawn_enemy_cd": 750},
+        }
         self.spawn_enemy_timer = 0
 
         # movement timers
@@ -121,12 +129,23 @@ class Venus(StarEntity):
                 )
             case 2:
                 params = self.chase_params[self.phase]
-                self._wander(borders, params["friction"], params["accel"])
+                self._wander(
+                    borders,
+                    params["friction"],
+                    params["accel"],
+                )
             case 3:
                 params = self.chase_params[self.phase]
                 self._chase(
                     tar_x,
                     tar_y,
+                    params["friction"],
+                    params["accel"],
+                )
+            case 4:
+                params = self.chase_params[self.phase]
+                self._wander(
+                    borders,
                     params["friction"],
                     params["accel"],
                 )
@@ -149,11 +168,16 @@ class Venus(StarEntity):
                 else:
                     self._varied_burst_atk()
             case 3:
+                params = self.spawn_enemy_params[self.phase]
                 if dist <= 500:
-                    self._spawn_enemies()
+                    self._spawn_enemies(params["spawn_enemy_cd"])
                     self._burst_atk()
                 else:
                     self._varied_burst_atk()
+            case 4:
+                params = self.spawn_enemy_params[self.phase]
+                self._spawn_enemies(params["spawn_enemy_cd"])
+                self._varied_burst_atk()
 
     # ==================
     # MOVEMENTS
@@ -259,9 +283,9 @@ class Venus(StarEntity):
                     )
                 )
 
-    def _spawn_enemies(self):
+    def _spawn_enemies(self, enemy_cd):
         now = pygame.time.get_ticks()
-        if now - self.spawn_enemy_timer < self.spawn_enemy_cd:
+        if now - self.spawn_enemy_timer < enemy_cd:
             return
         self.spawn_enemy_timer = now
 

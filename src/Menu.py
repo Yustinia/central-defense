@@ -26,11 +26,10 @@ class MainMenu:
         self.player = Player(
             self.win_wd // 2,
             self.flr.rect.top - (ply_ht // 2) - padding,
-            BLUE,
             None,
-            1,
-            ply_wd,
-            ply_ht,
+            None,
+            win_wd=ply_wd,
+            win_ht=ply_ht,
         )
 
         self.header_ft = pygame.font.Font(BOLD, 120)
