@@ -9,4 +9,4 @@ class HealthPack(CrossEntity):
         self.heal_amt = 300
 
     def heal(self, player):
-        player.health += self.heal_amt
+        player.health = min(player.health + self.heal_amt, player.max_health)
