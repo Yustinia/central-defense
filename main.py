@@ -209,12 +209,8 @@ class Game:
         if all_spawned and all_dead:
             self.round_counter += 1
 
-            self.chaser_spawner.next_round(self.round_counter)
-            self.bouncer_spawner.next_round(self.round_counter)
-            self.tank_spawner.next_round(self.round_counter)
-            self.sniper_spawner.next_round(self.round_counter)
-            self.shooter_spawner.next_round(self.round_counter)
-            self.exploder_spawner.next_round(self.round_counter)
+            for spawner in self.all_entity_spawners:
+                spawner.next_round(self.round_counter)
 
         if not self.player.is_alive:
             return False
