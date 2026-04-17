@@ -40,7 +40,7 @@ class Venus(StarEntity):
         self.phase = 1  # [1, 2, 3]
 
         self.dx, self.dy = 0, 0
-        self.chase_params = {
+        self.movement_params = {
             1: {
                 "friction": 0.92,
                 "accel": 0.50,
@@ -55,7 +55,7 @@ class Venus(StarEntity):
             },
             4: {
                 "friction": 0.94,
-                "accel": "0.90",
+                "accel": 0.90,
             },
         }
         # atk timers
@@ -120,7 +120,7 @@ class Venus(StarEntity):
     def _movement(self, tar_x, tar_y, borders):
         match self.phase:
             case 1:
-                params = self.chase_params[self.phase]
+                params = self.movement_params[self.phase]
                 self._chase(
                     tar_x,
                     tar_y,
@@ -128,14 +128,14 @@ class Venus(StarEntity):
                     params["accel"],
                 )
             case 2:
-                params = self.chase_params[self.phase]
+                params = self.movement_params[self.phase]
                 self._wander(
                     borders,
                     params["friction"],
                     params["accel"],
                 )
             case 3:
-                params = self.chase_params[self.phase]
+                params = self.movement_params[self.phase]
                 self._chase(
                     tar_x,
                     tar_y,
@@ -143,7 +143,7 @@ class Venus(StarEntity):
                     params["accel"],
                 )
             case 4:
-                params = self.chase_params[self.phase]
+                params = self.movement_params[self.phase]
                 self._wander(
                     borders,
                     params["friction"],
