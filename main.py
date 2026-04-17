@@ -9,6 +9,7 @@ from src.EnemySpawner import (
     ShooterSpawner,
     SniperSpawner,
     TankSpawner,
+    SplitterSpawner,
 )
 from src.ItemSpawner import HealthPackSpawner
 from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState
@@ -37,6 +38,7 @@ class Game:
         self.player_projectiles = pygame.sprite.Group()
         self.player_beams = pygame.sprite.Group()
         self.enemy_projectiles = pygame.sprite.Group()
+        self.enemy_shard = pygame.sprite.Group()
 
         # PLAYER
         self.player = Player(
@@ -56,6 +58,7 @@ class Game:
         self.sniper_spawner = SniperSpawner()
         self.shooter_spawner = ShooterSpawner(self.enemy_projectiles)
         self.exploder_spawner = ExploderSpawner(self.enemy_projectiles)
+        self.splitter_spawner = SplitterSpawner(self.enemy_shard)
 
         # BOSS SPAWNERS
         self.venus_spawner = VenusSpawner(
@@ -75,6 +78,7 @@ class Game:
             self.sniper_spawner,
             self.shooter_spawner,
             self.exploder_spawner,
+            self.splitter_spawner,
             self.venus_spawner,
             self.milkyway_spawner,
         )
@@ -86,6 +90,7 @@ class Game:
             self.sniper_spawner,
             self.shooter_spawner,
             self.exploder_spawner,
+            self.splitter_spawner,
         )
 
         self.all_boss_spawners = (
@@ -165,6 +170,10 @@ class Game:
             self.player.rect.centerx,
             self.player.rect.centery,
         )
+        self.splitter_spawner.group.update(
+            self.player.rect.centerx,
+            self.player.rect.centery,
+        )
         self.venus_spawner.group.update(
             self.player.rect.centerx,
             self.player.rect.centery,
@@ -185,8 +194,9 @@ class Game:
 
         # ENEMY UPDATES
         self.enemy_projectiles.update(self.borders)
+        self.enemy_shard.update(self.player.rect.centerx, self.player.rect.centery)
 
-        # PLAYER PROJECTILE HITS ENEMY
+        # PLAYER PROJECTILE/BEAM HITS ENEMY
         for spawner in self.all_entity_spawners:
             projectile_hitmarks = pygame.sprite.groupcollide(
                 self.player_projectiles,
@@ -210,6 +220,29 @@ class Game:
                 for enemy in enemies_hit:
                     enemy.take_dmg(beam.damage)
 
+        # PLAYER PROJECTILE/BEAM HITS SHARD
+        proj_to_shard_hits = pygame.sprite.groupcollide(
+            self.player_projectiles,
+            self.enemy_shard,
+            True,
+            False,
+            collided=pygame.sprite.collide_mask,
+        )
+        for projectile, shards_hit in proj_to_shard_hits.items():
+            for shard in shards_hit:
+                shard.take_dmg(projectile.damage)
+
+        beam_to_shard_hits = pygame.sprite.groupcollide(
+            self.player_beams,
+            self.enemy_shard,
+            False,
+            False,
+            collided=pygame.sprite.collide_mask,
+        )
+        for beam, shards_hit in beam_to_shard_hits.items():
+            for shard in shards_hit:
+                shard.take_dmg(beam.damage)
+
         # ENEMY AND PLAYER CONTACT
         kill_on_contact = [self.bouncer_spawner, self.sniper_spawner]
         for spawner in self.all_entity_spawners:
@@ -231,6 +264,15 @@ class Game:
         )
         for bullet in enemy_projectile:
             self.player.take_damage(bullet.damage)
+
+        # ENEMY SHARD AND PLAYER HIT
+        enemy_shard = pygame.sprite.spritecollide(
+            self.player,
+            self.enemy_shard,
+            True,
+        )
+        for shard in enemy_shard:
+            self.player.take_damage(shard.damage)
 
         # ROUND IMPLEMENTATION
         all_spawned = all(spawner.all_spawned for spawner in self.all_entity_spawners)
@@ -259,6 +301,10 @@ class Game:
             self.enemy_projectiles,
         ):
             ejection.draw(screen)
+
+        for shard in self.enemy_shard:
+            shard.draw(screen)
+            shard.draw_health_bar(screen)
 
         self.player.draw(screen)
 

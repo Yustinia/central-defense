@@ -117,6 +117,40 @@ class OctEntity(pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
 
 
+class DiamondEntity(pygame.sprite.Sprite):
+    def __init__(self, size, x_cor, y_cor, color) -> None:
+        super().__init__()
+
+        self.size = size
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.color = color
+
+        self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
+
+        mid_pt = self.size // 2
+
+        top_tri = [
+            (mid_pt, 0),  # top point
+            (0, mid_pt),  # left middle
+            (self.size, mid_pt),  # right middle
+        ]
+        bot_tri = [
+            (mid_pt, self.size),  # bottom point
+            (0, mid_pt),  # left middle
+            (self.size, mid_pt),  # right middle
+        ]
+
+        pygame.draw.polygon(self.image, self.color, top_tri)
+        pygame.draw.polygon(self.image, self.color, bot_tri)
+
+        self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+
 class StarEntity(pygame.sprite.Sprite):
     def __init__(
         self, size, x_cor, y_cor, color, num_points=5, depth_ratio=0.4

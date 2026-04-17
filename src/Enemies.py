@@ -3,8 +3,8 @@ import random
 
 import pygame
 
-from const.COLORS import GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
-from src.Entities import CircEntity, OctEntity, TriEntity
+from const.COLORS import GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW, BLUE
+from src.Entities import CircEntity, OctEntity, TriEntity, DiamondEntity
 from src.Weapons import Bullet, Pistol
 
 
@@ -373,6 +373,119 @@ class Exploder(OctEntity):
         self.health -= amount
         if self.health <= 0:
             self.explode()
+
+    def draw_health_bar(self, screen):
+        bar_wd = 80
+        bar_ht = 20
+
+        bar_x = self.rect.centerx - (bar_wd // 2)
+        bar_y = self.rect.top - (bar_ht * 2)
+
+        fill_wd = int(self.health / self.max_health * bar_wd)
+        pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_wd, bar_ht), 1)
+
+
+class SplitterShard(DiamondEntity):
+    def __init__(
+        self,
+        x_cor,
+        y_cor,
+        color=BLUE,
+        size=25,
+        health=25,
+        damage=15,
+    ) -> None:
+        super().__init__(size, x_cor, y_cor, color)
+
+        self.health = self.max_health = health
+        self.damage = damage
+        self.dx, self.dy = 0, 0
+        self.friction = random.uniform(0.92, 0.98)
+        self.accel = random.uniform(0.70, 0.80)
+
+    def update(self, tar_x, tar_y):
+        self._movement(tar_x, tar_y)
+
+    def _movement(self, tar_x, tar_y):
+        angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
+
+        self.dx += math.cos(angle) * self.accel
+        self.dy += math.sin(angle) * self.accel
+        self.dx *= self.friction
+        self.dy *= self.friction
+
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
+
+    def take_dmg(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self.kill()
+
+    def draw_health_bar(self, screen):
+        bar_wd = 80
+        bar_ht = 20
+
+        bar_x = self.rect.centerx - (bar_wd // 2)
+        bar_y = self.rect.top - (bar_ht * 2)
+
+        fill_wd = int(self.health / self.max_health * bar_wd)
+        pygame.draw.rect(screen, GREEN, (bar_x, bar_y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_wd, bar_ht), 1)
+
+
+class Splitter(DiamondEntity):
+    def __init__(
+        self,
+        x_cor,
+        y_cor,
+        shard_grp,
+        color=BLUE,
+        size=50,
+        health=50,
+        damage=10,
+        shard_count=6,
+    ) -> None:
+        super().__init__(size, x_cor, y_cor, color)
+
+        self.shard_grp = shard_grp
+        self.health = self.max_health = health
+        self.damage = damage
+        self.shard_count = shard_count
+        self.dx, self.dy = 0, 0
+        self.friction = 0.92
+        self.accel = 0.4
+
+    def update(self, tar_x, tar_y):
+        self._movement(tar_x, tar_y)
+
+    def _movement(self, tar_x, tar_y):
+        angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
+
+        self.dx += math.cos(angle) * self.accel
+        self.dy += math.sin(angle) * self.accel
+        self.dx *= self.friction
+        self.dy *= self.friction
+
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
+
+    def take_dmg(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self._split()
+            self.kill()
+
+    def _split(self):
+        for i in range(self.shard_count):
+            offset_x = random.randint(-30, 30)
+            offset_y = random.randint(-30, 30)
+            self.shard_grp.add(
+                SplitterShard(
+                    self.rect.centerx + offset_x, self.rect.centery + offset_y
+                )
+            )
 
     def draw_health_bar(self, screen):
         bar_wd = 80
