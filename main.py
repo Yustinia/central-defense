@@ -168,6 +168,8 @@ class Game:
             self.borders,
         )
         self.milkyway_spawner.group.update(
+            self.win_wd,
+            self.win_ht,
             self.player.rect.centerx,
             self.player.rect.centery,
             self.borders,

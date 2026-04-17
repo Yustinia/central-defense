@@ -255,7 +255,7 @@ class Venus(StarEntity):
                         self.rect.centery,
                         tar_x_off,
                         tar_y_off,
-                        RED,
+                        self.color,
                         self.damage,
                         speed=ring_spd,
                     )
@@ -281,7 +281,7 @@ class Venus(StarEntity):
                         self.rect.centery,
                         tar_x_off,
                         tar_y_off,
-                        RED,
+                        self.color,
                         self.damage,
                         speed=ring_spd,
                     )
@@ -357,7 +357,7 @@ class MilkyWay(GlassEntity):
         x_cor,
         y_cor,
         projectile_grp,
-        health=500,
+        health=15000,
         damage=25,
         size=250,
         color=VIOLET,
@@ -384,7 +384,6 @@ class MilkyWay(GlassEntity):
         self.rot_switch_cd = 5000
         self.rot_switch_timer = pygame.time.get_ticks()
 
-        # Timers
         self.bullet_rot_params = {
             1: {
                 "bullet_arms": 4,
@@ -399,23 +398,46 @@ class MilkyWay(GlassEntity):
                 "rad": 8,
                 "bullet_cd": 250,
             },
-            4: {},
+            4: {
+                "bullet_arms": 16,
+                "speed": 5,
+                "rad": 6,
+                "bullet_cd": 1100,
+            },
         }
         self.bullet_rot_timer = 0
+
+        self.rainfall_params = {
+            1: {},
+            2: {
+                "speed": (5, 6, 7, 8, 10),
+                "rad": 6,
+                "bullet_cd": 700,
+                "bullet_count": (2, 4, 6, 8),
+            },
+            3: {},
+            4: {
+                "speed": (7, 8, 9, 10, 11, 12, 13),
+                "rad": 8,
+                "bullet_cd": 250,
+                "bullet_count": (4, 6, 8),
+            },
+        }
+        self.rainfall_timer = 0
+
+        self.burst_atk_timer = 0
+        self.burst_atk_cd = 1300
 
     # ==================
     # CORE
     # ==================
 
-    def update(self, tar_x, tar_y, borders):
+    def update(self, win_wd, win_ht, tar_x, tar_y, borders):
         self._update_phase()
         self._movement(tar_x, tar_y, borders)
-        self._attack(tar_x, tar_y)
+        self._attack(win_wd, win_ht, tar_x, tar_y)
 
-        if self.phase in (1, 3):
-            self._handle_rotation()
-        else:
-            self._reset_orientation()
+        self._handle_rotation()
 
     def _update_phase(self):
         health_pct = self.health / self.max_health
@@ -438,13 +460,6 @@ class MilkyWay(GlassEntity):
         self.mask = pygame.mask.from_surface(self.image)
 
         self.x_cor, self.y_cor = self.rect.center
-
-    def _reset_orientation(self):
-        if self.angle != 0:
-            self.angle = 0
-            self.image = self.orig_image
-            self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
-            self.mask = pygame.mask.from_surface(self.image)
 
     def take_dmg(self, amount):
         self.health -= amount
@@ -470,10 +485,11 @@ class MilkyWay(GlassEntity):
     # ATTACK ROUTING
     # ==================
 
-    def _attack(self, tar_x, tar_y):
+    def _attack(self, win_wd, win_ht, tar_x, tar_y):
         dist = math.hypot(tar_x - self.rect.centerx, tar_y - self.rect.centery)
 
         bullet_rot = self.bullet_rot_params[self.phase]
+        rf_params = self.rainfall_params[self.phase]
 
         match self.phase:
             case 1:
@@ -484,8 +500,18 @@ class MilkyWay(GlassEntity):
                     bullet_rot["bullet_cd"],
                 )
             case 2:
-                pass
+                self._burst_atk()
+                self._rainfall(
+                    win_wd,
+                    win_ht,
+                    random.choice(rf_params["speed"]),
+                    rf_params["rad"],
+                    rf_params["bullet_cd"],
+                    random.choice(rf_params["bullet_count"]),
+                )
             case 3:
+                if dist > 500:
+                    self._burst_atk()
                 self._bullet_rotation(
                     bullet_rot["bullet_arms"],
                     bullet_rot["speed"],
@@ -493,7 +519,20 @@ class MilkyWay(GlassEntity):
                     bullet_rot["bullet_cd"],
                 )
             case 4:
-                pass
+                self._rainfall(
+                    win_wd,
+                    win_ht,
+                    random.choice(rf_params["speed"]),
+                    rf_params["rad"],
+                    rf_params["bullet_cd"],
+                    random.choice(rf_params["bullet_count"]),
+                )
+                self._bullet_rotation(
+                    bullet_rot["bullet_arms"],
+                    bullet_rot["speed"],
+                    bullet_rot["rad"],
+                    bullet_rot["bullet_cd"],
+                )
 
     # ==================
     # MOVEMENTS
@@ -531,6 +570,58 @@ class MilkyWay(GlassEntity):
                 speed=speed,
             )
             self.projectile_grp.add(bullet)
+
+    def _burst_atk(self):
+        now = pygame.time.get_ticks()
+        if now - self.burst_atk_timer < self.burst_atk_cd:
+            return
+        self.burst_atk_timer = now
+
+        bullet_count = 8
+        angle_step = 360 / bullet_count
+        for i in range(bullet_count):
+            angle = math.radians(angle_step * i)
+            tar_x_off = self.rect.centerx + math.cos(angle) * 100
+            tar_y_off = self.rect.centery + math.sin(angle) * 100
+            for ring_spd in (3, 12):
+                self.projectile_grp.add(
+                    Bullet(
+                        5,
+                        self.rect.centerx,
+                        self.rect.centery,
+                        tar_x_off,
+                        tar_y_off,
+                        self.color,
+                        self.damage,
+                        speed=ring_spd,
+                    )
+                )
+
+    def _rainfall(self, win_wd, win_ht, speed=5, rad=6, bullet_cd=700, bullet_count=16):
+        now = pygame.time.get_ticks()
+        if now - self.rainfall_timer < bullet_cd:
+            return
+        self.rainfall_timer = now
+
+        border_padding = 40
+        for i in range(bullet_count):
+            start_x = random.randint(border_padding, win_wd - border_padding)
+            start_y = border_padding
+
+            target_x = start_x
+            target_y = win_ht
+
+            spawn_bullet = Bullet(
+                rad,
+                start_x,
+                start_y,
+                target_x,
+                target_y,
+                self.color,
+                self.damage,
+                speed,
+            )
+            self.projectile_grp.add(spawn_bullet)
 
     def _spawn_enemies(self, enemy_cd):
         pass
