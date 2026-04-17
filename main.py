@@ -126,7 +126,7 @@ class Game:
 
         # SPAWNER UPDATES
         for spawner in self.all_entity_spawners:
-            spawner.try_spawn(self.win_wd, self.win_ht, self.round_counter)
+            spawner.try_spawn(self.win_wd, self.win_ht)
 
         self.chaser_spawner.group.update(
             self.player.rect.centerx,

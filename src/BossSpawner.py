@@ -24,7 +24,7 @@ class BaseBossSpawner(ABC):
         self.spawned = 0
 
     @abstractmethod
-    def try_spawn(self, win_wd, win_ht, round_counter): ...
+    def try_spawn(self, win_wd, win_ht): ...
 
     @abstractmethod
     def next_round(self, round_counter): ...
@@ -38,10 +38,7 @@ class VenusSpawner(BaseBossSpawner):
         self.sniper_grp = sniper_grp
         self.every_round = 20
 
-    def try_spawn(self, win_wd, win_ht, round_counter):
-        if round_counter % self.every_round != 0:
-            return
-
+    def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
             return
 
