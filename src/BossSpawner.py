@@ -26,11 +26,12 @@ class BaseBossSpawner(ABC):
 
 
 class VenusSpawner(BaseBossSpawner):
-    def __init__(self, projectile_grp) -> None:
+    def __init__(self, projectile_grp, sniper_grp) -> None:
         super().__init__()
 
         self.projectile_grp = projectile_grp
-        self.pref_round = 1
+        self.sniper_grp = sniper_grp
+        self.pref_round = 30
 
     def try_spawn(self, win_wd, win_ht, round_counter):
         if round_counter < self.pref_round:
@@ -45,6 +46,7 @@ class VenusSpawner(BaseBossSpawner):
                 center_x,
                 center_y,
                 self.projectile_grp,
+                self.sniper_grp,
             )
         )
 

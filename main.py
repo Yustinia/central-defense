@@ -1,5 +1,6 @@
 import pygame
 
+from src.BossSpawner import VenusSpawner
 from src.Core import Background, Border
 from src.EnemySpawner import (
     BouncerSpawner,
@@ -9,7 +10,6 @@ from src.EnemySpawner import (
     SniperSpawner,
     TankSpawner,
 )
-from src.BossSpawner import VenusSpawner
 from src.ItemSpawner import HealthPackSpawner
 from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState
 from src.Player import Player
@@ -60,6 +60,7 @@ class Game:
         # BOSS SPAWNERS
         self.venus_spawner = VenusSpawner(
             self.enemy_projectiles,
+            self.sniper_spawner.group,
         )
 
         # ALL SPAWNERS

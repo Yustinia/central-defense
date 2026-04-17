@@ -21,6 +21,7 @@ class Venus(StarEntity):
         x_cor,
         y_cor,
         projectile_grp,
+        sniper_grp,
         size=120,
         color=RED,
         num_points=5,
@@ -31,6 +32,7 @@ class Venus(StarEntity):
         super().__init__(size, x_cor, y_cor, color, num_points, depth_ratio)
 
         self.projectile_grp = projectile_grp
+        self.sniper_grp = sniper_grp
 
         self.health = self.max_health = health
         self.damage = damage
@@ -58,7 +60,7 @@ class Venus(StarEntity):
         self.varied_burst_atk_cd = 800
         self.varied_burst_atk_timer = 0
 
-        self.spawn_enemy_cd = 1200
+        self.spawn_enemy_cd = 500
         self.spawn_enemy_timer = 0
 
         # movement timers
@@ -262,6 +264,13 @@ class Venus(StarEntity):
         if now - self.spawn_enemy_timer < self.spawn_enemy_cd:
             return
         self.spawn_enemy_timer = now
+
+        spawn_sniper = Sniper(
+            self.rect.centerx,
+            self.rect.centery,
+        )
+
+        self.sniper_grp.add(spawn_sniper)
 
     def _explode(self, bullet_count=16):
         angle_step = 360 / bullet_count
