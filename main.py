@@ -118,7 +118,6 @@ class Game:
         hp_acq = pygame.sprite.spritecollide(self.player, self.hp_pack.group, False)
         for pack in hp_acq:
             if self.player.health <= self.player.min_health:
-                pack.kill()
                 if self.player.health + pack.heal_amt >= self.player.max_health:
                     self.player.health = self.player.max_health
                 else:
