@@ -65,7 +65,7 @@ class VenusSpawner(BaseBossSpawner):
 
 class MilkyWaySpawner(BaseBossSpawner):
     def __init__(self, projectile_grp, exploder_grp) -> None:
-        super().__init__(hard_lim=1, to_spawn=0, to_spawn_init=1)
+        super().__init__(hard_lim=1, to_spawn=1, to_spawn_init=1)
 
         self.projectile_grp = projectile_grp
         self.exploder_grp = exploder_grp

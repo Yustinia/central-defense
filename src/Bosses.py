@@ -28,7 +28,7 @@ class Venus(StarEntity):
         color=RED,
         num_points=5,
         depth_ratio=0.4,
-        health=15000,
+        health=18000,
         damage=25,
     ) -> None:
         super().__init__(size, x_cor, y_cor, color, num_points, depth_ratio)
@@ -358,7 +358,7 @@ class MilkyWay(GlassEntity):
         y_cor,
         projectile_grp,
         exploder_grp,
-        health=15000,
+        health=18000,
         damage=25,
         size=250,
         color=VIOLET,
@@ -430,7 +430,16 @@ class MilkyWay(GlassEntity):
         self.burst_atk_timer = 0
         self.burst_atk_cd = 1300
 
-        self.exploder_spawn_cd = 1500
+        self.exploder_params = {
+            1: {
+                "exploder_spawn_cd": 2000,
+            },
+            2: {
+                "exploder_spawn_cd": 2700,
+            },
+            3: {},
+            4: {},
+        }
         self.exploder_spawn_timer = 0
 
     # ==================
@@ -495,6 +504,7 @@ class MilkyWay(GlassEntity):
 
         bullet_rot = self.bullet_rot_params[self.phase]
         rf_params = self.rainfall_params[self.phase]
+        exp_params = self.exploder_params[self.phase]
 
         match self.phase:
             case 1:
@@ -504,7 +514,7 @@ class MilkyWay(GlassEntity):
                     bullet_rot["rad"],
                     bullet_rot["bullet_cd"],
                 )
-                self._spawn_enemies(win_wd, win_ht, self.exploder_spawn_cd)
+                self._spawn_enemies(win_wd, win_ht, exp_params["exploder_spawn_cd"])
             case 2:
                 self._burst_atk()
                 self._rainfall(
@@ -515,7 +525,7 @@ class MilkyWay(GlassEntity):
                     rf_params["bullet_cd"],
                     random.choice(rf_params["bullet_count"]),
                 )
-                self._spawn_enemies(win_wd, win_ht, self.exploder_spawn_cd)
+                self._spawn_enemies(win_wd, win_ht, exp_params["exploder_spawn_cd"])
             case 3:
                 if dist > 500:
                     self._burst_atk()
