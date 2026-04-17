@@ -1,11 +1,12 @@
-import pygame
 import math
 import random
 
-from src.Entities import StarEntity
-from const.COLORS import WHITE, BLACK, BLUE, GREEN, VIOLET, ORANGE, YELLOW, RED, PLAT
-from src.Weapons import Bullet, Pistol
+import pygame
+
+from const.COLORS import BLACK, BLUE, GREEN, ORANGE, PLAT, RED, VIOLET, WHITE, YELLOW
 from src.Enemies import Sniper
+from src.Entities import StarEntity
+from src.Weapons import Bullet, Pistol
 
 
 class Venus(StarEntity):
@@ -262,7 +263,7 @@ class Venus(StarEntity):
             return
         self.spawn_enemy_timer = now
 
-    def _explode(self, bullet_count=32):
+    def _explode(self, bullet_count=16):
         angle_step = 360 / bullet_count
         for i in range(bullet_count):
             angle = math.radians(angle_step * i)
