@@ -156,3 +156,50 @@ class StarEntity(pygame.sprite.Sprite):
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
+
+
+class GlassEntity(pygame.sprite.Sprite):
+    def __init__(
+        self,
+        size,
+        x_cor,
+        y_cor,
+        color,
+        gap_ratio=0.2,
+        thickness=4,
+    ) -> None:
+        super().__init__()
+
+        self.size = size
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.color = color
+        self.gap_ratio = gap_ratio
+        self.thickness = thickness
+
+        self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
+
+        mid_pt = self.size // 2
+        gap = 5
+
+        tri_up = [
+            (mid_pt, 0),  # The top peak
+            (0, mid_pt - gap),  # Bottom-left of this triangle
+            (self.size, mid_pt - gap),  # Bottom-right of this triangle
+        ]
+
+        # tri_down (Points toward the bottom of the screen)
+        tri_down = [
+            (mid_pt, self.size),  # The bottom peak
+            (0, mid_pt + gap),  # Top-left of this triangle
+            (self.size, mid_pt + gap),  # Top-right of this triangle
+        ]
+
+        pygame.draw.polygon(self.image, self.color, tri_up, self.thickness)
+        pygame.draw.polygon(self.image, self.color, tri_down, self.thickness)
+
+        self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
