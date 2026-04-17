@@ -165,8 +165,6 @@ class GlassEntity(pygame.sprite.Sprite):
         x_cor,
         y_cor,
         color,
-        gap_ratio=0.2,
-        thickness=4,
     ) -> None:
         super().__init__()
 
@@ -174,13 +172,10 @@ class GlassEntity(pygame.sprite.Sprite):
         self.x_cor = x_cor
         self.y_cor = y_cor
         self.color = color
-        self.gap_ratio = gap_ratio
-        self.thickness = thickness
+        mid_pt = self.size // 2
+        gap = 10
 
         self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
-
-        mid_pt = self.size // 2
-        gap = 5
 
         tri_up = [
             (mid_pt, 0),  # The top peak
@@ -195,8 +190,8 @@ class GlassEntity(pygame.sprite.Sprite):
             (self.size, mid_pt + gap),  # Top-right of this triangle
         ]
 
-        pygame.draw.polygon(self.image, self.color, tri_up, self.thickness)
-        pygame.draw.polygon(self.image, self.color, tri_down, self.thickness)
+        pygame.draw.polygon(self.image, self.color, tri_up)
+        pygame.draw.polygon(self.image, self.color, tri_down)
 
         self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
         self.mask = pygame.mask.from_surface(self.image)

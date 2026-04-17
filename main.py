@@ -1,6 +1,6 @@
 import pygame
 
-from src.BossSpawner import VenusSpawner
+from src.BossSpawner import MilkyWaySpawner, VenusSpawner
 from src.Core import Background, Border
 from src.EnemySpawner import (
     BouncerSpawner,
@@ -62,6 +62,7 @@ class Game:
             self.enemy_projectiles,
             self.sniper_spawner.group,
         )
+        self.milkyway_spawner = MilkyWaySpawner(self.enemy_projectiles)
 
         # ALL SPAWNERS
         self.all_entity_spawners = (
@@ -72,6 +73,7 @@ class Game:
             self.shooter_spawner,
             self.exploder_spawner,
             self.venus_spawner,
+            self.milkyway_spawner,
         )
 
         self.all_enemy_spawners = (
@@ -83,7 +85,10 @@ class Game:
             self.exploder_spawner,
         )
 
-        self.all_boss_spawners = (self.venus_spawner,)
+        self.all_boss_spawners = (
+            self.venus_spawner,
+            self.milkyway_spawner,
+        )
 
         # WEAPON
         self.current_weapon_counter = 0
@@ -162,6 +167,11 @@ class Game:
             self.player.rect.centery,
             self.borders,
         )
+        self.milkyway_spawner.group.update(
+            self.player.rect.centerx,
+            self.player.rect.centery,
+            self.borders,
+        )
 
         # PLAYER UPDATES
         self.player.update(keys, self.borders)
@@ -174,7 +184,11 @@ class Game:
         # PLAYER PROJECTILE HITS ENEMY
         for spawner in self.all_entity_spawners:
             projectile_hitmarks = pygame.sprite.groupcollide(
-                self.player_projectiles, spawner.group, True, False
+                self.player_projectiles,
+                spawner.group,
+                True,
+                False,
+                collided=pygame.sprite.collide_mask,
             )
             for projectile, enemies_hit in projectile_hitmarks.items():
                 for enemy in enemies_hit:
@@ -195,7 +209,10 @@ class Game:
         kill_on_contact = [self.bouncer_spawner, self.sniper_spawner]
         for spawner in self.all_entity_spawners:
             player_enemy_hitmarks = pygame.sprite.spritecollide(
-                self.player, spawner.group, spawner in kill_on_contact
+                self.player,
+                spawner.group,
+                spawner in kill_on_contact,
+                collided=pygame.sprite.collide_mask,
             )
             if player_enemy_hitmarks:
                 enemy = player_enemy_hitmarks[0]

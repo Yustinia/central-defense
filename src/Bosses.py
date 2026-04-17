@@ -4,10 +4,10 @@ import random
 import pygame
 
 from const.COLORS import BLACK, BLUE, GREEN, ORANGE, PLAT, RED, VIOLET, WHITE, YELLOW
-from src.Enemies import Sniper
-from src.Entities import StarEntity
-from src.Weapons import Bullet, Pistol
 from const.FONTS import REGULAR
+from src.Enemies import Sniper
+from src.Entities import GlassEntity, StarEntity
+from src.Weapons import Bullet, Pistol
 
 
 class Venus(StarEntity):
@@ -38,7 +38,7 @@ class Venus(StarEntity):
 
         self.health = self.max_health = health
         self.damage = damage
-        self.phase = 1  # [1, 2, 3]
+        self.phase = 1  # [1, 2, 3, 4]
 
         self.dx, self.dy = 0, 0
         self.movement_params = {
@@ -67,6 +67,8 @@ class Venus(StarEntity):
         self.varied_burst_atk_timer = 0
 
         self.spawn_enemy_params = {
+            1: {},
+            2: {},
             3: {"spawn_enemy_cd": 1200},
             4: {"spawn_enemy_cd": 750},
         }
@@ -119,36 +121,34 @@ class Venus(StarEntity):
     # ==================
 
     def _movement(self, tar_x, tar_y, borders):
+        mov_params = self.movement_params[self.phase]
+
         match self.phase:
             case 1:
-                params = self.movement_params[self.phase]
                 self._chase(
                     tar_x,
                     tar_y,
-                    params["friction"],
-                    params["accel"],
+                    mov_params["friction"],
+                    mov_params["accel"],
                 )
             case 2:
-                params = self.movement_params[self.phase]
                 self._wander(
                     borders,
-                    params["friction"],
-                    params["accel"],
+                    mov_params["friction"],
+                    mov_params["accel"],
                 )
             case 3:
-                params = self.movement_params[self.phase]
                 self._chase(
                     tar_x,
                     tar_y,
-                    params["friction"],
-                    params["accel"],
+                    mov_params["friction"],
+                    mov_params["accel"],
                 )
             case 4:
-                params = self.movement_params[self.phase]
                 self._wander(
                     borders,
-                    params["friction"],
-                    params["accel"],
+                    mov_params["friction"],
+                    mov_params["accel"],
                 )
 
     # ==================
@@ -157,6 +157,8 @@ class Venus(StarEntity):
 
     def _attack(self, tar_x, tar_y):
         dist = math.hypot(tar_x - self.rect.centerx, tar_y - self.rect.centery)
+
+        enemy_params = self.spawn_enemy_params[self.phase]
 
         match self.phase:
             case 1:
@@ -172,15 +174,13 @@ class Venus(StarEntity):
                 else:
                     self._varied_burst_atk()
             case 3:
-                params = self.spawn_enemy_params[self.phase]
                 if dist <= 500:
-                    self._spawn_enemies(params["spawn_enemy_cd"])
+                    self._spawn_enemies(enemy_params["spawn_enemy_cd"])
                     self._burst_atk()
                 else:
                     self._varied_burst_atk()
             case 4:
-                params = self.spawn_enemy_params[self.phase]
-                self._spawn_enemies(params["spawn_enemy_cd"])
+                self._spawn_enemies(enemy_params["spawn_enemy_cd"])
                 self._varied_burst_atk()
 
     # ==================
@@ -339,6 +339,241 @@ class Venus(StarEntity):
 
         font = pygame.font.Font(REGULAR, 40)
         name_img = font.render("Venus", True, WHITE)
+        name_img.set_alpha(128)
+        name_rect = name_img.get_rect(midtop=(bar_rect.centerx, bar_rect.bottom + gap))
+        screen.blit(name_img, name_rect)
+
+
+class MilkyWay(GlassEntity):
+    PHASE_THRESHOLDS = {
+        4: 0.20,
+        3: 0.40,
+        2: 0.75,
+        1: 1.00,
+    }
+
+    def __init__(
+        self,
+        x_cor,
+        y_cor,
+        projectile_grp,
+        health=500,
+        damage=25,
+        size=250,
+        color=VIOLET,
+        speed=5,
+    ) -> None:
+        super().__init__(size, x_cor, y_cor, color)
+
+        self.projectile_grp = projectile_grp
+        self.orig_image = self.image
+
+        self.health = self.max_health = health
+        self.damage = damage
+        self.phase = 1
+
+        self.speed = speed
+        self.dx = self.speed
+        self.dy = self.speed
+        self.friction = 0.92
+        self.accel = 0.60
+
+        self.angle = 0
+        self.rot_spd = 1
+        self.rot_dir = 1  # 1 = clockwise, -1 = counterclockwise
+        self.rot_switch_cd = 5000
+        self.rot_switch_timer = pygame.time.get_ticks()
+
+        # Timers
+        self.bullet_rot_params = {
+            1: {
+                "bullet_arms": 4,
+                "speed": 5,
+                "rad": 6,
+                "bullet_cd": 500,
+            },
+            2: {},
+            3: {
+                "bullet_arms": 8,
+                "speed": 10,
+                "rad": 8,
+                "bullet_cd": 250,
+            },
+            4: {},
+        }
+        self.bullet_rot_timer = 0
+
+    # ==================
+    # CORE
+    # ==================
+
+    def update(self, tar_x, tar_y, borders):
+        self._update_phase()
+        self._movement(tar_x, tar_y, borders)
+        self._attack(tar_x, tar_y)
+
+        if self.phase in (1, 3):
+            self._handle_rotation()
+        else:
+            self._reset_orientation()
+
+    def _update_phase(self):
+        health_pct = self.health / self.max_health
+        for phase, threshold in self.PHASE_THRESHOLDS.items():
+            if health_pct <= threshold:
+                self.phase = phase
+                break
+
+    def _handle_rotation(self):
+        now = pygame.time.get_ticks()
+
+        if now - self.rot_switch_timer > self.rot_switch_cd:
+            self.rot_dir *= -1
+            self.rot_switch_timer = now
+
+        self.angle = (self.angle + (self.rot_spd * self.rot_dir)) % 360
+
+        self.image = pygame.transform.rotozoom(self.orig_image, self.angle, 1.0)
+        self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+        self.mask = pygame.mask.from_surface(self.image)
+
+        self.x_cor, self.y_cor = self.rect.center
+
+    def _reset_orientation(self):
+        if self.angle != 0:
+            self.angle = 0
+            self.image = self.orig_image
+            self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+            self.mask = pygame.mask.from_surface(self.image)
+
+    def take_dmg(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self._explode()
+
+    # ==================
+    # MOVEMENT ROUTING
+    # ==================
+
+    def _movement(self, tar_x, tar_y, borders):
+        match self.phase:
+            case 1:
+                pass
+            case 2:
+                pass
+            case 3:
+                pass
+            case 4:
+                pass
+
+    # ==================
+    # ATTACK ROUTING
+    # ==================
+
+    def _attack(self, tar_x, tar_y):
+        dist = math.hypot(tar_x - self.rect.centerx, tar_y - self.rect.centery)
+
+        bullet_rot = self.bullet_rot_params[self.phase]
+
+        match self.phase:
+            case 1:
+                self._bullet_rotation(
+                    bullet_rot["bullet_arms"],
+                    bullet_rot["speed"],
+                    bullet_rot["rad"],
+                    bullet_rot["bullet_cd"],
+                )
+            case 2:
+                pass
+            case 3:
+                self._bullet_rotation(
+                    bullet_rot["bullet_arms"],
+                    bullet_rot["speed"],
+                    bullet_rot["rad"],
+                    bullet_rot["bullet_cd"],
+                )
+            case 4:
+                pass
+
+    # ==================
+    # MOVEMENTS
+    # ==================
+
+    # ==================
+    # ATTACKS
+    # ==================
+
+    def _bullet_rotation(self, bullet_arms=4, speed=5, rad=6, bullet_cd=250):
+        now = pygame.time.get_ticks()
+        if now - self.bullet_rot_timer < bullet_cd:
+            return
+        self.bullet_rot_timer = now
+
+        for i in range(bullet_arms):
+            arm_angle_deg = self.angle + (i * (360 / bullet_arms))
+            arm_angle_rad = math.radians(arm_angle_deg)
+
+            spawn_x = self.rect.centerx
+            spawn_y = self.rect.centery
+
+            dist_to_target = 100
+            target_x = spawn_x + math.cos(arm_angle_rad) * dist_to_target
+            target_y = spawn_y + math.sin(arm_angle_rad) * dist_to_target
+
+            bullet = Bullet(
+                radius=rad,
+                x_cor=spawn_x,
+                y_cor=spawn_y,
+                tar_x=target_x,
+                tar_y=target_y,
+                color=self.color,
+                damage=self.damage,
+                speed=speed,
+            )
+            self.projectile_grp.add(bullet)
+
+    def _spawn_enemies(self, enemy_cd):
+        pass
+
+    def _explode(self, bullet_count=16):
+        angle_step = 360 / bullet_count
+        for i in range(bullet_count):
+            angle = math.radians(angle_step * i)
+            tar_x = self.rect.centerx + math.cos(angle) * 100
+            tar_y = self.rect.centery + math.sin(angle) * 100
+            for ring_spd in (3, 5, 9, 12):
+                self.projectile_grp.add(
+                    Bullet(
+                        5,
+                        self.rect.centerx,
+                        self.rect.centery,
+                        tar_x,
+                        tar_y,
+                        self.color,
+                        self.damage,
+                        ring_spd,
+                    )
+                )
+        self.kill()
+
+    # ==================
+    # DRAW
+    # ==================
+
+    def draw_health_bar(self, win_wd, screen):
+        bar_wd = 400
+        bar_ht = 20
+        gap = 5
+
+        bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
+        bar_rect.midtop = (win_wd // 2, 40)
+
+        fill_wd = int(self.health / self.max_health * bar_wd)
+        pygame.draw.rect(screen, RED, (bar_rect.x, bar_rect.y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, WHITE, bar_rect, 2)
+
+        font = pygame.font.Font(REGULAR, 40)
+        name_img = font.render("Milky Way", True, WHITE)
         name_img.set_alpha(128)
         name_rect = name_img.get_rect(midtop=(bar_rect.centerx, bar_rect.bottom + gap))
         screen.blit(name_img, name_rect)

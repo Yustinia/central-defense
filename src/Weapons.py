@@ -28,6 +28,7 @@ class Bullet(pygame.sprite.Sprite):
         self.image = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
         pygame.draw.circle(self.image, self.color, (radius, radius), radius)
         self.rect = self.image.get_rect(center=(x_cor, y_cor))
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update(self, borders):
         self.rect.x += int(self.dx)

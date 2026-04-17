@@ -10,11 +10,16 @@ from src.Weapons import Bullet, Pistol
 
 class Chaser(CircEntity):
     def __init__(
-        self, x_cor, y_cor, color=ORANGE, radius=20, health=100, damage=10, speed=2
+        self,
+        x_cor,
+        y_cor,
+        color=ORANGE,
+        radius=20,
+        health=100,
+        damage=10,
     ) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
-        self.speed = speed
         self.dx, self.dy = 0, 0
         self.health = self.max_health = health
         self.damage = damage
@@ -123,11 +128,16 @@ class Bouncer(CircEntity):
 
 class Tank(CircEntity):
     def __init__(
-        self, x_cor, y_cor, color=VIOLET, radius=50, health=1000, damage=10, speed=1
+        self,
+        x_cor,
+        y_cor,
+        color=VIOLET,
+        radius=50,
+        health=1000,
+        damage=10,
     ) -> None:
         super().__init__(radius, x_cor, y_cor, color)
 
-        self.speed = speed
         self.dx, self.dy = 0, 0
         self.health = self.max_health = health
         self.damage = damage
@@ -300,7 +310,6 @@ class Exploder(OctEntity):
         fuse_dur=6000,
         damage=50,
         health=50,
-        speed=5,
     ) -> None:
         super().__init__(size, x_cor, y_cor, color)
 
@@ -313,7 +322,6 @@ class Exploder(OctEntity):
         self.fuse_timer = pygame.time.get_ticks()
         self.damage = damage
         self.health = self.max_health = health
-        self.speed = speed
 
         self.dx, self.dy = 0, 0
         self.friction = 0.92

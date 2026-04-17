@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-from src.Bosses import Venus
+from src.Bosses import MilkyWay, Venus
 
 
 class BaseBossSpawner(ABC):
@@ -49,6 +49,37 @@ class VenusSpawner(BaseBossSpawner):
                 center_y,
                 self.projectile_grp,
                 self.sniper_grp,
+            )
+        )
+
+        self.spawned += 1
+
+    def next_round(self, round_counter):
+        self.reset()
+
+        if round_counter > 0 and round_counter % self.every_round == 0:
+            self.to_spawn = self.to_spawn_init
+        else:
+            self.to_spawn = 0
+
+
+class MilkyWaySpawner(BaseBossSpawner):
+    def __init__(self, projectile_grp) -> None:
+        super().__init__(hard_lim=1, to_spawn=1, to_spawn_init=1)
+
+        self.projectile_grp = projectile_grp
+        self.every_round = 20
+
+    def try_spawn(self, win_wd, win_ht):
+        if self.spawned >= self.to_spawn:
+            return
+
+        center_x, center_y = win_wd // 2, win_ht // 2
+        self.group.add(
+            MilkyWay(
+                center_x,
+                center_y,
+                self.projectile_grp,
             )
         )
 
