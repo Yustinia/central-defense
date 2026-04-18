@@ -4,7 +4,12 @@ import random
 import pygame
 
 from const.COLORS import BLUE, GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
-from src.Entities import CircEntity, DiamondEntity, OctEntity, TriEntity
+from src.Entities import (
+    CircEntity,
+    DiamondEntity,
+    OctEntity,
+    TriEntity,
+)
 from src.Weapons import Bullet, Pistol
 
 
@@ -283,9 +288,6 @@ class Shooter(CircEntity):
         self.health -= amount
         if self.health <= 0:
             self.kill()
-
-    def draw(self, screen):
-        super().draw(screen)
 
     def draw_health_bar(self, screen):
         bar_wd = 80

@@ -34,11 +34,12 @@ class Game:
         for border in border_list:
             self.borders.add(border)
 
-        # EJECTION COLLETCION
+        # ALL GROUPS
         self.player_projectiles = pygame.sprite.Group()
         self.player_beams = pygame.sprite.Group()
         self.enemy_projectiles = pygame.sprite.Group()
         self.enemy_shard = pygame.sprite.Group()
+        self.obstacle_grp = pygame.sprite.Group()
 
         # PLAYER
         self.player = Player(
@@ -64,6 +65,7 @@ class Game:
         self.venus_spawner = VenusSpawner(
             self.enemy_projectiles,
             self.sniper_spawner.group,
+            self.obstacle_grp,
         )
         self.milkyway_spawner = MilkyWaySpawner(
             self.enemy_projectiles,
@@ -82,7 +84,6 @@ class Game:
             self.venus_spawner,
             self.milkyway_spawner,
         )
-
         self.all_enemy_spawners = (
             self.chaser_spawner,
             self.bouncer_spawner,
@@ -92,7 +93,6 @@ class Game:
             self.exploder_spawner,
             self.splitter_spawner,
         )
-
         self.all_boss_spawners = (
             self.venus_spawner,
             self.milkyway_spawner,
@@ -196,6 +196,9 @@ class Game:
         self.enemy_projectiles.update(self.borders)
         self.enemy_shard.update(self.player.rect.centerx, self.player.rect.centery)
 
+        # OBSTACLE UPDATES
+        self.obstacle_grp.update(self.borders)
+
         # PLAYER PROJECTILE/BEAM HITS ENEMY
         for spawner in self.all_entity_spawners:
             projectile_hitmarks = pygame.sprite.groupcollide(
@@ -261,6 +264,7 @@ class Game:
             self.player,
             self.enemy_projectiles,
             True,
+            collided=pygame.sprite.collide_mask,
         )
         for bullet in enemy_projectile:
             self.player.take_damage(bullet.damage)
@@ -270,9 +274,20 @@ class Game:
             self.player,
             self.enemy_shard,
             True,
+            collided=pygame.sprite.collide_mask,
         )
         for shard in enemy_shard:
             self.player.take_damage(shard.damage)
+
+        # ENEMY BLOCK AND PLAYER HIT
+        enemy_block = pygame.sprite.spritecollide(
+            self.player,
+            self.obstacle_grp,
+            False,
+            collided=pygame.sprite.collide_mask,
+        )
+        for block in enemy_block:
+            self.player.take_damage(block.damage)
 
         # ROUND IMPLEMENTATION
         all_spawned = all(spawner.all_spawned for spawner in self.all_entity_spawners)
@@ -316,7 +331,10 @@ class Game:
         for spawner in self.all_boss_spawners:
             for boss in spawner.group:
                 boss.draw(screen)
-                boss.draw_health_bar(self.win_wd, screen)
+                boss.draw_duration_bar(self.win_wd, screen)
+
+        for obstacle in self.obstacle_grp:
+            obstacle.draw(screen)
 
         for border in self.borders:
             border.draw(screen)
@@ -349,6 +367,23 @@ class GameManager:
         self.game_over = GameOver(self.disp_wd, self.disp_ht)
         self.pause_menu = PauseMenu(self.disp_wd, self.disp_ht)
 
+        # MUSIC
+        self.venus_music_started = False
+        self.milky_way_music_started = False
+        self.current_music = None
+        self._play_music("sounds/music/MenuMusic.wav")
+
+    def _play_music(self, path, loops=-1):
+        if self.current_music != path:
+            self.current_music = path
+            pygame.mixer.music.load(path)
+            pygame.mixer.music.play(loops)
+            pygame.mixer.music.set_volume(0.50)
+
+    def _stop_music(self):
+        self.current_music = None
+        pygame.mixer.music.stop()
+
     def event(self):
         for event in pygame.event.get():
             self.game.event(event)
@@ -358,6 +393,7 @@ class GameManager:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if self.current_state in ["MAINMENU", "GAMEOVER"]:
                     self.current_state = "PLAYING"
+                    self.current_music = None
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if self.current_state == "PLAYING":
@@ -370,6 +406,10 @@ class GameManager:
                         self.current_state = "MAINMENU"
                         self.game = Game(self.disp_wd, self.disp_ht)
 
+                        self.venus_music_started = False
+                        self.milky_way_music_started = False
+                        self._play_music("sounds/music/MenuMusic.wav")
+
     def update(self):
         match self.current_state:
             case "MAINMENU":
@@ -377,9 +417,30 @@ class GameManager:
             case "PLAYING":
                 is_player_alive = self.game.update()
 
+                venus_alive = len(self.game.venus_spawner.group) > 0
+                milky_way_alive = len(self.game.milkyway_spawner.group) > 0
+                if venus_alive and not self.venus_music_started:
+                    self._play_music("sounds/music/Will_Be_Venus.mp3", 0)
+                    self.venus_music_started = True
+
+                elif milky_way_alive and not self.milky_way_music_started:
+                    self._play_music("sounds/music/MilkyWays.mp3", 0)
+                    self.milky_way_music_started = True
+
+                elif not venus_alive and not milky_way_alive:
+                    if self.venus_music_started or self.milky_way_music_started:
+                        self.venus_music_started = False
+                        self.milky_way_music_started = False
+                        self._play_music("sounds/music/CentralDefense.mp3")
+                    elif not self.current_music:
+                        self._play_music("sounds/music/CentralDefense.mp3")
+
                 if not is_player_alive:
                     self.current_state = "GAMEOVER"
                     self.game = Game(self.disp_wd, self.disp_ht)
+
+                    self.venus_music_started = False
+                    self._play_music("sounds/music/MenuMusic.wav")
 
             case "GAMEOVER":
                 pass
@@ -426,6 +487,8 @@ class GameManager:
 
 if __name__ == "__main__":
     pygame.init()
+    pygame.mixer.init()
+    pygame.mixer.set_num_channels(64)
 
     disp_info = pygame.display.Info()
     disp_wd, disp_ht = disp_info.current_w, disp_info.current_h

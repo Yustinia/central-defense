@@ -65,11 +65,12 @@ class MilkyWaySpawner(BaseBossSpawner):
 
 
 class VenusSpawner(BaseBossSpawner):
-    def __init__(self, projectile_grp, sniper_grp) -> None:
-        super().__init__(hard_lim=1, to_spawn=0, to_spawn_init=1)
+    def __init__(self, projectile_grp, sniper_grp, obs_grp) -> None:
+        super().__init__(hard_lim=1, to_spawn=1, to_spawn_init=1)
 
         self.projectile_grp = projectile_grp
         self.sniper_grp = sniper_grp
+        self.obs_grp = obs_grp
         self.every_round = 15
 
     def try_spawn(self, win_wd, win_ht):
@@ -83,6 +84,7 @@ class VenusSpawner(BaseBossSpawner):
                 center_y,
                 self.projectile_grp,
                 self.sniper_grp,
+                self.obs_grp,
             )
         )
 

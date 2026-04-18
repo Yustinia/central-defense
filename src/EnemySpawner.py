@@ -3,7 +3,16 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-from src.Enemies import Bouncer, Chaser, Exploder, Shooter, Sniper, Splitter, Tank
+from const.COLORS import RED
+from src.Enemies import (
+    Bouncer,
+    Chaser,
+    Exploder,
+    Shooter,
+    Sniper,
+    Splitter,
+    Tank,
+)
 
 
 class BaseEnemySpawner(ABC):

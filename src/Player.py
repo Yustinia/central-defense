@@ -17,8 +17,8 @@ class Player(BoxEntity):
         beam_grp,
         health=500,
         speed=1,
-        win_wd: int = 40,
-        win_ht: int = 40,
+        win_wd: int = 30,
+        win_ht: int = 30,
         color=BLUE,
     ) -> None:
         super().__init__(win_wd, win_ht, x_cor, y_cor, color)

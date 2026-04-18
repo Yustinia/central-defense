@@ -279,3 +279,32 @@ class LaserGun(WeaponTemplate):
                 self.duration,
             )
         )
+
+
+class Block(pygame.sprite.Sprite):
+    def __init__(self, obs_grp, x_cor, y_cor, size, color, damage=10) -> None:
+        super().__init__()
+
+        self.obs_grp = obs_grp
+        self.dx, self.dy = 0, 0
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.size = size
+        self.color = color
+        self.damage = damage
+
+        self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
+        self.image.fill(self.color)
+        self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self, borders):
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
+
+        for border in borders:
+            if self.rect.colliderect(border):
+                self.kill()
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
