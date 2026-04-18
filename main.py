@@ -69,7 +69,7 @@ class Game:
         )
         self.milkyway_spawner = MilkyWaySpawner(
             self.enemy_projectiles,
-            self.exploder_spawner.group,
+            self.obstacle_grp,
         )
 
         # ALL SPAWNERS
@@ -180,8 +180,6 @@ class Game:
             self.borders,
         )
         self.milkyway_spawner.group.update(
-            self.win_wd,
-            self.win_ht,
             self.player.rect.centerx,
             self.player.rect.centery,
             self.borders,

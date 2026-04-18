@@ -459,7 +459,7 @@ class Venus(StarEntity):
                     rain_params["cd"],
                     rain_params["bul_count"],
                     rain_params["rad"],
-                    random.choice(rain_params["speed"]),
+                    rain_params["speed"],
                     rain_params["reverse"],
                 )
                 self._bullet_rotation(
@@ -474,7 +474,7 @@ class Venus(StarEntity):
                     rain_params["cd"],
                     rain_params["bul_count"],
                     rain_params["rad"],
-                    random.choice(rain_params["speed"]),
+                    rain_params["speed"],
                     rain_params["reverse"],
                 )
                 self._bullet_rotation(
@@ -560,7 +560,7 @@ class Venus(StarEntity):
                     rain_params["cd"],
                     rain_params["bul_count"],
                     rain_params["rad"],
-                    random.choice(rain_params["speed"]),
+                    rain_params["speed"],
                     rain_params["reverse"],
                 )
             case 14:
@@ -719,7 +719,6 @@ class Venus(StarEntity):
             end_y = bottom_border.rect.bottom
 
         for i in range(bul_count):
-            speed_deviation = random.randint(1, 5)
             x = random.randint(min_x, max_x)
             self.projectile_grp.add(
                 Bullet(
@@ -730,7 +729,7 @@ class Venus(StarEntity):
                     end_y,
                     self.color,
                     self.damage,
-                    speed + speed_deviation,
+                    random.choice(speed),
                 )
             )
 
@@ -858,9 +857,15 @@ class Venus(StarEntity):
 
 
 class MilkyWay(GlassEntity):
+    EIGHT = 165
+    FOURTH = 330
+    HALF = 659
+    WHOLE = 1319
+    DOUBLE = 2638
+
     SONG_PHASES = {
-        12: (107144, 111144),  # outro
-        11: (90591, 107144),  # drop 6
+        12: (101146, 107180),  # outro
+        11: (90591, 101146),  # drop 6
         10: (80095, 90591),  # drop 5
         9: (69626, 80095),  # bridge 2
         8: (59119, 69626),  # bridge 1
@@ -878,8 +883,7 @@ class MilkyWay(GlassEntity):
         x_cor,
         y_cor,
         projectile_grp,
-        exploder_grp,
-        health=22000,
+        obs_grp,
         damage=25,
         size=250,
         color=VIOLET,
@@ -888,10 +892,9 @@ class MilkyWay(GlassEntity):
         super().__init__(size, x_cor, y_cor, color)
 
         self.projectile_grp = projectile_grp
-        self.exploder_grp = exploder_grp
+        self.obs_grp = obs_grp
         self.orig_image = self.image
 
-        self.health = self.max_health = health
         self.damage = damage
         self.phase = 1
 
@@ -902,101 +905,220 @@ class MilkyWay(GlassEntity):
         self.accel = 0.60
 
         self.angle = 0
-        self.rot_spd = 1
         self.rot_dir = 1  # 1 = clockwise, -1 = counterclockwise
-        self.rot_switch_cd = 5000
         self.rot_switch_timer = pygame.time.get_ticks()
-
+        self.bullet_rot_timer = 0
         self.bullet_rot_params = {
             1: {
                 "bullet_arms": 4,
                 "speed": 5,
                 "rad": 6,
-                "bullet_cd": 500,
+                "bullet_cd": self.FOURTH,
             },
-            2: {},
-            3: {
-                "bullet_arms": 8,
-                "speed": 10,
-                "rad": 8,
-                "bullet_cd": 250,
-            },
-            4: {
-                "bullet_arms": 16,
-                "speed": 5,
+            2: {
+                "bullet_arms": 6,
+                "speed": 7,
                 "rad": 6,
-                "bullet_cd": 1100,
+                "bullet_cd": self.FOURTH,
             },
-            5: {},
-            6: {},
+            3: {},
+            4: {},
+            5: {
+                "bullet_arms": 10,
+                "speed": 10,
+                "rad": 6,
+                "bullet_cd": self.FOURTH,
+            },
+            6: {
+                "bullet_arms": 14,
+                "speed": 12,
+                "rad": 10,
+                "bullet_cd": self.FOURTH,
+            },
             7: {},
             8: {},
             9: {},
-            10: {},
-            11: {},
+            10: {
+                "bullet_arms": 12,
+                "speed": 8,
+                "rad": 8,
+                "bullet_cd": self.FOURTH,
+            },
+            11: {
+                "bullet_arms": 12,
+                "speed": 8,
+                "rad": 8,
+                "bullet_cd": self.FOURTH,
+            },
             12: {},
         }
-        self.bullet_rot_timer = 0
 
+        self.rotation_params = {
+            1: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 1,
+            },
+            2: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 2,
+            },
+            3: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 1,
+            },
+            4: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 1,
+            },
+            5: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 2,
+            },
+            6: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 3,
+            },
+            7: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 1,
+            },
+            8: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 1,
+            },
+            9: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 1,
+            },
+            10: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 3,
+            },
+            11: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 3,
+            },
+            12: {
+                "rot_switch_cd": self.DOUBLE,
+                "rot_spd": 1,
+            },
+        }
+
+        self.rainfall_timer = 0
         self.rainfall_params = {
             1: {},
             2: {
-                "speed": (5, 6, 7, 8, 10),
-                "rad": 6,
-                "bullet_cd": 700,
-                "bullet_count": (2, 4, 6, 8),
+                "cd": self.HALF,
+                "bul_count": 6,
+                "rad": 8,
+                "speed": (5, 6, 7, 8, 9, 10),
+                "reverse": False,
             },
             3: {},
-            4: {
-                "speed": (7, 8, 9, 10, 11, 12, 13),
+            4: {},
+            5: {
+                "cd": self.HALF,
+                "bul_count": 6,
                 "rad": 8,
-                "bullet_cd": 250,
-                "bullet_count": (4, 6, 8),
+                "speed": (5, 6, 7, 8, 9, 10),
+                "reverse": False,
+            },
+            6: {
+                "cd": self.HALF,
+                "bul_count": 6,
+                "rad": 8,
+                "speed": (5, 6, 7, 8, 9, 10),
+                "reverse": True,
+            },
+            7: {},
+            8: {},
+            9: {},
+            10: {
+                "cd": self.HALF,
+                "bul_count": 6,
+                "rad": 8,
+                "speed": (5, 6, 7, 8, 9, 10),
+                "reverse": False,
+            },
+            11: {
+                "cd": self.HALF,
+                "bul_count": 6,
+                "rad": 8,
+                "speed": (5, 6, 7, 8, 9, 10),
+                "reverse": True,
+            },
+            12: {},
+        }
+
+        self.burst_atk_timer = 0
+        self.burst_atk_index = 0
+        self.burst_atk_params = {
+            1: {},
+            2: {},
+            3: {
+                "cd": self.FOURTH,
+                "bul_count": (6, 8, 12, 18),
+                "rad": 8,
+                "ring_spd": 5,
+            },
+            4: {
+                "cd": self.EIGHT,
+                "bul_count": (12, 15, 19),
+                "rad": 8,
+                "ring_spd": 8,
             },
             5: {},
             6: {},
             7: {},
             8: {},
-            9: {},
-            10: {},
-            11: {},
+            9: {
+                "cd": self.WHOLE,
+                "bul_count": (6, 12),
+                "rad": 8,
+                "ring_spd": 5,
+            },
+            10: {
+                "cd": self.HALF,
+                "bul_count": (6, 12),
+                "rad": 8,
+                "ring_spd": 5,
+            },
+            11: {
+                "cd": self.HALF,
+                "bul_count": (6, 12),
+                "rad": 8,
+                "ring_spd": 5,
+            },
             12: {},
         }
-        self.rainfall_timer = 0
 
-        self.burst_atk_timer = 0
-        self.burst_atk_cd = 1300
-
-        self.exploder_params = {
-            1: {
-                "exploder_spawn_cd": 2000,
-            },
-            2: {
-                "exploder_spawn_cd": 2700,
-            },
+        self.block_timer = 0
+        self.block_params = {
+            1: {},
+            2: {},
             3: {},
             4: {},
             5: {},
             6: {},
             7: {},
-            8: {},
-            9: {},
+            8: {"cd": self.EIGHT, "speed": (5, 10, 15, 20), "box_count": 2},
+            9: {"cd": self.EIGHT, "speed": (5, 10, 15, 20), "box_count": 3},
             10: {},
             11: {},
             12: {},
         }
-        self.exploder_spawn_timer = 0
 
     # ==================
     # CORE
     # ==================
 
-    def update(self, win_wd, win_ht, tar_x, tar_y, borders):
+    def update(self, tar_x, tar_y, borders):
         self._update_phase()
         self._movement(tar_x, tar_y, borders)
-        self._attack(win_wd, win_ht, tar_x, tar_y)
+        self._attack(tar_x, tar_y, borders)
 
-        self._handle_rotation()
+        params = self.rotation_params[self.phase]
+        self._handle_rotation(params)
 
     def _update_phase(self):
         pos = pygame.mixer.music.get_pos()
@@ -1005,25 +1127,28 @@ class MilkyWay(GlassEntity):
                 self.phase = phase
                 break
 
-    def _handle_rotation(self):
+        last_phase = max(self.SONG_PHASES)
+        end_time = self.SONG_PHASES[last_phase][1]
+        if pos >= end_time:
+            self._explode()
+
+    def _handle_rotation(self, params):
+        if not params:
+            return
+
         now = pygame.time.get_ticks()
 
-        if now - self.rot_switch_timer > self.rot_switch_cd:
+        if now - self.rot_switch_timer > params["rot_switch_cd"]:
             self.rot_dir *= -1
             self.rot_switch_timer = now
 
-        self.angle = (self.angle + (self.rot_spd * self.rot_dir)) % 360
+        self.angle = (self.angle + (params["rot_spd"] * self.rot_dir)) % 360
 
         self.image = pygame.transform.rotozoom(self.orig_image, self.angle, 1.0)
         self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
         self.mask = pygame.mask.from_surface(self.image)
 
         self.x_cor, self.y_cor = self.rect.center
-
-    def take_dmg(self, amount):
-        self.health -= amount
-        if self.health <= 0:
-            self._explode()
 
     # ==================
     # MOVEMENT ROUTING
@@ -1044,12 +1169,13 @@ class MilkyWay(GlassEntity):
     # ATTACK ROUTING
     # ==================
 
-    def _attack(self, win_wd, win_ht, tar_x, tar_y):
+    def _attack(self, tar_x, tar_y, borders):
         dist = math.hypot(tar_x - self.rect.centerx, tar_y - self.rect.centery)
 
         bullet_rot = self.bullet_rot_params[self.phase]
-        rf_params = self.rainfall_params[self.phase]
-        exp_params = self.exploder_params[self.phase]
+        rain_params = self.rainfall_params[self.phase]
+        burst_params = self.burst_atk_params[self.phase]
+        blk_params = self.block_params[self.phase]
 
         match self.phase:
             case 1:
@@ -1059,41 +1185,116 @@ class MilkyWay(GlassEntity):
                     bullet_rot["rad"],
                     bullet_rot["bullet_cd"],
                 )
-                self._spawn_enemies(win_wd, win_ht, exp_params["exploder_spawn_cd"])
             case 2:
-                self._burst_atk()
-                self._rainfall(
-                    win_wd,
-                    win_ht,
-                    random.choice(rf_params["speed"]),
-                    rf_params["rad"],
-                    rf_params["bullet_cd"],
-                    random.choice(rf_params["bullet_count"]),
-                )
-                self._spawn_enemies(win_wd, win_ht, exp_params["exploder_spawn_cd"])
-            case 3:
-                if dist > 500:
-                    self._burst_atk()
                 self._bullet_rotation(
                     bullet_rot["bullet_arms"],
                     bullet_rot["speed"],
                     bullet_rot["rad"],
                     bullet_rot["bullet_cd"],
+                )
+                self._bullet_rainfall(
+                    borders,
+                    rain_params["cd"],
+                    rain_params["bul_count"],
+                    rain_params["rad"],
+                    rain_params["speed"],
+                    rain_params["reverse"],
+                )
+            case 3:
+                self._burst_atk(
+                    burst_params["cd"],
+                    burst_params["bul_count"],
+                    burst_params["rad"],
+                    burst_params["ring_spd"],
                 )
             case 4:
-                self._rainfall(
-                    win_wd,
-                    win_ht,
-                    random.choice(rf_params["speed"]),
-                    rf_params["rad"],
-                    rf_params["bullet_cd"],
-                    random.choice(rf_params["bullet_count"]),
+                self._burst_atk(
+                    burst_params["cd"],
+                    burst_params["bul_count"],
+                    burst_params["rad"],
+                    burst_params["ring_spd"],
                 )
+            case 5:
                 self._bullet_rotation(
                     bullet_rot["bullet_arms"],
                     bullet_rot["speed"],
                     bullet_rot["rad"],
                     bullet_rot["bullet_cd"],
+                )
+                self._bullet_rainfall(
+                    borders,
+                    rain_params["cd"],
+                    rain_params["bul_count"],
+                    rain_params["rad"],
+                    rain_params["speed"],
+                    rain_params["reverse"],
+                )
+            case 6:
+                self._bullet_rotation(
+                    bullet_rot["bullet_arms"],
+                    bullet_rot["speed"],
+                    bullet_rot["rad"],
+                    bullet_rot["bullet_cd"],
+                )
+                self._bullet_rainfall(
+                    borders,
+                    rain_params["cd"],
+                    rain_params["bul_count"],
+                    rain_params["rad"],
+                    rain_params["speed"],
+                    rain_params["reverse"],
+                )
+            case 7:
+                pass
+            case 8:
+                self._block(
+                    borders,
+                    blk_params["cd"],
+                    blk_params["speed"],
+                    blk_params["box_count"],
+                )
+            case 9:
+                self._block(
+                    borders,
+                    blk_params["cd"],
+                    blk_params["speed"],
+                    blk_params["box_count"],
+                )
+                self._burst_atk(
+                    burst_params["cd"],
+                    burst_params["bul_count"],
+                    burst_params["rad"],
+                    burst_params["ring_spd"],
+                )
+            case 10:
+                self._bullet_rotation(
+                    bullet_rot["bullet_arms"],
+                    bullet_rot["speed"],
+                    bullet_rot["rad"],
+                    bullet_rot["bullet_cd"],
+                )
+                self._bullet_rainfall(
+                    borders,
+                    rain_params["cd"],
+                    rain_params["bul_count"],
+                    rain_params["rad"],
+                    rain_params["speed"],
+                    rain_params["reverse"],
+                )
+            case 11:
+                self._bullet_rotation(
+                    bullet_rot["bullet_arms"],
+                    bullet_rot["speed"],
+                    bullet_rot["rad"],
+                    bullet_rot["bullet_cd"],
+                )
+                self._bullet_rainfall(
+                    borders,
+                    rain_params["cd"],
+                    rain_params["bul_count"],
+                    rain_params["rad"],
+                    rain_params["speed"],
+                    rain_params["reverse"],
                 )
 
     # ==================
@@ -1104,7 +1305,7 @@ class MilkyWay(GlassEntity):
     # ATTACKS
     # ==================
 
-    def _bullet_rotation(self, bullet_arms=4, speed=5, rad=6, bullet_cd=250):
+    def _bullet_rotation(self, bullet_arms, speed, rad, bullet_cd):
         now = pygame.time.get_ticks()
         if now - self.bullet_rot_timer < bullet_cd:
             return
@@ -1133,77 +1334,127 @@ class MilkyWay(GlassEntity):
             )
             self.projectile_grp.add(bullet)
 
-    def _burst_atk(self):
+    def _burst_atk(
+        self,
+        cd: int,
+        bul_count: int,
+        rad: int,
+        ring_spd,
+    ):
         now = pygame.time.get_ticks()
-        if now - self.burst_atk_timer < self.burst_atk_cd:
+        if now - self.burst_atk_timer < cd:
             return
         self.burst_atk_timer = now
 
-        bullet_count = 8
-        angle_step = 360 / bullet_count
-        for i in range(bullet_count):
+        count = bul_count[self.burst_atk_index % len(bul_count)]
+        self._bullet_ring(count, rad, ring_spd)
+        self.burst_atk_index += 1
+
+    def _bullet_ring(self, bul_count, rad, ring_spd):
+        for i in range(bul_count):
+            angle_step = 360 / bul_count
             angle = math.radians(angle_step * i)
             tar_x_off = self.rect.centerx + math.cos(angle) * 100
             tar_y_off = self.rect.centery + math.sin(angle) * 100
-            for ring_spd in (3, 12):
-                self.projectile_grp.add(
-                    Bullet(
-                        5,
-                        self.rect.centerx,
-                        self.rect.centery,
-                        tar_x_off,
-                        tar_y_off,
-                        self.color,
-                        self.damage,
-                        speed=ring_spd,
-                    )
+            self.projectile_grp.add(
+                Bullet(
+                    rad,
+                    self.rect.centerx,
+                    self.rect.centery,
+                    tar_x_off,
+                    tar_y_off,
+                    self.color,
+                    self.damage,
+                    speed=ring_spd,
                 )
+            )
 
-    def _rainfall(self, win_wd, win_ht, speed=5, rad=6, bullet_cd=700, bullet_count=16):
+    def _bullet_rainfall(self, borders, cd, bul_count, rad, speed, reverse):
         now = pygame.time.get_ticks()
-        if now - self.rainfall_timer < bullet_cd:
+        if now - self.rainfall_timer < cd:
             return
         self.rainfall_timer = now
 
-        border_padding = 40
-        for i in range(bullet_count):
-            start_x = random.randint(border_padding, win_wd - border_padding)
-            start_y = border_padding
+        border_sprites = borders.sprites()
+        top_border = border_sprites[2]
+        bottom_border = border_sprites[3]
+        left_border = border_sprites[0]
+        right_border = border_sprites[1]
 
-            target_x = start_x
-            target_y = win_ht
+        padding = 20
+        min_x = left_border.rect.right + padding
+        max_x = right_border.rect.left - padding
 
-            offset_spd = random.randint(1, 3)
-
-            spawn_bullet = Bullet(
-                rad,
-                start_x,
-                start_y,
-                target_x,
-                target_y,
-                self.color,
-                self.damage,
-                speed + offset_spd,
-            )
-            self.projectile_grp.add(spawn_bullet)
-
-    def _spawn_enemies(self, win_wd, win_ht, enemy_cd):
-        now = pygame.time.get_ticks()
-        if now - self.exploder_spawn_timer < enemy_cd:
-            return
-        self.exploder_spawn_timer = now
-
-        side = random.choice(["left", "right", "top", "bottom"])
-        if side == "left":
-            x, y = -20, random.randint(-20, win_ht + 20)
-        elif side == "right":
-            x, y = win_wd + 20, random.randint(-20, win_ht + 20)
-        elif side == "top":
-            x, y = random.randint(-20, win_wd + 20), -20
+        if reverse:
+            start_y = bottom_border.rect.top - padding
+            end_y = top_border.rect.top
         else:
-            x, y = random.randint(-20, win_wd + 20), win_ht + 20
+            start_y = top_border.rect.bottom + padding
+            end_y = bottom_border.rect.bottom
 
-        self.exploder_grp.add(Exploder(x, y, self.projectile_grp))
+        for i in range(bul_count):
+            x = random.randint(min_x, max_x)
+            self.projectile_grp.add(
+                Bullet(
+                    rad,
+                    x,
+                    start_y,
+                    x,
+                    end_y,
+                    self.color,
+                    self.damage,
+                    random.choice(speed),
+                )
+            )
+
+    def _block(self, borders, cd, speed, box_count):
+        now = pygame.time.get_ticks()
+        if now - self.block_timer < cd:
+            return
+        self.block_timer = now
+
+        border_sprites = borders.sprites()
+        left_border = border_sprites[0]
+        right_border = border_sprites[1]
+        top_border = border_sprites[2]
+        bottom_border = border_sprites[3]
+
+        padding = 10
+
+        min_x = left_border.rect.right + padding
+        max_x = right_border.rect.left - padding
+        min_y = top_border.rect.bottom + padding
+        max_y = bottom_border.rect.top - padding
+
+        orientation = random.choice(["horizontal", "vertical"])
+        size = 40
+
+        for i in range(box_count):
+            if orientation == "horizontal":
+                direction = random.choice(["top_to_bottom", "bottom_to_top"])
+                x = random.randint(min_x, max_x)
+                if direction == "top_to_bottom":
+                    y = min_y
+                    dy, dx = random.choice(speed), 0
+                else:
+                    y = max_y
+                    dy, dx = -random.choice(speed), 0
+                block = Block(self.obs_grp, x, y, size, self.color, self.damage)
+
+            else:
+                direction = random.choice(["left_to_right", "right_to_left"])
+                y = random.randint(min_y, max_y)
+                if direction == "left_to_right":
+                    x = min_x
+                    dx, dy = random.choice(speed), 0
+                else:
+                    x = max_x
+                    dx, dy = -random.choice(speed), 0
+                block = Block(self.obs_grp, x, y, size, self.color, self.damage)
+
+            block.dx = dx
+            block.dy = dy
+            self.obs_grp.add(block)
 
     def _explode(self, bullet_count=16):
         angle_step = 360 / bullet_count
@@ -1230,7 +1481,7 @@ class MilkyWay(GlassEntity):
     # DRAW
     # ==================
 
-    def draw_health_bar(self, win_wd, screen):
+    def draw_duration_bar(self, win_wd, screen):
         bar_wd = 400
         bar_ht = 20
         gap = 5
@@ -1238,7 +1489,12 @@ class MilkyWay(GlassEntity):
         bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
         bar_rect.midtop = (win_wd // 2, 40)
 
-        fill_wd = int(self.health / self.max_health * bar_wd)
+        last_phase = max(self.SONG_PHASES)
+        end_time = self.SONG_PHASES[last_phase][1]
+        pos = pygame.mixer.music.get_pos()
+        progress = min(pos / end_time, 1.0)
+
+        fill_wd = int(progress * bar_wd)
         pygame.draw.rect(screen, RED, (bar_rect.x, bar_rect.y, fill_wd, bar_ht))
         pygame.draw.rect(screen, WHITE, bar_rect, 2)
 
