@@ -1,3 +1,4 @@
+#  for abstract method
 from abc import ABC, abstractmethod
 
 import pygame
