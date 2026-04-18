@@ -457,19 +457,48 @@ class Splitter(DiamondEntity):
         self.friction = 0.92
         self.accel = 0.4
 
+        self.wander_cd = 1000
+        self.wander_timer = 0
+        self.wander_dx, self.wander_dy = 0, 0
+        self.is_wandering = True
+
     def update(self, tar_x, tar_y):
         self._movement(tar_x, tar_y)
 
     def _movement(self, tar_x, tar_y):
+        dist = math.hypot(tar_x - self.rect.centerx, tar_y - self.rect.centery)
+
+        if self.is_wandering and dist > 550:
+            self.is_wandering = False
+        elif not self.is_wandering and dist < 450:
+            self.is_wandering = True
+
+        if self.is_wandering:
+            self._wander()
+        else:
+            self._follow(tar_x, tar_y)
+
+        self.dx *= self.friction
+        self.dy *= self.friction
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
+
+    def _follow(self, tar_x, tar_y):
         angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
 
         self.dx += math.cos(angle) * self.accel
         self.dy += math.sin(angle) * self.accel
-        self.dx *= self.friction
-        self.dy *= self.friction
 
-        self.rect.x += int(self.dx)
-        self.rect.y += int(self.dy)
+    def _wander(self):
+        now = pygame.time.get_ticks()
+        if now - self.wander_timer > self.wander_cd:
+            self.wander_timer = now
+            angle = math.radians(random.randint(0, 360))
+            self.wander_dx = math.cos(angle) * self.accel
+            self.wander_dy = math.sin(angle) * self.accel
+
+        self.dx += self.wander_dx
+        self.dy += self.wander_dy
 
     def take_dmg(self, amount):
         self.health -= amount
