@@ -200,7 +200,7 @@ class Game:
         self.obstacle_grp.update(self.borders)
 
         # PLAYER PROJECTILE/BEAM HITS ENEMY
-        for spawner in self.all_entity_spawners:
+        for spawner in self.all_enemy_spawners:
             projectile_hitmarks = pygame.sprite.groupcollide(
                 self.player_projectiles,
                 spawner.group,

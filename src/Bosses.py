@@ -40,7 +40,6 @@ class Venus(StarEntity):
         color=RED,
         num_points=5,
         depth_ratio=0.4,
-        health=25000,
         damage=25,
     ) -> None:
         super().__init__(size, x_cor, y_cor, color, num_points, depth_ratio)
@@ -49,7 +48,6 @@ class Venus(StarEntity):
         self.sniper_grp = sniper_grp
         self.obs_grp = obs_grp
 
-        self.health = self.max_health = health
         self.damage = damage
         self.phase = 1  # [1 ... 14]
 
@@ -355,11 +353,6 @@ class Venus(StarEntity):
         last_phase = max(self.SONG_PHASES)
         end_time = self.SONG_PHASES[last_phase][1]
         if pos >= end_time:
-            self._explode()
-
-    def take_dmg(self, amount):
-        self.health -= amount
-        if self.health <= 0:
             self._explode()
 
     # ==================
