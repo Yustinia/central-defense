@@ -3,8 +3,8 @@ import random
 
 import pygame
 
-from const.COLORS import GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW, BLUE
-from src.Entities import CircEntity, OctEntity, TriEntity, DiamondEntity
+from const.COLORS import BLUE, GREEN, ORANGE, RED, VIOLET, WHITE, YELLOW
+from src.Entities import CircEntity, DiamondEntity, OctEntity, TriEntity
 from src.Weapons import Bullet, Pistol
 
 

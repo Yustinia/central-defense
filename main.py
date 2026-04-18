@@ -8,8 +8,8 @@ from src.EnemySpawner import (
     ExploderSpawner,
     ShooterSpawner,
     SniperSpawner,
-    TankSpawner,
     SplitterSpawner,
+    TankSpawner,
 )
 from src.ItemSpawner import HealthPackSpawner
 from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState
