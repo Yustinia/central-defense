@@ -628,6 +628,8 @@ class MilkyWay(GlassEntity):
             target_x = start_x
             target_y = win_ht
 
+            offset_spd = random.randint(1, 3)
+
             spawn_bullet = Bullet(
                 rad,
                 start_x,
@@ -636,7 +638,7 @@ class MilkyWay(GlassEntity):
                 target_y,
                 self.color,
                 self.damage,
-                speed,
+                speed + offset_spd,
             )
             self.projectile_grp.add(spawn_bullet)
 
