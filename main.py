@@ -368,6 +368,7 @@ class GameManager:
         # MUSIC
         self.venus_music_started = False
         self.milky_way_music_started = False
+        self.omen_music_stared = False
         self.current_music = None
         self._play_music("sounds/music/MenuMusic.wav")
 
