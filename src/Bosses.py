@@ -6,7 +6,7 @@ import pygame
 from const.COLORS import BLACK, BLUE, GREEN, ORANGE, PLAT, RED, VIOLET, WHITE, YELLOW
 from const.FONTS import REGULAR
 from src.Enemies import Sniper
-from src.Entities import GlassEntity, StarEntity
+from src.Entities import GlassEntity, OmenEntity, StarEntity
 from src.Weapons import Block, Bullet, Pistol
 
 
@@ -780,7 +780,7 @@ class Venus(StarEntity):
         top_border = border_sprites[2]
         bottom_border = border_sprites[3]
 
-        padding = 10
+        padding = 20
 
         min_x = left_border.rect.right + padding
         max_x = right_border.rect.left - padding
@@ -914,208 +914,191 @@ class MilkyWay(GlassEntity):
         self.friction = 0.92
         self.accel = 0.60
 
+        self.tar_x, self.tar_y = 0, 0
+        self.borders = None
+
         self.angle = 0
-        self.rot_dir = 1  # 1 = clockwise, -1 = counterclockwise
+        self.rot_dir = 1
         self.rot_switch_timer = pygame.time.get_ticks()
         self.bullet_rot_timer = 0
-        self.bullet_rot_params = {
-            1: {
-                "bullet_arms": 4,
-                "speed": 5,
-                "rad": 6,
-                "bullet_cd": self.FOURTH,
-            },
-            2: {
-                "bullet_arms": 6,
-                "speed": 7,
-                "rad": 6,
-                "bullet_cd": self.FOURTH,
-            },
-            3: {},
-            4: {},
-            5: {
-                "bullet_arms": 10,
-                "speed": 10,
-                "rad": 6,
-                "bullet_cd": self.FOURTH,
-            },
-            6: {
-                "bullet_arms": 14,
-                "speed": 12,
-                "rad": 10,
-                "bullet_cd": self.FOURTH,
-            },
-            7: {},
-            8: {},
-            9: {},
-            10: {
-                "bullet_arms": 12,
-                "speed": 8,
-                "rad": 8,
-                "bullet_cd": self.FOURTH,
-            },
-            11: {
-                "bullet_arms": 12,
-                "speed": 8,
-                "rad": 8,
-                "bullet_cd": self.FOURTH,
-            },
-            12: {},
-        }
-
-        self.rotation_params = {
-            1: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 1,
-            },
-            2: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 2,
-            },
-            3: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 1,
-            },
-            4: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 1,
-            },
-            5: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 2,
-            },
-            6: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 3,
-            },
-            7: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 1,
-            },
-            8: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 1,
-            },
-            9: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 1,
-            },
-            10: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 3,
-            },
-            11: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 3,
-            },
-            12: {
-                "rot_switch_cd": self.DOUBLE,
-                "rot_spd": 1,
-            },
-        }
-
-        self.rainfall_timer = 0
-        self.rainfall_params = {
-            1: {},
-            2: {
-                "cd": self.HALF,
-                "bul_count": 6,
-                "rad": 8,
-                "speed": (5, 6, 7, 8, 9, 10),
-                "reverse": False,
-            },
-            3: {},
-            4: {},
-            5: {
-                "cd": self.HALF,
-                "bul_count": 6,
-                "rad": 8,
-                "speed": (5, 6, 7, 8, 9, 10),
-                "reverse": False,
-            },
-            6: {
-                "cd": self.HALF,
-                "bul_count": 6,
-                "rad": 8,
-                "speed": (5, 6, 7, 8, 9, 10),
-                "reverse": True,
-            },
-            7: {},
-            8: {},
-            9: {},
-            10: {
-                "cd": self.HALF,
-                "bul_count": 6,
-                "rad": 8,
-                "speed": (5, 6, 7, 8, 9, 10),
-                "reverse": False,
-            },
-            11: {
-                "cd": self.HALF,
-                "bul_count": 6,
-                "rad": 8,
-                "speed": (5, 6, 7, 8, 9, 10),
-                "reverse": True,
-            },
-            12: {},
-        }
-
         self.burst_atk_timer = 0
         self.burst_atk_index = 0
-        self.burst_atk_params = {
-            1: {},
-            2: {},
-            3: {
-                "cd": self.FOURTH,
-                "bul_count": (6, 8, 12, 18),
-                "rad": 8,
-                "ring_spd": 5,
-            },
-            4: {
-                "cd": self.EIGHT,
-                "bul_count": (12, 15, 19),
-                "rad": 8,
-                "ring_spd": 8,
-            },
-            5: {},
-            6: {},
-            7: {},
-            8: {},
-            9: {
-                "cd": self.WHOLE,
-                "bul_count": (6, 12),
-                "rad": 8,
-                "ring_spd": 5,
-            },
-            10: {
-                "cd": self.HALF,
-                "bul_count": (6, 12),
-                "rad": 8,
-                "ring_spd": 5,
-            },
-            11: {
-                "cd": self.HALF,
-                "bul_count": (6, 12),
-                "rad": 8,
-                "ring_spd": 5,
-            },
-            12: {},
+        self.rainfall_timer = 0
+        self.block_timer = 0
+
+        self.phase_attacks = {
+            1: [
+                (
+                    self._bullet_rotation,
+                    {"bullet_arms": 4, "speed": 5, "rad": 6, "bullet_cd": self.FOURTH},
+                )
+            ],
+            2: [
+                (
+                    self._bullet_rotation,
+                    {"bullet_arms": 6, "speed": 7, "rad": 6, "bullet_cd": self.FOURTH},
+                ),
+                (
+                    self._bullet_rainfall,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": 6,
+                        "rad": 8,
+                        "speed": (5, 6, 7, 8, 9, 10),
+                        "reverse": False,
+                    },
+                ),
+            ],
+            3: [
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.FOURTH,
+                        "bullet_count": (6, 8, 12, 18),
+                        "rad": 8,
+                        "ring_speed": 5,
+                    },
+                )
+            ],
+            4: [
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.EIGHT,
+                        "bullet_count": (12, 15, 19),
+                        "rad": 8,
+                        "ring_speed": 8,
+                    },
+                )
+            ],
+            5: [
+                (
+                    self._bullet_rotation,
+                    {
+                        "bullet_arms": 10,
+                        "speed": 10,
+                        "rad": 6,
+                        "bullet_cd": self.FOURTH,
+                    },
+                ),
+                (
+                    self._bullet_rainfall,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": 6,
+                        "rad": 8,
+                        "speed": (5, 6, 7, 8, 9, 10),
+                        "reverse": False,
+                    },
+                ),
+            ],
+            6: [
+                (
+                    self._bullet_rotation,
+                    {
+                        "bullet_arms": 14,
+                        "speed": 12,
+                        "rad": 10,
+                        "bullet_cd": self.FOURTH,
+                    },
+                ),
+                (
+                    self._bullet_rainfall,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": 6,
+                        "rad": 8,
+                        "speed": (5, 6, 7, 8, 9, 10),
+                        "reverse": True,
+                    },
+                ),
+            ],
+            8: [
+                (
+                    self._block,
+                    {"cd": self.EIGHT, "speed": (5, 10, 15, 20), "box_count": 1},
+                )
+            ],
+            9: [
+                (
+                    self._block,
+                    {"cd": self.EIGHT, "speed": (5, 10, 15, 20), "box_count": 2},
+                ),
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.WHOLE,
+                        "bullet_count": (6, 12),
+                        "rad": 8,
+                        "ring_speed": 5,
+                    },
+                ),
+            ],
+            10: [
+                (
+                    self._bullet_rotation,
+                    {"bullet_arms": 12, "speed": 8, "rad": 8, "bullet_cd": self.FOURTH},
+                ),
+                (
+                    self._bullet_rainfall,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": 6,
+                        "rad": 8,
+                        "speed": (5, 6, 7, 8, 9, 10),
+                        "reverse": False,
+                    },
+                ),
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": (6, 12),
+                        "rad": 8,
+                        "ring_speed": 5,
+                    },
+                ),
+            ],
+            11: [
+                (
+                    self._bullet_rotation,
+                    {"bullet_arms": 12, "speed": 8, "rad": 8, "bullet_cd": self.FOURTH},
+                ),
+                (
+                    self._bullet_rainfall,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": 6,
+                        "rad": 8,
+                        "speed": (5, 6, 7, 8, 9, 10),
+                        "reverse": True,
+                    },
+                ),
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": (6, 12),
+                        "rad": 8,
+                        "ring_speed": 5,
+                    },
+                ),
+            ],
         }
 
-        self.block_timer = 0
-        self.block_params = {
-            1: {},
-            2: {},
-            3: {},
-            4: {},
-            5: {},
-            6: {},
-            7: {},
-            8: {"cd": self.EIGHT, "speed": (5, 10, 15, 20), "box_count": 2},
-            9: {"cd": self.EIGHT, "speed": (5, 10, 15, 20), "box_count": 3},
-            10: {},
-            11: {},
-            12: {},
+        self.phase_rotations = {
+            1: {"rot_switch_cd": self.DOUBLE, "rot_speed": 1},
+            2: {"rot_switch_cd": self.DOUBLE, "rot_speed": 2},
+            3: {"rot_switch_cd": self.DOUBLE, "rot_speed": 1},
+            4: {"rot_switch_cd": self.DOUBLE, "rot_speed": 1},
+            5: {"rot_switch_cd": self.DOUBLE, "rot_speed": 2},
+            6: {"rot_switch_cd": self.DOUBLE, "rot_speed": 3},
+            7: {"rot_switch_cd": self.DOUBLE, "rot_speed": 1},
+            8: {"rot_switch_cd": self.DOUBLE, "rot_speed": 1},
+            9: {"rot_switch_cd": self.DOUBLE, "rot_speed": 1},
+            10: {"rot_switch_cd": self.DOUBLE, "rot_speed": 3},
+            11: {"rot_switch_cd": self.DOUBLE, "rot_speed": 3},
+            12: {"rot_switch_cd": self.DOUBLE, "rot_speed": 1},
         }
 
         # states
@@ -1126,11 +1109,15 @@ class MilkyWay(GlassEntity):
     # ==================
 
     def update(self, tar_x, tar_y, borders):
-        self._update_phase()
-        self._movement(tar_x, tar_y, borders)
-        self._attack(tar_x, tar_y, borders)
+        self.tar_x = tar_x
+        self.tar_y = tar_y
+        self.borders = borders
 
-        params = self.rotation_params[self.phase]
+        self._update_phase()
+        self._movement()
+        self._attack()
+
+        params = self.phase_rotations.get(self.phase)
         self._handle_rotation(params)
 
     def _update_phase(self):
@@ -1162,7 +1149,7 @@ class MilkyWay(GlassEntity):
             self.rot_dir *= -1
             self.rot_switch_timer = now
 
-        self.angle = (self.angle + (params["rot_spd"] * self.rot_dir)) % 360
+        self.angle = (self.angle + (params["rot_speed"] * self.rot_dir)) % 360
 
         self.image = pygame.transform.rotozoom(self.orig_image, self.angle, 1.0)
         self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
@@ -1174,7 +1161,7 @@ class MilkyWay(GlassEntity):
     # MOVEMENT ROUTING
     # ==================
 
-    def _movement(self, tar_x, tar_y, borders):
+    def _movement(self):
         match self.phase:
             case 1:
                 pass
@@ -1189,133 +1176,13 @@ class MilkyWay(GlassEntity):
     # ATTACK ROUTING
     # ==================
 
-    def _attack(self, tar_x, tar_y, borders):
-        dist = math.hypot(tar_x - self.rect.centerx, tar_y - self.rect.centery)
+    def _attack(self):
+        dist = math.hypot(
+            self.tar_x - self.rect.centerx, self.tar_y - self.rect.centery
+        )
 
-        bullet_rot = self.bullet_rot_params[self.phase]
-        rain_params = self.rainfall_params[self.phase]
-        burst_params = self.burst_atk_params[self.phase]
-        blk_params = self.block_params[self.phase]
-
-        match self.phase:
-            case 1:
-                self._bullet_rotation(
-                    bullet_rot["bullet_arms"],
-                    bullet_rot["speed"],
-                    bullet_rot["rad"],
-                    bullet_rot["bullet_cd"],
-                )
-            case 2:
-                self._bullet_rotation(
-                    bullet_rot["bullet_arms"],
-                    bullet_rot["speed"],
-                    bullet_rot["rad"],
-                    bullet_rot["bullet_cd"],
-                )
-                self._bullet_rainfall(
-                    borders,
-                    rain_params["cd"],
-                    rain_params["bul_count"],
-                    rain_params["rad"],
-                    rain_params["speed"],
-                    rain_params["reverse"],
-                )
-            case 3:
-                self._burst_atk(
-                    burst_params["cd"],
-                    burst_params["bul_count"],
-                    burst_params["rad"],
-                    burst_params["ring_spd"],
-                )
-            case 4:
-                self._burst_atk(
-                    burst_params["cd"],
-                    burst_params["bul_count"],
-                    burst_params["rad"],
-                    burst_params["ring_spd"],
-                )
-            case 5:
-                self._bullet_rotation(
-                    bullet_rot["bullet_arms"],
-                    bullet_rot["speed"],
-                    bullet_rot["rad"],
-                    bullet_rot["bullet_cd"],
-                )
-                self._bullet_rainfall(
-                    borders,
-                    rain_params["cd"],
-                    rain_params["bul_count"],
-                    rain_params["rad"],
-                    rain_params["speed"],
-                    rain_params["reverse"],
-                )
-            case 6:
-                self._bullet_rotation(
-                    bullet_rot["bullet_arms"],
-                    bullet_rot["speed"],
-                    bullet_rot["rad"],
-                    bullet_rot["bullet_cd"],
-                )
-                self._bullet_rainfall(
-                    borders,
-                    rain_params["cd"],
-                    rain_params["bul_count"],
-                    rain_params["rad"],
-                    rain_params["speed"],
-                    rain_params["reverse"],
-                )
-            case 7:
-                pass
-            case 8:
-                self._block(
-                    borders,
-                    blk_params["cd"],
-                    blk_params["speed"],
-                    blk_params["box_count"],
-                )
-            case 9:
-                self._block(
-                    borders,
-                    blk_params["cd"],
-                    blk_params["speed"],
-                    blk_params["box_count"],
-                )
-                self._burst_atk(
-                    burst_params["cd"],
-                    burst_params["bul_count"],
-                    burst_params["rad"],
-                    burst_params["ring_spd"],
-                )
-            case 10:
-                self._bullet_rotation(
-                    bullet_rot["bullet_arms"],
-                    bullet_rot["speed"],
-                    bullet_rot["rad"],
-                    bullet_rot["bullet_cd"],
-                )
-                self._bullet_rainfall(
-                    borders,
-                    rain_params["cd"],
-                    rain_params["bul_count"],
-                    rain_params["rad"],
-                    rain_params["speed"],
-                    rain_params["reverse"],
-                )
-            case 11:
-                self._bullet_rotation(
-                    bullet_rot["bullet_arms"],
-                    bullet_rot["speed"],
-                    bullet_rot["rad"],
-                    bullet_rot["bullet_cd"],
-                )
-                self._bullet_rainfall(
-                    borders,
-                    rain_params["cd"],
-                    rain_params["bul_count"],
-                    rain_params["rad"],
-                    rain_params["speed"],
-                    rain_params["reverse"],
-                )
+        for func, params in self.phase_attacks.get(self.phase, []):
+            func(**params)
 
     # ==================
     # MOVEMENTS
@@ -1357,22 +1224,22 @@ class MilkyWay(GlassEntity):
     def _burst_atk(
         self,
         cd: int,
-        bul_count: int,
+        bullet_count: int,
         rad: int,
-        ring_spd,
+        ring_speed,
     ):
         now = pygame.time.get_ticks()
         if now - self.burst_atk_timer < cd:
             return
         self.burst_atk_timer = now
 
-        count = bul_count[self.burst_atk_index % len(bul_count)]
-        self._bullet_ring(count, rad, ring_spd)
+        count = bullet_count[self.burst_atk_index % len(bullet_count)]
+        self._bullet_ring(count, rad, ring_speed)
         self.burst_atk_index += 1
 
-    def _bullet_ring(self, bul_count, rad, ring_spd):
-        for i in range(bul_count):
-            angle_step = 360 / bul_count
+    def _bullet_ring(self, bullet_count, rad, ring_speed):
+        for i in range(bullet_count):
+            angle_step = 360 / bullet_count
             angle = math.radians(angle_step * i)
             tar_x_off = self.rect.centerx + math.cos(angle) * 100
             tar_y_off = self.rect.centery + math.sin(angle) * 100
@@ -1385,17 +1252,17 @@ class MilkyWay(GlassEntity):
                     tar_y_off,
                     self.color,
                     self.damage,
-                    speed=ring_spd,
+                    speed=ring_speed,
                 )
             )
 
-    def _bullet_rainfall(self, borders, cd, bul_count, rad, speed, reverse):
+    def _bullet_rainfall(self, cd, bullet_count, rad, speed, reverse):
         now = pygame.time.get_ticks()
         if now - self.rainfall_timer < cd:
             return
         self.rainfall_timer = now
 
-        border_sprites = borders.sprites()
+        border_sprites = self.borders.sprites()
         top_border = border_sprites[2]
         bottom_border = border_sprites[3]
         left_border = border_sprites[0]
@@ -1412,7 +1279,7 @@ class MilkyWay(GlassEntity):
             start_y = top_border.rect.bottom + padding
             end_y = bottom_border.rect.bottom
 
-        for i in range(bul_count):
+        for i in range(bullet_count):
             x = random.randint(min_x, max_x)
             self.projectile_grp.add(
                 Bullet(
@@ -1427,19 +1294,19 @@ class MilkyWay(GlassEntity):
                 )
             )
 
-    def _block(self, borders, cd, speed, box_count):
+    def _block(self, cd, speed, box_count):
         now = pygame.time.get_ticks()
         if now - self.block_timer < cd:
             return
         self.block_timer = now
 
-        border_sprites = borders.sprites()
+        border_sprites = self.borders.sprites()
         left_border = border_sprites[0]
         right_border = border_sprites[1]
         top_border = border_sprites[2]
         bottom_border = border_sprites[3]
 
-        padding = 10
+        padding = 20
 
         min_x = left_border.rect.right + padding
         max_x = right_border.rect.left - padding
@@ -1525,73 +1392,701 @@ class MilkyWay(GlassEntity):
         screen.blit(name_img, name_rect)
 
 
-class Omen:
+class Omen(OmenEntity):
+    EIGHT = 43
+    FOURTH = 86
+    HALF = 172
+    WHOLE = 345
+    DOUBLE = 690
+
     SONG_PHASES = {
-        68: (163584, 164769),  # END
-        67: (162717, 163584),  # OUTRO
-        66: (161336, 162717),  # DRUMROLL
-        65: (159956, 161336),  # DROP END
-        64: (157199, 159956),  # DROP
-        63: (156510, 157199),  # BURST
-        62: (152717, 156510),  # DROP
-        61: (152033, 152717),  # BURST
-        60: (150990, 152033),  # BRASS
-        59: (148929, 150990),  # DROP
-        58: (146173, 148929),  # DROP
-        57: (145822, 146173),  # BURST
-        56: (141676, 145822),  # DROP
-        55: (140997, 141676),  # BURST
-        54: (139957, 140997),  # BRASS
-        53: (135127, 139957),  # DROP
-        52: (134785, 135127),  # BURST
-        51: (134440, 134785),  # REST
-        50: (129618, 134440),  # DROP
-        49: (128236, 129618),  # PREDROP
-        48: (125482, 128236),  # BUILDUP 2
-        47: (122706, 125482),  # BUILDUP
-        46: (118241, 122706),  # RISE
-        45: (117192, 118241),  # FAKE DROP
-        44: (115787, 117192),  # PREDROP
-        43: (114431, 115787),  # BUILDUP 3
-        42: (111677, 114431),  # BUILDUP 2
-        41: (106151, 111677),  # BUILDUP
-        40: (95160, 106151),  # INTERLUDE
-        39: (93766, 95160),  # DRUMROLL
-        38: (92403, 93766),  # DROP END
-        37: (89644, 92403),  # DROP
-        36: (88953, 89644),  # BURST
-        35: (85159, 88953),  # DROP
-        34: (84474, 85159),  # BURST
-        33: (83434, 84474),  # BRASS
-        32: (81368, 83434),  # DROP
-        31: (78613, 81368),  # DROP
-        30: (78257, 78613),  # BURST
-        29: (74126, 78257),  # DROP
-        28: (73091, 74126),  # BREAK
-        27: (72107, 73091),  # GLITCH
-        26: (71716, 72107),  # BURST
-        25: (67573, 71716),  # DROP BREAK
-        24: (66875, 67573),  # BURST
-        23: (63088, 66875),  # DROP
-        22: (62406, 63088),  # BURST
-        21: (61370, 62406),  # BRASS
-        20: (59300, 61370),  # DROP
-        19: (56540, 59300),  # DROP
-        18: (56191, 56540),  # BURST
-        17: (52060, 56191),  # DROP
-        16: (51019, 52060),  # REST
-        15: (49644, 51019),  # PREDROP 3
-        14: (48937, 49644),  # PREDROP 2
-        13: (47919, 48937),  # RISE 3
-        12: (47566, 47919),  # BURST
-        11: (46540, 47566),  # RISE 2
-        10: (46188, 46540),  # BURST
-        9: (45165, 46188),  # RISE 1
-        8: (44134, 45165),  # FAKE DROP
-        7: (42721, 44134),  # PREDROP 1
-        6: (41365, 42721),  # BUILDUP 3
-        5: (38613, 41365),  # BUILDUP 2
-        4: (33095, 38613),  # BUILDUP 1
-        3: (22025, 33095),  # VERSE
-        2: (0, 22025),  # INTRO
+        67: (163584, 164769),  # END
+        66: (162717, 163584),  # OUTRO
+        65: (161336, 162717),  # DRUMROLL
+        64: (159956, 161336),  # DROP END
+        63: (157199, 159956),  # DROP
+        62: (156510, 157199),  # BURST
+        61: (152717, 156510),  # DROP
+        60: (152033, 152717),  # BURST
+        59: (150990, 152033),  # BRASS
+        58: (148929, 150990),  # DROP
+        57: (146173, 148929),  # DROP
+        56: (145822, 146173),  # BURST
+        55: (141676, 145822),  # DROP
+        54: (140997, 141676),  # BURST
+        53: (139957, 140997),  # BRASS
+        52: (135127, 139957),  # DROP
+        51: (134785, 135127),  # BURST
+        50: (134440, 134785),  # REST
+        49: (129618, 134440),  # DROP
+        48: (128236, 129618),  # PREDROP
+        47: (125482, 128236),  # BUILDUP 2
+        46: (122706, 125482),  # BUILDUP
+        45: (118241, 122706),  # RISE
+        44: (117192, 118241),  # FAKE DROP
+        43: (115787, 117192),  # PREDROP
+        42: (114431, 115787),  # BUILDUP 3
+        41: (111677, 114431),  # BUILDUP 2
+        40: (106151, 111677),  # BUILDUP
+        39: (95160, 106151),  # INTERLUDE
+        38: (93766, 95160),  # DRUMROLL
+        37: (92403, 93766),  # DROP END
+        36: (89644, 92403),  # DROP
+        35: (88953, 89644),  # BURST
+        34: (85159, 88953),  # DROP
+        33: (84474, 85159),  # BURST
+        32: (83434, 84474),  # BRASS
+        31: (81368, 83434),  # DROP
+        30: (78613, 81368),  # DROP
+        29: (78257, 78613),  # BURST
+        28: (74126, 78257),  # DROP
+        27: (73091, 74126),  # BREAK
+        26: (72107, 73091),  # GLITCH
+        25: (71716, 72107),  # BURST
+        24: (67573, 71716),  # DROP BREAK
+        23: (66875, 67573),  # BURST
+        22: (63088, 66875),  # DROP
+        21: (62406, 63088),  # BURST
+        20: (61370, 62406),  # BRASS
+        19: (59300, 61370),  # DROP
+        18: (56540, 59300),  # DROP
+        17: (56191, 56540),  # BURST
+        16: (52060, 56191),  # DROP done
+        15: (51019, 52060),  # REST done
+        14: (49644, 51019),  # PREDROP 3 done
+        13: (48937, 49644),  # PREDROP 2 done
+        12: (47919, 48937),  # RISE 3 done
+        11: (47566, 47919),  # BURST done
+        10: (46540, 47566),  # RISE 2 done
+        9: (46188, 46540),  # BURST done
+        8: (45165, 46188),  # RISE 1 done
+        7: (44134, 45165),  # FAKE DROP done
+        6: (42721, 44134),  # KILL THEM ALL done
+        5: (41365, 42721),  # BUILDUP 3 done
+        4: (38613, 41365),  # BUILDUP 2 done
+        3: (33095, 38613),  # BUILDUP 1 done
+        2: (22025, 33095),  # VERSE done
+        1: (0, 22025),  # INTRO done
     }
+
+    def __init__(
+        self,
+        x_cor,
+        y_cor,
+        projectile_grp,
+        obs_grp,
+        damage=25,
+        size=120,
+        color=ORANGE,
+        rotation=0,
+    ) -> None:
+        super().__init__(size, x_cor, y_cor, color, rotation)
+
+        self.projectile_grp = projectile_grp
+        self.obs_grp = obs_grp
+        self.damage = damage
+
+        self.phase = 1
+
+        self.dx, self.dy = 0, 0
+        self.tar_x, self.tar_y = 0, 0
+        self.rot_speed = 0
+        self.borders = None
+
+        self.phase_movements = {
+            1: [
+                (self._center, {"friction": 1.00, "accel": 2.00}),
+                (self._rotate, {"rot_speed": 1}),
+            ],
+            2: [
+                (self._center, {"friction": 1.00, "accel": 2.00}),
+                (self.lerp_rotation_to_zero, {}),
+            ],
+            8: [
+                (self._center, {"friction": 1.00, "accel": 2.00}),
+                (self._rotate, {"rot_speed": 4}),
+            ],
+            9: [
+                (self._center, {"friction": 1.00, "accel": 2.00}),
+                (self.lerp_rotation_to_zero, {}),
+            ],
+            10: [
+                (self._center, {"friction": 1.00, "accel": 2.00}),
+                (self._rotate, {"rot_speed": -6}),
+            ],
+            11: [
+                (self._center, {"friction": 1.00, "accel": 2.00}),
+                (self.lerp_rotation_to_zero, {}),
+            ],
+            12: [
+                (self._center, {"friction": 1.00, "accel": 2.00}),
+                (self._rotate, {"rot_speed": 8}),
+            ],
+            15: [
+                (self._center, {"friction": 1.00, "accel": 2.00}),
+                (self._rotate, {"rot_speed": -3}),
+            ],
+            16: [
+                (self._anchor, {"anchor": "top", "speed": 50}),
+                (self.lerp_rotation_to_zero, {}),
+            ],
+            22: [
+                (self._anchor, {"anchor": "bot", "speed": 50}),
+                (self.lerp_rotation_to, {"target": 180}),
+            ],
+        }
+
+        self.wander_target_x = self.rect.centerx
+        self.wander_target_y = self.rect.centery
+        self.wander_cd = 2000
+        self.wander_timer = 0
+
+        # attacks
+        self.bullet_rot_timer = 0
+        self.burst_atk_timer = 0
+        self.burst_atk_index = 0
+        self.block_timer = 0
+        self.rainfall_timer = 0
+
+        self.phase_attacks = {
+            1: [
+                (
+                    self._bullet_rotation,
+                    {"bullet_arms": 8, "speed": 8, "rad": 6, "bullet_cd": self.HALF},
+                )
+            ],
+            2: [
+                (
+                    self._bullet_rainfall,
+                    {
+                        "cd": self.WHOLE,
+                        "bullet_count": 6,
+                        "rad": 8,
+                        "speed": (5, 6, 7, 8, 9, 10),
+                        "reverse": False,
+                    },
+                ),
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.WHOLE,
+                        "bullet_count": (5, 7, 10),
+                        "rad": 8,
+                        "ring_speed": 8,
+                    },
+                ),
+            ],
+            3: [
+                (
+                    self._block,
+                    {"cd": self.HALF, "speed": (16, 20, 26), "box_count": 1},
+                ),
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": (6, 12),
+                        "rad": 12,
+                        "ring_speed": 12,
+                    },
+                ),
+            ],
+            4: [
+                (
+                    self._block,
+                    {"cd": self.HALF, "speed": (20, 26), "box_count": 2},
+                ),
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": (6, 12),
+                        "rad": 12,
+                        "ring_speed": 12,
+                    },
+                ),
+            ],
+            5: [
+                (
+                    self._block,
+                    {"cd": self.EIGHT, "speed": (28, 32), "box_count": 1},
+                ),
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.EIGHT,
+                        "bullet_count": (6, 12),
+                        "rad": 12,
+                        "ring_speed": 18,
+                    },
+                ),
+            ],
+            6: [],
+            7: [
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.FOURTH,
+                        "bullet_count": (6, 7, 8, 9, 10),
+                        "rad": 8,
+                        "ring_speed": 12,
+                    },
+                )
+            ],
+            8: [
+                (
+                    self._bullet_rotation,
+                    {"bullet_arms": 4, "speed": 32, "rad": 12, "bullet_cd": self.EIGHT},
+                )
+            ],
+            9: [
+                (
+                    self._burst_atk,
+                    {"cd": self.WHOLE, "bullet_count": 6, "rad": 12, "ring_speed": 12},
+                )
+            ],
+            10: [
+                (
+                    self._bullet_rotation,
+                    {"bullet_arms": 6, "speed": 32, "rad": 12, "bullet_cd": self.EIGHT},
+                )
+            ],
+            11: [
+                (
+                    self._burst_atk,
+                    {"cd": self.WHOLE, "bullet_count": 10, "rad": 12, "ring_speed": 12},
+                )
+            ],
+            12: [
+                (
+                    self._bullet_rotation,
+                    {"bullet_arms": 8, "speed": 32, "rad": 12, "bullet_cd": self.EIGHT},
+                )
+            ],
+            13: [
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.FOURTH,
+                        "bullet_count": (10, 8, 6, 4),
+                        "rad": 12,
+                        "ring_speed": 18,
+                    },
+                )
+            ],
+            14: [
+                (
+                    self._burst_atk,
+                    {"cd": self.HALF, "bullet_count": 8, "rad": 12, "ring_speed": 9},
+                )
+            ],
+            15: [
+                (
+                    self._bullet_rotation,
+                    {
+                        "bullet_arms": 8,
+                        "speed": 16,
+                        "rad": 8,
+                        "bullet_cd": self.FOURTH,
+                    },
+                )
+            ],
+            16: [
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": (32, 14, 14, 14),
+                        "rad": 6,
+                        "ring_speed": 18,
+                    },
+                )
+            ],
+            18: [],
+            22: [
+                (
+                    self._burst_atk,
+                    {
+                        "cd": self.HALF,
+                        "bullet_count": (32, 14, 14, 14),
+                        "rad": 6,
+                        "ring_speed": 18,
+                    },
+                )
+            ],
+        }
+
+        # states
+        self.music_started = False
+
+    # ==================
+    # CORE
+    # ==================
+
+    def update(self, tar_x, tar_y, borders):
+        self.tar_x = tar_x
+        self.tar_y = tar_y
+        self.borders = borders
+
+        self._update_phase()
+
+        self._movement()
+        self._attack()
+
+    def _update_phase(self):
+        if not self.music_started:
+            return
+
+        if not self.alive():
+            return
+
+        pos = pygame.mixer.music.get_pos()
+        for phase, (start, end) in self.SONG_PHASES.items():
+            if start <= pos < end:
+                self.phase = phase
+                break
+
+        last_phase = max(self.SONG_PHASES)
+        end_time = self.SONG_PHASES[last_phase][1]
+        buffer = 100
+        if pos >= end_time - buffer:
+            self._explode()
+
+    def _rotate(self, rot_speed):
+        self.update_rotation(self.rotation + rot_speed)
+
+    # ==================
+    # MOVEMENT ROUTING
+    # ==================
+
+    def _movement(self):
+        dist = math.hypot(
+            self.tar_x - self.rect.centerx, self.tar_y - self.rect.centery
+        )
+
+        for func, params in self.phase_movements.get(self.phase, []):
+            func(**params)
+
+    # ==================
+    # ATTACK ROUTING
+    # ==================
+
+    def _attack(self):
+        dist = math.hypot(
+            self.tar_x - self.rect.centerx, self.tar_y - self.rect.centery
+        )
+
+        for func, params in self.phase_attacks.get(self.phase, []):
+            func(**params)
+
+    # ==================
+    # MOVEMENTS
+    # ==================
+
+    def _chase(self, friction, accel):
+        angle = math.atan2(
+            self.tar_y - self.rect.centery, self.tar_x - self.rect.centerx
+        )
+
+        self.dx += math.cos(angle) * accel
+        self.dy += math.sin(angle) * accel
+        self.dx *= friction
+        self.dy *= friction
+
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
+
+    def _wander(self, friction, accel):
+        now = pygame.time.get_ticks()
+
+        dist = math.hypot(
+            self.wander_target_x - self.rect.centerx,
+            self.wander_target_y - self.rect.centery,
+        )
+        if dist < 20 or now - self.wander_timer > self.wander_cd:
+            self.wander_timer = now
+
+            border_sprites = self.borders.sprites()
+
+            left_border = border_sprites[0]
+            right_border = border_sprites[1]
+            top_border = border_sprites[2]
+            bottom_border = border_sprites[3]
+
+            self.wander_target_x = random.randint(left_border + 50, right_border - 50)
+            self.wander_target_y = random.randint(top_border + 50, bottom_border - 50)
+
+        angle = math.atan2(
+            self.wander_target_y - self.rect.centery,
+            self.wander_target_x - self.rect.centerx,
+        )
+        self.dx += math.cos(angle) * accel
+        self.dy += math.sin(angle) * accel
+        self.dx *= friction
+        self.dy *= friction
+
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
+
+    def _center(self, friction, accel):
+        border_sprites = self.borders.sprites()
+
+        left_border = border_sprites[0]
+        right_border = border_sprites[1]
+        top_border = border_sprites[2]
+        bottom_border = border_sprites[3]
+
+        center_x = (left_border.rect.right + right_border.rect.left) // 2
+        center_y = (top_border.rect.bottom + bottom_border.rect.top) // 2
+
+        angle = math.atan2(
+            center_y - self.rect.centery,
+            center_x - self.rect.centerx,
+        )
+        self.dx += math.cos(angle) * accel
+        self.dy += math.sin(angle) * accel
+        self.dx *= friction
+        self.dy *= friction
+
+        self.rect.x += int(self.dx)
+        self.rect.y += int(self.dy)
+
+    def _anchor(self, anchor, speed):
+        border_sprites = self.borders.sprites()
+
+        left_border = border_sprites[0]
+        right_border = border_sprites[1]
+        top_border = border_sprites[2]
+        bottom_border = border_sprites[3]
+
+        match anchor:
+            case "top":
+                self.anchor_target_x, self.anchor_target_y = top_border.rect.midbottom
+            case "bot":
+                self.anchor_target_x, self.anchor_target_y = bottom_border.rect.midtop
+            case "left":
+                self.anchor_target_x, self.anchor_target_y = left_border.rect.midright
+            case "right":
+                self.anchor_target_x, self.anchor_target_y = right_border.rect.midleft
+
+        dist = math.hypot(
+            self.anchor_target_x - self.rect.centerx,
+            self.anchor_target_y - self.rect.centery,
+        )
+
+        if dist <= speed:
+            self.rect.centerx = self.anchor_target_x
+            self.rect.centery = self.anchor_target_y
+            return
+
+        angle = math.atan2(
+            self.anchor_target_y - self.rect.centery,
+            self.anchor_target_x - self.rect.centerx,
+        )
+        self.rect.x += int(math.cos(angle) * speed)
+        self.rect.y += int(math.sin(angle) * speed)
+
+    # ==================
+    # ATTACKS
+    # ==================
+
+    def _bullet_rotation(self, bullet_arms, speed, rad, bullet_cd):
+        now = pygame.time.get_ticks()
+        if now - self.bullet_rot_timer < bullet_cd:
+            return
+        self.bullet_rot_timer = now
+
+        for i in range(bullet_arms):
+            arm_angle_deg = self.rotation + (i * (360 / bullet_arms))
+            arm_angle_rad = math.radians(arm_angle_deg)
+
+            spawn_x = self.rect.centerx
+            spawn_y = self.rect.centery
+
+            dist_to_target = 100
+            target_x = spawn_x + math.cos(arm_angle_rad) * dist_to_target
+            target_y = spawn_y + math.sin(arm_angle_rad) * dist_to_target
+
+            bullet = Bullet(
+                radius=rad,
+                x_cor=spawn_x,
+                y_cor=spawn_y,
+                tar_x=target_x,
+                tar_y=target_y,
+                color=self.color,
+                damage=self.damage,
+                speed=speed,
+            )
+            self.projectile_grp.add(bullet)
+
+    def _burst_atk(
+        self,
+        cd,
+        bullet_count,
+        rad,
+        ring_speed,
+    ):
+        now = pygame.time.get_ticks()
+        if now - self.burst_atk_timer < cd:
+            return
+        self.burst_atk_timer = now
+
+        counts = bullet_count if isinstance(bullet_count, tuple) else (bullet_count,)
+        count = counts[self.burst_atk_index % len(counts)]
+        self._bullet_ring(count, rad, ring_speed)
+        self.burst_atk_index += 1
+
+    def _bullet_ring(self, bullet_count, rad, ring_speed):
+        angle_step = 360 / bullet_count
+
+        for i in range(bullet_count):
+            angle = math.radians(angle_step * i)
+            tar_x_off = self.rect.centerx + math.cos(angle) * 100
+            tar_y_off = self.rect.centery + math.sin(angle) * 100
+            self.projectile_grp.add(
+                Bullet(
+                    rad,
+                    self.rect.centerx,
+                    self.rect.centery,
+                    tar_x_off,
+                    tar_y_off,
+                    self.color,
+                    self.damage,
+                    speed=ring_speed,
+                )
+            )
+
+    def _block(self, cd, speed, box_count):
+        now = pygame.time.get_ticks()
+        if now - self.block_timer < cd:
+            return
+        self.block_timer = now
+
+        border_sprites = self.borders.sprites()
+        left_border = border_sprites[0]
+        right_border = border_sprites[1]
+        top_border = border_sprites[2]
+        bottom_border = border_sprites[3]
+
+        padding = 20
+
+        min_x = left_border.rect.right + padding
+        max_x = right_border.rect.left - padding
+        min_y = top_border.rect.bottom + padding
+        max_y = bottom_border.rect.top - padding
+
+        orientation = random.choice(["horizontal", "vertical"])
+        size = 40
+
+        for i in range(box_count):
+            if orientation == "horizontal":
+                direction = random.choice(["top_to_bottom", "bottom_to_top"])
+                x = random.randint(min_x, max_x)
+                if direction == "top_to_bottom":
+                    y = min_y
+                    dy, dx = random.choice(speed), 0
+                else:
+                    y = max_y
+                    dy, dx = -random.choice(speed), 0
+                block = Block(self.obs_grp, x, y, size, self.color, self.damage)
+
+            else:
+                direction = random.choice(["left_to_right", "right_to_left"])
+                y = random.randint(min_y, max_y)
+                if direction == "left_to_right":
+                    x = min_x
+                    dx, dy = random.choice(speed), 0
+                else:
+                    x = max_x
+                    dx, dy = -random.choice(speed), 0
+                block = Block(self.obs_grp, x, y, size, self.color, self.damage)
+
+            block.dx = dx
+            block.dy = dy
+            self.obs_grp.add(block)
+
+    def _bullet_rainfall(self, cd, bullet_count, rad, speed, reverse):
+        now = pygame.time.get_ticks()
+        if now - self.rainfall_timer < cd:
+            return
+        self.rainfall_timer = now
+
+        border_sprites = self.borders.sprites()
+        top_border = border_sprites[2]
+        bottom_border = border_sprites[3]
+        left_border = border_sprites[0]
+        right_border = border_sprites[1]
+
+        padding = 20
+        min_x = left_border.rect.right + padding
+        max_x = right_border.rect.left - padding
+
+        if reverse:
+            start_y = bottom_border.rect.top - padding
+            end_y = top_border.rect.top
+        else:
+            start_y = top_border.rect.bottom + padding
+            end_y = bottom_border.rect.bottom
+
+        for i in range(bullet_count):
+            x = random.randint(min_x, max_x)
+            self.projectile_grp.add(
+                Bullet(
+                    rad,
+                    x,
+                    start_y,
+                    x,
+                    end_y,
+                    self.color,
+                    self.damage,
+                    random.choice(speed),
+                )
+            )
+
+    def _explode(self, bullet_count=16):
+        angle_step = 360 / bullet_count
+        for i in range(bullet_count):
+            angle = math.radians(angle_step * i)
+            tar_x = self.rect.centerx + math.cos(angle) * 100
+            tar_y = self.rect.centery + math.sin(angle) * 100
+            for ring_spd in (3, 5, 9, 12):
+                self.projectile_grp.add(
+                    Bullet(
+                        5,
+                        self.rect.centerx,
+                        self.rect.centery,
+                        tar_x,
+                        tar_y,
+                        self.color,
+                        self.damage,
+                        ring_spd,
+                    )
+                )
+        self.kill()
+
+    # ==================
+    # DRAW
+    # ==================
+
+    def draw_duration_bar(self, win_wd, screen):
+        bar_wd = 400
+        bar_ht = 20
+        gap = 5
+
+        bar_rect = pygame.Rect(0, 0, bar_wd, bar_ht)
+        bar_rect.midtop = (win_wd // 2, 40)
+
+        last_phase = max(self.SONG_PHASES)
+        end_time = self.SONG_PHASES[last_phase][1]
+        pos = pygame.mixer.music.get_pos()
+        progress = min(pos / end_time, 1.0)
+
+        fill_wd = int(progress * bar_wd)
+        pygame.draw.rect(screen, RED, (bar_rect.x, bar_rect.y, fill_wd, bar_ht))
+        pygame.draw.rect(screen, WHITE, bar_rect, 2)
+
+        font = pygame.font.Font(REGULAR, 40)
+        name_img = font.render("Omen", True, WHITE)
+        name_img.set_alpha(128)
+        name_rect = name_img.get_rect(midtop=(bar_rect.centerx, bar_rect.bottom + gap))
+        screen.blit(name_img, name_rect)
