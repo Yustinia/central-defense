@@ -243,6 +243,11 @@ class OmenEntity(pygame.sprite.Sprite):
 
         mid_pt = self.size // 2
         width = 3
+        inner_tri_pts = [
+            ((7 * self.size + 4 * mid_pt) / 6, self.size / 3),
+            ((7 * self.size + mid_pt) / 6, (5 * self.size) / 6),
+            ((10 * self.size + mid_pt) / 6, (5 * self.size) / 6),
+        ]
         base_tri_pts = [
             (self.size + mid_pt, 0),  # top center
             (self.size, self.size),  # bot left
@@ -264,6 +269,11 @@ class OmenEntity(pygame.sprite.Sprite):
             (self.size * 2, self.size + pad),  # right corn
         ]
 
+        pygame.draw.polygon(
+            self.orig_image,
+            self.color,
+            inner_tri_pts,
+        )
         pygame.draw.polygon(
             self.orig_image,
             self.color,

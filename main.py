@@ -496,22 +496,48 @@ class GameManager:
                 self.game.draw(self.screen)
                 self.pause_menu.draw(self.screen)
 
+    def _log(self):
+        self.game.player.health = self.game.player.max_health = 5000
+
+        pos = pygame.mixer.music.get_pos()
+
+        omen_alive = len(self.game.omen_spawner.group) > 0
+        venus_alive = len(self.game.venus_spawner.group) > 0
+        milkyway_alive = len(self.game.milkyway_spawner.group) > 0
+
+        if omen_alive:
+            boss = self.game.omen_spawner.group.sprites()[0]
+            atk = [
+                func.__name__ for func, params in boss.phase_attacks.get(boss.phase, [])
+            ]
+            mov = [
+                func.__name__
+                for func, params in boss.phase_movements.get(boss.phase, [])
+            ]
+            print(f"PHASE {boss.phase} | {pos}\nATK: {atk} | MOV: {mov}")
+
+        elif venus_alive:
+            boss = self.game.venus_spawner.group.sprites()[0]
+            atk = [
+                func.__name__ for func, params in boss.phase_attacks.get(boss.phase, [])
+            ]
+            mov = [
+                func.__name__
+                for func, params in boss.phase_movements.get(boss.phase, [])
+            ]
+            print(f"PHASE {boss.phase} | {pos}\nATK: {atk} | MOV: {mov}")
+
+        elif milkyway_alive:
+            boss = self.game.milkyway_spawner.group.sprites()[0]
+            atk = [
+                func.__name__ for func, params in boss.phase_attacks.get(boss.phase, [])
+            ]
+            print(f"PHASE {boss.phase} | {pos}\nATK: {atk}")
+
     def runner(self, fps, should_log):
         while self.game_running:
             if should_log:
-                logging = {
-                    "ROUND": self.game.round_counter,
-                    "CHASER": len(self.game.chaser_spawner.group),
-                    "BOUNCER": len(self.game.bouncer_spawner.group),
-                    "TANK": len(self.game.tank_spawner.group),
-                    "SNIPER": len(self.game.sniper_spawner.group),
-                    "SHOOTER": len(self.game.shooter_spawner.group),
-                    "EXPLODER": len(self.game.exploder_spawner.group),
-                    "SPLITTER": len(self.game.splitter_spawner.group),
-                }
-                for key, value in logging.items():
-                    print(f"{key}: {value}")
-                print()
+                self._log()
 
             self.event()
             self.update()
