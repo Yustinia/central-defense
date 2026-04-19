@@ -1,5 +1,6 @@
 import pygame
 
+from sounds.music.MUSIC import CENTRAL_DEFENSE, MENU_MUSIC, MILKYWAYS, VENUS
 from src.BossSpawner import (
     MilkyWaySpawner,
     OmenSpawner,
@@ -391,7 +392,7 @@ class GameManager:
         self.omen_music_started = False
 
         self.current_music = None
-        self._play_music("sounds/music/MenuMusic.wav")
+        self._play_music(MENU_MUSIC)
 
     def _play_music(self, path, loops=-1):
         if self.current_music != path:
@@ -428,9 +429,10 @@ class GameManager:
 
                         self.venus_music_started = False
                         self.milky_way_music_started = False
+
                         self.omen_music_started = False
 
-                        self._play_music("sounds/music/MenuMusic.wav")
+                        self._play_music(MENU_MUSIC)
 
     def update(self):
         match self.current_state:
@@ -444,12 +446,12 @@ class GameManager:
                 omen_alive = len(self.game.omen_spawner.group) > 0
 
                 if venus_alive and not self.venus_music_started:
-                    self._play_music("sounds/music/Will_Be_Venus.mp3", 0)
+                    self._play_music(VENUS, 0)
                     self.venus_music_started = True
                     self.game.venus_spawner.group.sprites()[0].music_started = True
 
                 elif milky_way_alive and not self.milky_way_music_started:
-                    self._play_music("sounds/music/MilkyWays.mp3", 0)
+                    self._play_music(MILKYWAYS, 0)
                     self.milky_way_music_started = True
                     self.game.milkyway_spawner.group.sprites()[0].music_started = True
 
@@ -466,12 +468,13 @@ class GameManager:
                     ):
                         self.venus_music_started = False
                         self.milky_way_music_started = False
+
                         self.omen_music_started = False
 
-                        self._play_music("sounds/music/CentralDefense.mp3")
+                        self._play_music(CENTRAL_DEFENSE)
 
                     elif not self.current_music:
-                        self._play_music("sounds/music/CentralDefense.mp3")
+                        self._play_music(CENTRAL_DEFENSE)
 
                 if result == "DEAD":
                     self.current_state = "GAMEOVER"
@@ -479,9 +482,10 @@ class GameManager:
 
                     self.milky_way_music_started = False
                     self.venus_music_started = False
+
                     self.omen_music_started = False
 
-                    self._play_music("sounds/music/MenuMusic.wav")
+                    self._play_music(MENU_MUSIC)
 
                 elif result == "WIN":
                     self.current_state = "WIN"

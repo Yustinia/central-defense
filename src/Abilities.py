@@ -3,6 +3,7 @@ import math
 import pygame
 
 from const.COLORS import PLAT
+from sounds.effects.SOUNDS import DASH
 from src.Weapons import Bullet
 
 
@@ -12,6 +13,9 @@ class Dash:
         self.dash_cd = dash_cd
         self.dash_timer = 0
 
+        self.dash_sfx = pygame.mixer.Sound(DASH)
+        self.dash_sfx.set_volume(0.1)
+
     def do_dash(self, dx, dy):
         now = pygame.time.get_ticks()
         if now - self.dash_timer < self.dash_cd:
@@ -19,6 +23,8 @@ class Dash:
         if dx == 0 and dy == 0:
             return dx, dy
         self.dash_timer = now
+
+        self.dash_sfx.play()
 
         return dx * self.dash_spd, dy * self.dash_spd
 

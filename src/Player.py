@@ -3,6 +3,7 @@ from typing_extensions import override
 
 from const.COLORS import BLACK, BLUE, GREEN, RED, WHITE, YELLOW
 from const.FONTS import REGULAR
+from sounds.effects.SOUNDS import HURT
 from src.Abilities import BulletBurst, Dash, PassiveHeal, Shield
 from src.Entities import BoxEntity
 from src.Weapons import LaserGun, MachineGun, Pistol, Shotgun
@@ -58,6 +59,10 @@ class Player(BoxEntity):
         # States
         self.is_alive = True
 
+        # Sounds
+        self.hurt_sfx = pygame.mixer.Sound(HURT)
+        self.hurt_sfx.set_volume(0.2)
+
     @override
     def update(self, keys, borders):
         self.shield_ab.update()
@@ -95,6 +100,8 @@ class Player(BoxEntity):
 
         if self.health <= 0:
             self.is_alive = False
+
+        self.hurt_sfx.play()
 
         return self.is_alive
 
