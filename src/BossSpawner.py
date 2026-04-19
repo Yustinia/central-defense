@@ -33,7 +33,7 @@ class BaseBossSpawner(ABC):
 
 class MilkyWaySpawner(BaseBossSpawner):
     def __init__(self, projectile_grp, obs_grp) -> None:
-        super().__init__(hard_lim=1, to_spawn=1, to_spawn_init=1)
+        super().__init__(hard_lim=1, to_spawn=0, to_spawn_init=1)
 
         self.projectile_grp = projectile_grp
         self.obs_grp = obs_grp

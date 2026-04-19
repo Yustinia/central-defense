@@ -51,261 +51,169 @@ class Venus(StarEntity):
         self.damage = damage
         self.phase = 1  # [1 ... 14]
 
+        self.tar_x, self.tar_y = 0, 0
+        self.borders = None
+
         self.dx, self.dy = 0, 0
-        self.movement_params = {
-            1: {},
-            2: {
-                "friction": 0.92,
-                "accel": 0.50,
-            },
-            3: {
-                "friction": 0.95,
-                "accel": 0.70,
-            },
-            4: {
-                "friction": 0.97,
-                "accel": 3.00,
-            },
-            5: {
-                "friction": 0.90,
-                "accel": 0.50,
-            },
-            6: {
-                "friction": 0.90,
-                "accel": 0.50,
-            },
-            7: {
-                "friction": 0.92,
-                "accel": 0.60,
-            },
-            8: {
-                "friction": 0.92,
-                "accel": 0.90,
-            },
-            9: {
-                "friction": 0.97,
-                "accel": 3.00,
-            },
-            10: {
-                "friction": 0.95,
-                "accel": 0.70,
-            },
-            11: {
-                "friction": 0.95,
-                "accel": 0.80,
-            },
-            12: {
-                "friction": 0.90,
-                "accel": 0.50,
-            },
-            13: {
-                "friction": 0.92,
-                "accel": 0.90,
-            },
-            14: {
-                "friction": 0.97,
-                "accel": 3.00,
-            },
-            15: {},
-        }  # friction and accel
+        self.wander_target_x = self.rect.centerx
+        self.wander_target_y = self.rect.centery
+        self.wander_cd = 2000
+        self.wander_timer = 0
 
-        # atk timers
+        self.phase_movements = {
+            1: [],
+            2: [(self._chase, {"friction": 0.92, "accel": 0.50})],
+            3: [(self._chase, {"friction": 0.95, "accel": 0.70})],
+            4: [(self._center, {"friction": 0.97, "accel": 3.00})],
+            5: [(self._center, {"friction": 0.90, "accel": 0.50})],
+            6: [(self._center, {"friction": 0.90, "accel": 0.50})],
+            7: [(self._wander, {"friction": 0.92, "accel": 0.60})],
+            8: [(self._wander, {"friction": 0.92, "accel": 0.90})],
+            9: [(self._center, {"friction": 0.97, "accel": 3.00})],
+            10: [(self._chase, {"friction": 0.95, "accel": 0.70})],
+            11: [(self._chase, {"friction": 0.95, "accel": 0.80})],
+            12: [(self._center, {"friction": 0.90, "accel": 0.50})],
+            13: [(self._wander, {"friction": 0.92, "accel": 0.90})],
+            14: [(self._center, {"friction": 0.97, "accel": 3.00})],
+            15: [],
+        }
+
         self.burst_atk_timer = 0
-        self.burst_atk_params = {
-            1: {},
-            2: {
-                "cd": 1520,
-                "bul_count": 6,
-                "rad": 8,
-                "ring_spd": (3, 5),
-            },
-            3: {
-                "cd": 760,
-                "bul_count": 6,
-                "rad": 6,
-                "ring_spd": (2, 6),
-            },
-            4: {},
-            5: {},
-            6: {},
-            7: {
-                "cd": 760,
-                "bul_count": 6,
-                "rad": 8,
-                "ring_spd": (3, 5),
-            },
-            8: {
-                "cd": 380,
-                "bul_count": 8,
-                "rad": 6,
-                "ring_spd": (3, 6),
-            },
-            9: {},
-            10: {
-                "cd": 760,
-                "bul_count": 8,
-                "rad": 6,
-                "ring_spd": (3, 6),
-            },
-            11: {},
-            12: {},
-            13: {
-                "cd": 760,
-                "bul_count": 8,
-                "rad": 8,
-                "ring_spd": (4, 9),
-            },
-            14: {},
-            15: {},
-        }
-
-        self.spawn_enemy_timer = 0
-        self.spawn_sniper_params = {
-            1: {},
-            2: {},
-            3: {},
-            4: {},
-            5: {},
-            6: {},
-            7: {
-                "cd": 1520,
-            },
-            8: {
-                "cd": 380,
-            },
-            9: {},
-            10: {
-                "cd": 760,
-            },
-            11: {
-                "cd": 760,
-            },
-            12: {},
-            13: {},
-            14: {},
-            15: {},
-        }  # spawn_sniper_cd
-
+        self.burst_atk_index = 0
         self.rainfall_timer = 0
-        self.rainfall_params = {
-            1: {},
-            2: {},
-            3: {},
-            4: {},
-            5: {
-                "cd": 760,
-                "bul_count": 6,
-                "rad": 8,
-                "speed": (5, 6, 7, 8, 9, 10),
-                "reverse": False,
-            },
-            6: {
-                "cd": 760,
-                "bul_count": 6,
-                "rad": 8,
-                "speed": (5, 6, 7, 8, 9, 10),
-                "reverse": True,
-            },
-            7: {},
-            8: {},
-            9: {},
-            10: {},
-            11: {},
-            12: {},
-            13: {
-                "cd": 380,
-                "bul_count": 6,
-                "rad": 8,
-                "speed": (5, 6, 7, 8, 9, 10),
-                "reverse": False,
-            },
-            14: {},
-            15: {},
-        }
-
         self.bullet_rot_timer = 0
         self.rot_switch_timer = pygame.time.get_ticks()
         self.angle = 0
         self.rot_dir = 1
         self.rot_switch_cd = 5000
-        self.bullet_rot_params = {
-            1: {},
-            2: {},
-            3: {},
-            4: {
-                "arms": 8,
-                "speed": 10,
-                "rad": 10,
-                "cd": 95,
-                "rot_spd": 2,
-            },
-            5: {
-                "arms": 6,
-                "speed": 5,
-                "rad": 10,
-                "cd": 380,
-                "rot_spd": 2,
-            },
-            6: {
-                "arms": 6,
-                "speed": 5,
-                "rad": 10,
-                "cd": 380,
-                "rot_spd": 2,
-            },
-            7: {},
-            8: {},
-            9: {
-                "arms": 8,
-                "speed": 10,
-                "rad": 10,
-                "cd": 95,
-                "rot_spd": 2,
-            },
-            10: {},
-            11: {},
-            12: {
-                "arms": 8,
-                "speed": 10,
-                "rad": 10,
-                "cd": 380,
-                "rot_spd": 4,
-            },
-            13: {},
-            14: {
-                "arms": 8,
-                "speed": 10,
-                "rad": 10,
-                "cd": 95,
-                "rot_spd": 2,
-            },
-            15: {},
-        }
-
         self.block_timer = 0
-        self.block_params = {
-            1: {},
-            2: {},
-            3: {},
-            4: {},
-            5: {},
-            6: {},
-            7: {"cd": 760, "speed": (5, 10, 15, 20), "box_count": 1},
-            8: {},
-            9: {},
-            10: {"cd": 760, "speed": (5, 10, 15, 20), "box_count": 3},
-            11: {"cd": 380, "speed": (5, 10, 15, 20), "box_count": 3},
-            12: {"cd": 380, "speed": (5, 10, 15, 20), "box_count": 3},
-            13: {},
-            14: {},
-            15: {},
-        }
+        self.spawn_enemy_timer = 0
 
-        # movement timers
-        self.wander_target_x = self.rect.centerx
-        self.wander_target_y = self.rect.centery
-        self.wander_cd = 2000
-        self.wander_timer = 0
+        self.phase_rot_speeds = {
+            4: 2,
+            5: 2,
+            6: 2,
+            9: 2,
+            12: 4,
+            14: 2,
+        }
+        self.phase_attacks = {
+            1: [],
+            2: [
+                (self._ranged_atk, {}),
+                (
+                    self._burst_atk,
+                    {
+                        "cd": 1520,
+                        "bullet_count": (6, 8),
+                        "rad": 8,
+                        "ring_speed": (3, 5),
+                    },
+                ),
+            ],
+            3: [
+                (self._ranged_atk, {}),
+                (
+                    self._burst_atk,
+                    {"cd": 760, "bullet_count": (6, 8), "rad": 6, "ring_speed": (2, 6)},
+                ),
+            ],
+            4: [(self._bullet_rotation, {"arms": 8, "speed": 10, "rad": 10, "cd": 95})],
+            5: [
+                (
+                    self._bullet_rainfall,
+                    {
+                        "cd": 760,
+                        "bullet_count": 6,
+                        "rad": 8,
+                        "speed": (5, 6, 7, 8, 9, 10),
+                        "reverse": False,
+                    },
+                ),
+                (self._bullet_rotation, {"arms": 6, "speed": 5, "rad": 10, "cd": 380}),
+            ],
+            6: [
+                (
+                    self._bullet_rainfall,
+                    {
+                        "cd": 760,
+                        "bullet_count": 6,
+                        "rad": 8,
+                        "speed": (5, 6, 7, 8, 9, 10),
+                        "reverse": True,
+                    },
+                ),
+                (self._bullet_rotation, {"arms": 6, "speed": 5, "rad": 10, "cd": 380}),
+            ],
+            7: [
+                (
+                    self._burst_atk,
+                    {
+                        "cd": 760,
+                        "bullet_count": (6, 10),
+                        "rad": 8,
+                        "ring_speed": (3, 5),
+                    },
+                ),
+                (self._spawn_snipers, {"cd": 1520}),
+                (self._block, {"cd": 760, "speed": (5, 10, 15, 20), "box_count": 1}),
+            ],
+            8: [
+                (
+                    self._burst_atk,
+                    {
+                        "cd": 380,
+                        "bullet_count": (8, 12),
+                        "rad": 6,
+                        "ring_speed": (3, 6),
+                    },
+                ),
+                (self._spawn_snipers, {"cd": 380}),
+            ],
+            9: [(self._bullet_rotation, {"arms": 8, "speed": 10, "rad": 10, "cd": 95})],
+            10: [
+                (self._spawn_snipers, {"cd": 760}),
+                (self._block, {"cd": 760, "speed": (5, 10, 15, 20), "box_count": 1}),
+                (
+                    self._burst_atk,
+                    {"cd": 760, "bullet_count": 8, "rad": 6, "ring_speed": (3, 6)},
+                ),
+            ],
+            11: [
+                (self._block, {"cd": 380, "speed": (5, 10, 15, 20), "box_count": 2}),
+                (self._ranged_atk, {}),
+                (self._spawn_snipers, {"cd": 760}),
+            ],
+            12: [
+                (self._bullet_rotation, {"arms": 8, "speed": 10, "rad": 10, "cd": 380}),
+                (self._block, {"cd": 380, "speed": (5, 10, 15, 20), "box_count": 3}),
+            ],
+            13: [
+                (
+                    self._burst_atk,
+                    {
+                        "cd": 760,
+                        "bullet_count": (10, 14),
+                        "rad": 8,
+                        "ring_speed": (4, 9),
+                    },
+                ),
+                (
+                    self._bullet_rainfall,
+                    {
+                        "cd": 380,
+                        "bullet_count": 6,
+                        "rad": 8,
+                        "speed": (5, 6, 7, 8, 9, 10),
+                        "reverse": False,
+                    },
+                ),
+            ],
+            14: [
+                (self._bullet_rotation, {"arms": 8, "speed": 10, "rad": 10, "cd": 95})
+            ],
+            15: [],
+        }
 
         # weapons
         pistol_rad = 10
@@ -329,18 +237,35 @@ class Venus(StarEntity):
     # ==================
 
     def update(self, tar_x, tar_y, borders):
-        self._update_phase()
-        self._update_rotation(self.bullet_rot_params[self.phase])
+        self.tar_x, self.tar_y = tar_x, tar_y
+        self.borders = borders
 
-        self._movement(tar_x, tar_y, borders)
-        self._attack(tar_x, tar_y, borders)
+        self._update_phase()
+
+        rot_params = next(
+            (
+                params
+                for func, params in self.phase_attacks.get(self.phase, [])
+                if func == self._bullet_rotation
+            ),
+            None,
+        )
+        if rot_params:
+            rot_params = {
+                **rot_params,
+                "rot_speed": self.phase_rot_speeds.get(self.phase, 1),
+            }
+        self._update_rotation(rot_params)
+
+        self._movement()
+        self._attack()
 
     def _update_rotation(self, params):
         if not params:
             return
 
         now = pygame.time.get_ticks()
-        self.angle = (self.angle + params["rot_spd"] * self.rot_dir) % 360
+        self.angle = (self.angle + params["rot_speed"] * self.rot_dir) % 360
 
         if now - self.rot_switch_timer > self.rot_switch_cd:
             self.rot_switch_timer = now
@@ -369,226 +294,34 @@ class Venus(StarEntity):
     # MOVEMENT ROUTING
     # ==================
 
-    def _movement(self, tar_x, tar_y, borders):
-        dist = math.hypot(tar_x - self.rect.centerx, tar_y - self.rect.centery)
+    def _movement(self):
+        dist = math.hypot(
+            self.tar_x - self.rect.centerx, self.tar_y - self.rect.centery
+        )
 
-        mov_params = self.movement_params[self.phase]
-
-        match self.phase:
-            case 1:
-                pass
-            case 2:
-                self._chase(
-                    tar_x,
-                    tar_y,
-                    mov_params["friction"],
-                    mov_params["accel"],
-                )
-            case 3:
-                self._chase(
-                    tar_x,
-                    tar_y,
-                    mov_params["friction"],
-                    mov_params["accel"],
-                )
-            case 4:  # short break
-                self._center(borders, mov_params["friction"], mov_params["accel"])
-            case 5:
-                self._center(borders, mov_params["friction"], mov_params["accel"])
-            case 6:
-                self._center(borders, mov_params["friction"], mov_params["accel"])
-            case 7:
-                self._wander(borders, mov_params["friction"], mov_params["accel"])
-            case 8:
-                self._wander(borders, mov_params["friction"], mov_params["accel"])
-            case 9:
-                self._center(borders, mov_params["friction"], mov_params["accel"])
-            case 10:
-                self._chase(
-                    tar_x,
-                    tar_y,
-                    mov_params["friction"],
-                    mov_params["accel"],
-                )
-            case 11:
-                self._chase(
-                    tar_x,
-                    tar_y,
-                    mov_params["friction"],
-                    mov_params["accel"],
-                )
-            case 12:
-                self._center(borders, mov_params["friction"], mov_params["accel"])
-            case 13:
-                self._wander(borders, mov_params["friction"], mov_params["accel"])
-            case 14:
-                self._center(borders, mov_params["friction"], mov_params["accel"])
+        for func, params in self.phase_movements.get(self.phase, []):
+            func(**params)
 
     # ==================
     # ATTACK ROUTING
     # ==================
 
-    def _attack(self, tar_x, tar_y, borders):
-        dist = math.hypot(tar_x - self.rect.centerx, tar_y - self.rect.centery)
+    def _attack(self):
+        dist = math.hypot(
+            self.tar_x - self.rect.centerx, self.tar_y - self.rect.centery
+        )
 
-        burst_atk_params = self.burst_atk_params[self.phase]
-        rain_params = self.rainfall_params[self.phase]
-        bullet_rot_params = self.bullet_rot_params[self.phase]
-        sn_params = self.spawn_sniper_params[self.phase]
-        blk_params = self.block_params[self.phase]
-
-        match self.phase:
-            case 1:
-                pass
-            case 2:
-                self._ranged_atk(tar_x, tar_y)
-                self._burst_atk(
-                    burst_atk_params["cd"],
-                    burst_atk_params["bul_count"],
-                    burst_atk_params["rad"],
-                    burst_atk_params["ring_spd"],
-                )
-            case 3:
-                self._ranged_atk(tar_x, tar_y)
-                self._burst_atk(
-                    burst_atk_params["cd"],
-                    burst_atk_params["bul_count"],
-                    burst_atk_params["rad"],
-                    burst_atk_params["ring_spd"],
-                )
-            case 4:
-                self._bullet_rotation(
-                    bullet_rot_params["arms"],
-                    bullet_rot_params["speed"],
-                    bullet_rot_params["rad"],
-                    bullet_rot_params["cd"],
-                )
-            case 5:
-                self._bullet_rainfall(
-                    borders,
-                    rain_params["cd"],
-                    rain_params["bul_count"],
-                    rain_params["rad"],
-                    rain_params["speed"],
-                    rain_params["reverse"],
-                )
-                self._bullet_rotation(
-                    bullet_rot_params["arms"],
-                    bullet_rot_params["speed"],
-                    bullet_rot_params["rad"],
-                    bullet_rot_params["cd"],
-                )
-            case 6:
-                self._bullet_rainfall(
-                    borders,
-                    rain_params["cd"],
-                    rain_params["bul_count"],
-                    rain_params["rad"],
-                    rain_params["speed"],
-                    rain_params["reverse"],
-                )
-                self._bullet_rotation(
-                    bullet_rot_params["arms"],
-                    bullet_rot_params["speed"],
-                    bullet_rot_params["rad"],
-                    bullet_rot_params["cd"],
-                )
-            case 7:
-                self._burst_atk(
-                    burst_atk_params["cd"],
-                    burst_atk_params["bul_count"],
-                    burst_atk_params["rad"],
-                    burst_atk_params["ring_spd"],
-                )
-                self._spawn_snipers(sn_params["cd"])
-                self._block(
-                    borders,
-                    blk_params["cd"],
-                    blk_params["speed"],
-                    blk_params["box_count"],
-                )
-            case 8:
-                self._burst_atk(
-                    burst_atk_params["cd"],
-                    burst_atk_params["bul_count"],
-                    burst_atk_params["rad"],
-                    burst_atk_params["ring_spd"],
-                )
-                self._spawn_snipers(sn_params["cd"])
-            case 9:
-                self._bullet_rotation(
-                    bullet_rot_params["arms"],
-                    bullet_rot_params["speed"],
-                    bullet_rot_params["rad"],
-                    bullet_rot_params["cd"],
-                )
-            case 10:
-                self._spawn_snipers(sn_params["cd"])
-                self._block(
-                    borders,
-                    blk_params["cd"],
-                    blk_params["speed"],
-                    blk_params["box_count"],
-                )
-                self._burst_atk(
-                    burst_atk_params["cd"],
-                    burst_atk_params["bul_count"],
-                    burst_atk_params["rad"],
-                    burst_atk_params["ring_spd"],
-                )
-            case 11:
-                self._block(
-                    borders,
-                    blk_params["cd"],
-                    blk_params["speed"],
-                    blk_params["box_count"],
-                )
-                self._ranged_atk(tar_x, tar_y)
-                self._spawn_snipers(sn_params["cd"])
-            case 12:
-                self._bullet_rotation(
-                    bullet_rot_params["arms"],
-                    bullet_rot_params["speed"],
-                    bullet_rot_params["rad"],
-                    bullet_rot_params["cd"],
-                )
-                self._block(
-                    borders,
-                    blk_params["cd"],
-                    blk_params["speed"],
-                    blk_params["box_count"],
-                )
-            case 13:
-                self._burst_atk(
-                    burst_atk_params["cd"],
-                    burst_atk_params["bul_count"],
-                    burst_atk_params["rad"],
-                    burst_atk_params["ring_spd"],
-                )
-                self._bullet_rainfall(
-                    borders,
-                    rain_params["cd"],
-                    rain_params["bul_count"],
-                    rain_params["rad"],
-                    rain_params["speed"],
-                    rain_params["reverse"],
-                )
-            case 14:
-                self._bullet_rotation(
-                    bullet_rot_params["arms"],
-                    bullet_rot_params["speed"],
-                    bullet_rot_params["rad"],
-                    bullet_rot_params["cd"],
-                )
-            case 15:
-                pass
+        for func, params in self.phase_attacks.get(self.phase, []):
+            func(**params)
 
     # ==================
     # MOVEMENTS
     # ==================
 
-    def _chase(self, tar_x, tar_y, friction, accel):
-        angle = math.atan2(tar_y - self.rect.centery, tar_x - self.rect.centerx)
+    def _chase(self, friction, accel):
+        angle = math.atan2(
+            self.tar_y - self.rect.centery, self.tar_x - self.rect.centerx
+        )
 
         self.dx += math.cos(angle) * accel
         self.dy += math.sin(angle) * accel
@@ -598,7 +331,7 @@ class Venus(StarEntity):
         self.rect.x += int(self.dx)
         self.rect.y += int(self.dy)
 
-    def _wander(self, borders, friction, accel):
+    def _wander(self, friction, accel):
         now = pygame.time.get_ticks()
 
         dist = math.hypot(
@@ -608,13 +341,19 @@ class Venus(StarEntity):
         if dist < 20 or now - self.wander_timer > self.wander_cd:
             self.wander_timer = now
 
-            left = borders.sprites()[0].rect.right
-            right = borders.sprites()[1].rect.left
-            top = borders.sprites()[2].rect.bottom
-            bottom = borders.sprites()[3].rect.top
+            border_sprites = self.borders.sprites()
 
-            self.wander_target_x = random.randint(left + 50, right - 50)
-            self.wander_target_y = random.randint(top + 50, bottom - 50)
+            left_border = border_sprites[0]
+            right_border = border_sprites[1]
+            top_border = border_sprites[2]
+            bottom_border = border_sprites[3]
+
+            self.wander_target_x = random.randint(
+                left_border.rect.right + 50, right_border.rect.left - 50
+            )
+            self.wander_target_y = random.randint(
+                top_border.rect.bottom + 50, bottom_border.rect.top - 50
+            )
 
         angle = math.atan2(
             self.wander_target_y - self.rect.centery,
@@ -628,8 +367,9 @@ class Venus(StarEntity):
         self.rect.x += int(self.dx)
         self.rect.y += int(self.dy)
 
-    def _center(self, borders, friction, accel):
-        border_sprites = borders.sprites()
+    def _center(self, friction, accel):
+        border_sprites = self.borders.sprites()
+
         left_border = border_sprites[0]
         right_border = border_sprites[1]
         top_border = border_sprites[2]
@@ -654,31 +394,33 @@ class Venus(StarEntity):
     # ATTACKS
     # ==================
 
-    def _ranged_atk(self, tar_x, tar_y):
-        self.pistol.shoot(tar_x, tar_y)
+    def _ranged_atk(self):
+        self.pistol.shoot(self.tar_x, self.tar_y)
 
     def _burst_atk(
         self,
-        cd: int,
-        bul_count: int,
-        rad: int,
-        ring_spd,
+        cd,
+        bullet_count,
+        rad,
+        ring_speed,
     ):
         now = pygame.time.get_ticks()
         if now - self.burst_atk_timer < cd:
             return
         self.burst_atk_timer = now
 
-        self._bullet_ring(bul_count, rad, ring_spd)
+        counts = bullet_count if isinstance(bullet_count, tuple) else (bullet_count,)
+        count = counts[self.burst_atk_index % len(counts)]
+        self._bullet_ring(count, rad, ring_speed)
+        self.burst_atk_index += 1
 
-    def _bullet_ring(self, bul_count, rad, ring_spd):
-        bullet_count = bul_count
+    def _bullet_ring(self, bullet_count, rad, ring_speed):
         angle_step = 360 / bullet_count
         for i in range(bullet_count):
             angle = math.radians(angle_step * i)
             tar_x_off = self.rect.centerx + math.cos(angle) * 100
             tar_y_off = self.rect.centery + math.sin(angle) * 100
-            for bullet_circ_speed in ring_spd:
+            for circ_speed in ring_speed:
                 self.projectile_grp.add(
                     Bullet(
                         rad,
@@ -688,13 +430,13 @@ class Venus(StarEntity):
                         tar_y_off,
                         self.color,
                         self.damage,
-                        speed=bullet_circ_speed,
+                        speed=circ_speed,
                     )
                 )
 
-    def _spawn_snipers(self, enemy_cd):
+    def _spawn_snipers(self, cd):
         now = pygame.time.get_ticks()
-        if now - self.spawn_enemy_timer < enemy_cd:
+        if now - self.spawn_enemy_timer < cd:
             return
         self.spawn_enemy_timer = now
 
@@ -705,13 +447,13 @@ class Venus(StarEntity):
 
         self.sniper_grp.add(spawn_sniper)
 
-    def _bullet_rainfall(self, borders, cd, bul_count, rad, speed, reverse):
+    def _bullet_rainfall(self, cd, bullet_count, rad, speed, reverse):
         now = pygame.time.get_ticks()
         if now - self.rainfall_timer < cd:
             return
         self.rainfall_timer = now
 
-        border_sprites = borders.sprites()
+        border_sprites = self.borders.sprites()
         top_border = border_sprites[2]
         bottom_border = border_sprites[3]
         left_border = border_sprites[0]
@@ -728,7 +470,7 @@ class Venus(StarEntity):
             start_y = top_border.rect.bottom + padding
             end_y = bottom_border.rect.bottom
 
-        for i in range(bul_count):
+        for i in range(bullet_count):
             x = random.randint(min_x, max_x)
             self.projectile_grp.add(
                 Bullet(
@@ -768,13 +510,13 @@ class Venus(StarEntity):
                 )
             )
 
-    def _block(self, borders, cd, speed, box_count):
+    def _block(self, cd, speed, box_count):
         now = pygame.time.get_ticks()
         if now - self.block_timer < cd:
             return
         self.block_timer = now
 
-        border_sprites = borders.sprites()
+        border_sprites = self.borders.sprites()
         left_border = border_sprites[0]
         right_border = border_sprites[1]
         top_border = border_sprites[2]
@@ -1813,8 +1555,12 @@ class Omen(OmenEntity):
             top_border = border_sprites[2]
             bottom_border = border_sprites[3]
 
-            self.wander_target_x = random.randint(left_border + 50, right_border - 50)
-            self.wander_target_y = random.randint(top_border + 50, bottom_border - 50)
+            self.wander_target_x = random.randint(
+                left_border.rect.right + 50, right_border.rect.left - 50
+            )
+            self.wander_target_y = random.randint(
+                top_border.rect.bottom + 50, bottom_border.rect.top - 50
+            )
 
         angle = math.atan2(
             self.wander_target_y - self.rect.centery,
