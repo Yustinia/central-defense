@@ -37,7 +37,7 @@ class MilkyWaySpawner(BaseBossSpawner):
 
         self.projectile_grp = projectile_grp
         self.obs_grp = obs_grp
-        self.every_round = 10
+        self.pref_round = 10
 
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
@@ -58,7 +58,7 @@ class MilkyWaySpawner(BaseBossSpawner):
     def next_round(self, round_counter):
         self.reset()
 
-        if round_counter > 0 and round_counter % self.every_round == 0:
+        if round_counter == self.pref_round:
             self.to_spawn = self.to_spawn_init
         else:
             self.to_spawn = 0
@@ -71,7 +71,7 @@ class VenusSpawner(BaseBossSpawner):
         self.projectile_grp = projectile_grp
         self.sniper_grp = sniper_grp
         self.obs_grp = obs_grp
-        self.every_round = 15
+        self.pref_round = 15
 
     def try_spawn(self, win_wd, win_ht):
         if self.spawned >= self.to_spawn:
@@ -93,7 +93,7 @@ class VenusSpawner(BaseBossSpawner):
     def next_round(self, round_counter):
         self.reset()
 
-        if round_counter > 0 and round_counter % self.every_round == 0:
+        if round_counter == self.pref_round:
             self.to_spawn = self.to_spawn_init
         else:
             self.to_spawn = 0

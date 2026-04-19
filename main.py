@@ -420,10 +420,12 @@ class GameManager:
                 if venus_alive and not self.venus_music_started:
                     self._play_music("sounds/music/Will_Be_Venus.mp3", 0)
                     self.venus_music_started = True
+                    self.game.venus_spawner.group.sprites()[0].music_started = True
 
                 elif milky_way_alive and not self.milky_way_music_started:
                     self._play_music("sounds/music/MilkyWays.mp3", 0)
                     self.milky_way_music_started = True
+                    self.game.milkyway_spawner.group.sprites()[0].music_started = True
 
                 elif not venus_alive and not milky_way_alive:
                     if self.venus_music_started or self.milky_way_music_started:

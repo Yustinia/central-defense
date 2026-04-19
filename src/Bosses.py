@@ -321,6 +321,9 @@ class Venus(StarEntity):
             pistol_bullet_spd,
         )
 
+        # states
+        self.music_started = False
+
     # ==================
     # CORE
     # ==================
@@ -344,6 +347,12 @@ class Venus(StarEntity):
             self.rot_dir *= -1
 
     def _update_phase(self):
+        if not self.music_started:
+            return
+
+        if not self.alive():
+            return
+
         pos = pygame.mixer.music.get_pos()
         print(pos)
         for phase, (start, end) in self.SONG_PHASES.items():
@@ -1110,6 +1119,9 @@ class MilkyWay(GlassEntity):
             12: {},
         }
 
+        # states
+        self.music_started = False
+
     # ==================
     # CORE
     # ==================
@@ -1123,8 +1135,13 @@ class MilkyWay(GlassEntity):
         self._handle_rotation(params)
 
     def _update_phase(self):
+        if not self.music_started:
+            return
+
+        if not self.alive():
+            return
+
         pos = pygame.mixer.music.get_pos()
-        print(pos)
         for phase, (start, end) in self.SONG_PHASES.items():
             if start <= pos < end:
                 self.phase = phase
