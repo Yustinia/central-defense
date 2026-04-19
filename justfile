@@ -13,7 +13,7 @@ run:
 
 # build game
 build:
-    {{ PY }} -m PyInstaller --onefile --add-data "assets{{ SEP }}assets" --add-data "const{{ SEP }}const" --add-data "src{{ SEP }}src" --add-data "sounds{{ SEP }}sounds" main.py --name "Central Defense"
+    {{ PY }} -m PyInstaller --onefile --add-data "assets{{ SEP }}assets" --add-data "const{{ SEP }}const" --add-data "src{{ SEP }}src" --add-data "sounds{{ SEP }}sounds" --add-data "utils{{ SEP }}utils" main.py --name "Central Defense"
 
 # remove build artifacts
 clean:
