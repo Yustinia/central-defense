@@ -491,4 +491,4 @@ if __name__ == "__main__":
     disp_info = pygame.display.Info()
     disp_wd, disp_ht = disp_info.current_w, disp_info.current_h
     gm = GameManager(disp_wd, disp_ht, "MAINMENU")
-    gm.runner(60, True)
+    gm.runner(60, False)

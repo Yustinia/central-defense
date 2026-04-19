@@ -5,7 +5,7 @@ import pygame
 
 from const.COLORS import BLACK, BLUE, GREEN, ORANGE, PLAT, RED, VIOLET, WHITE, YELLOW
 from const.FONTS import REGULAR
-from src.Enemies import Exploder, Sniper
+from src.Enemies import Sniper
 from src.Entities import GlassEntity, StarEntity
 from src.Weapons import Block, Bullet, Pistol
 
@@ -345,6 +345,7 @@ class Venus(StarEntity):
 
     def _update_phase(self):
         pos = pygame.mixer.music.get_pos()
+        print(pos)
         for phase, (start, end) in self.SONG_PHASES.items():
             if start <= pos < end:
                 self.phase = phase
@@ -352,7 +353,8 @@ class Venus(StarEntity):
 
         last_phase = max(self.SONG_PHASES)
         end_time = self.SONG_PHASES[last_phase][1]
-        if pos >= end_time:
+        buffer = 100
+        if pos >= end_time - buffer:
             self._explode()
 
     # ==================
@@ -1122,6 +1124,7 @@ class MilkyWay(GlassEntity):
 
     def _update_phase(self):
         pos = pygame.mixer.music.get_pos()
+        print(pos)
         for phase, (start, end) in self.SONG_PHASES.items():
             if start <= pos < end:
                 self.phase = phase
@@ -1129,7 +1132,8 @@ class MilkyWay(GlassEntity):
 
         last_phase = max(self.SONG_PHASES)
         end_time = self.SONG_PHASES[last_phase][1]
-        if pos >= end_time:
+        buffer = 100
+        if pos >= end_time - buffer:
             self._explode()
 
     def _handle_rotation(self, params):
