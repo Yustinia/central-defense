@@ -354,7 +354,6 @@ class Venus(StarEntity):
             return
 
         pos = pygame.mixer.music.get_pos()
-        print(pos)
         for phase, (start, end) in self.SONG_PHASES.items():
             if start <= pos < end:
                 self.phase = phase
