@@ -1,6 +1,6 @@
 import pygame
 
-from sounds.music.MUSIC import CENTRAL_DEFENSE, MENU_MUSIC, MILKYWAYS, VENUS
+from sounds.music.MUSIC import CENTRAL_DEFENSE, MENU_MUSIC, MILKYWAYS, VENUS, VICTORY
 from src.BossSpawner import (
     MilkyWaySpawner,
     OmenSpawner,
@@ -495,7 +495,7 @@ class GameManager:
                     self.venus_music_started = False
                     self.omen_music_started = False
 
-                    self._play_music("sounds/music/Victory.mp3", 0)
+                    self._play_music(VICTORY, 0)
 
             case "GAMEOVER":
                 pass
