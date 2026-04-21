@@ -1,6 +1,10 @@
 import pygame
 
-from src.BossSpawner import MilkyWaySpawner, VenusSpawner
+from src.BossSpawner import (
+    MilkyWaySpawner,
+    OmenSpawner,
+    VenusSpawner,
+)
 from src.Core import Background, Border
 from src.EnemySpawner import (
     BouncerSpawner,
@@ -12,7 +16,7 @@ from src.EnemySpawner import (
     TankSpawner,
 )
 from src.ItemSpawner import HealthPackSpawner
-from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState
+from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState, Victory
 from src.Player import Player
 
 
@@ -71,6 +75,10 @@ class Game:
             self.enemy_projectiles,
             self.obstacle_grp,
         )
+        self.omen_spawner = OmenSpawner(
+            self.enemy_projectiles,
+            self.obstacle_grp,
+        )
 
         # ALL SPAWNERS
         self.all_entity_spawners = (
@@ -81,8 +89,9 @@ class Game:
             self.shooter_spawner,
             self.exploder_spawner,
             self.splitter_spawner,
-            self.venus_spawner,
             self.milkyway_spawner,
+            self.venus_spawner,
+            self.omen_spawner,
         )
         self.all_enemy_spawners = (
             self.chaser_spawner,
@@ -94,8 +103,9 @@ class Game:
             self.splitter_spawner,
         )
         self.all_boss_spawners = (
-            self.venus_spawner,
             self.milkyway_spawner,
+            self.venus_spawner,
+            self.omen_spawner,
         )
 
         # WEAPON
@@ -174,12 +184,17 @@ class Game:
             self.player.rect.centerx,
             self.player.rect.centery,
         )
+        self.milkyway_spawner.group.update(
+            self.player.rect.centerx,
+            self.player.rect.centery,
+            self.borders,
+        )
         self.venus_spawner.group.update(
             self.player.rect.centerx,
             self.player.rect.centery,
             self.borders,
         )
-        self.milkyway_spawner.group.update(
+        self.omen_spawner.group.update(
             self.player.rect.centerx,
             self.player.rect.centery,
             self.borders,
@@ -298,7 +313,11 @@ class Game:
                 spawner.next_round(self.round_counter)
 
         if not self.player.is_alive:
-            return False
+            return "DEAD"
+
+        if self.round_counter > 20:
+            return "WIN"
+
         return True
 
     def draw(self, screen):
@@ -364,10 +383,13 @@ class GameManager:
         self.main_menu = MainMenu(self.disp_wd, self.disp_ht)
         self.game_over = GameOver(self.disp_wd, self.disp_ht)
         self.pause_menu = PauseMenu(self.disp_wd, self.disp_ht)
+        self.win_scr = Victory(self.disp_wd, self.disp_ht)
 
         # MUSIC
         self.venus_music_started = False
         self.milky_way_music_started = False
+        self.omen_music_started = False
+
         self.current_music = None
         self._play_music("sounds/music/MenuMusic.wav")
 
@@ -389,7 +411,7 @@ class GameManager:
             if event.type == pygame.QUIT:
                 self.game_running = False
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if self.current_state in ["MAINMENU", "GAMEOVER"]:
+                if self.current_state in ["MAINMENU", "GAMEOVER", "WIN"]:
                     self.current_state = "PLAYING"
                     self.current_music = None
             if event.type == pygame.KEYDOWN:
@@ -406,6 +428,8 @@ class GameManager:
 
                         self.venus_music_started = False
                         self.milky_way_music_started = False
+                        self.omen_music_started = False
+
                         self._play_music("sounds/music/MenuMusic.wav")
 
     def update(self):
@@ -413,10 +437,12 @@ class GameManager:
             case "MAINMENU":
                 pass
             case "PLAYING":
-                is_player_alive = self.game.update()
+                result = self.game.update()
 
                 venus_alive = len(self.game.venus_spawner.group) > 0
                 milky_way_alive = len(self.game.milkyway_spawner.group) > 0
+                omen_alive = len(self.game.omen_spawner.group) > 0
+
                 if venus_alive and not self.venus_music_started:
                     self._play_music("sounds/music/Will_Be_Venus.mp3", 0)
                     self.venus_music_started = True
@@ -427,25 +453,53 @@ class GameManager:
                     self.milky_way_music_started = True
                     self.game.milkyway_spawner.group.sprites()[0].music_started = True
 
-                elif not venus_alive and not milky_way_alive:
-                    if self.venus_music_started or self.milky_way_music_started:
+                elif omen_alive and not self.omen_music_started:
+                    self._play_music("sounds/music/Overkill.mp3", 0)
+                    self.omen_music_started = True
+                    self.game.omen_spawner.group.sprites()[0].music_started = True
+
+                elif not venus_alive and not milky_way_alive and not omen_alive:
+                    if (
+                        self.venus_music_started
+                        or self.milky_way_music_started
+                        or self.omen_music_started
+                    ):
                         self.venus_music_started = False
                         self.milky_way_music_started = False
+                        self.omen_music_started = False
+
                         self._play_music("sounds/music/CentralDefense.mp3")
+
                     elif not self.current_music:
                         self._play_music("sounds/music/CentralDefense.mp3")
 
-                if not is_player_alive:
+                if result == "DEAD":
                     self.current_state = "GAMEOVER"
                     self.game = Game(self.disp_wd, self.disp_ht)
 
+                    self.milky_way_music_started = False
                     self.venus_music_started = False
+                    self.omen_music_started = False
+
                     self._play_music("sounds/music/MenuMusic.wav")
+
+                elif result == "WIN":
+                    self.current_state = "WIN"
+                    self.game = Game(self.disp_wd, self.disp_ht)
+
+                    self.milky_way_music_started = False
+                    self.venus_music_started = False
+                    self.omen_music_started = False
+
+                    self._play_music("sounds/music/Victory.mp3", 0)
 
             case "GAMEOVER":
                 pass
 
             case "PAUSED":
+                pass
+
+            case "WIN":
                 pass
 
     def draw(self):
@@ -459,22 +513,51 @@ class GameManager:
             case "PAUSED":
                 self.game.draw(self.screen)
                 self.pause_menu.draw(self.screen)
+            case "WIN":
+                self.win_scr.draw(self.screen)
+
+    def _log(self):
+        self.game.player.health = self.game.player.max_health = 5000
+
+        pos = pygame.mixer.music.get_pos()
+
+        omen_alive = len(self.game.omen_spawner.group) > 0
+        venus_alive = len(self.game.venus_spawner.group) > 0
+        milkyway_alive = len(self.game.milkyway_spawner.group) > 0
+
+        if omen_alive:
+            boss = self.game.omen_spawner.group.sprites()[0]
+            atk = [
+                func.__name__ for func, params in boss.phase_attacks.get(boss.phase, [])
+            ]
+            mov = [
+                func.__name__
+                for func, params in boss.phase_movements.get(boss.phase, [])
+            ]
+            print(f"PHASE {boss.phase} | {pos}\nATK: {atk} | MOV: {mov}")
+
+        elif venus_alive:
+            boss = self.game.venus_spawner.group.sprites()[0]
+            atk = [
+                func.__name__ for func, params in boss.phase_attacks.get(boss.phase, [])
+            ]
+            mov = [
+                func.__name__
+                for func, params in boss.phase_movements.get(boss.phase, [])
+            ]
+            print(f"PHASE {boss.phase} | {pos}\nATK: {atk} | MOV: {mov}")
+
+        elif milkyway_alive:
+            boss = self.game.milkyway_spawner.group.sprites()[0]
+            atk = [
+                func.__name__ for func, params in boss.phase_attacks.get(boss.phase, [])
+            ]
+            print(f"PHASE {boss.phase} | {pos}\nATK: {atk}")
 
     def runner(self, fps, should_log):
         while self.game_running:
             if should_log:
-                logging = {
-                    "ROUND": self.game.round_counter,
-                    "CHASER": len(self.game.chaser_spawner.group),
-                    "BOUNCER": len(self.game.bouncer_spawner.group),
-                    "TANK": len(self.game.tank_spawner.group),
-                    "SNIPER": len(self.game.sniper_spawner.group),
-                    "SHOOTER": len(self.game.shooter_spawner.group),
-                    "EXPLODER": len(self.game.exploder_spawner.group),
-                }
-                for key, value in logging.items():
-                    print(f"{key}: {value}")
-                print()
+                self._log()
 
             self.event()
             self.update()

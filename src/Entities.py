@@ -193,13 +193,7 @@ class StarEntity(pygame.sprite.Sprite):
 
 
 class GlassEntity(pygame.sprite.Sprite):
-    def __init__(
-        self,
-        size,
-        x_cor,
-        y_cor,
-        color,
-    ) -> None:
+    def __init__(self, size, x_cor, y_cor, color) -> None:
         super().__init__()
 
         self.size = size
@@ -212,16 +206,14 @@ class GlassEntity(pygame.sprite.Sprite):
         self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA)
 
         tri_up = [
-            (mid_pt, 0),  # The top peak
-            (0, mid_pt - gap),  # Bottom-left of this triangle
-            (self.size, mid_pt - gap),  # Bottom-right of this triangle
+            (mid_pt, 0),
+            (0, mid_pt - gap),
+            (self.size, mid_pt - gap),
         ]
-
-        # tri_down (Points toward the bottom of the screen)
         tri_down = [
-            (mid_pt, self.size),  # The bottom peak
-            (0, mid_pt + gap),  # Top-left of this triangle
-            (self.size, mid_pt + gap),  # Top-right of this triangle
+            (mid_pt, self.size),
+            (0, mid_pt + gap),
+            (self.size, mid_pt + gap),
         ]
 
         pygame.draw.polygon(self.image, self.color, tri_up)
@@ -229,6 +221,108 @@ class GlassEntity(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
         self.mask = pygame.mask.from_surface(self.image)
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+
+class OmenEntity(pygame.sprite.Sprite):
+    def __init__(self, size, x_cor, y_cor, color, rotation=0) -> None:
+        super().__init__()
+
+        self.size = size
+        self.x_cor = x_cor
+        self.y_cor = y_cor
+        self.color = color
+        self.rotation = rotation
+
+        pad = 10
+        self.orig_image = pygame.Surface(
+            ((self.size * 3) + pad, (self.size * 2) + pad), pygame.SRCALPHA
+        )
+
+        mid_pt = self.size // 2
+        width = 3
+        inner_tri_pts = [
+            ((7 * self.size + 4 * mid_pt) / 6, self.size / 3),
+            ((7 * self.size + mid_pt) / 6, (5 * self.size) / 6),
+            ((10 * self.size + mid_pt) / 6, (5 * self.size) / 6),
+        ]
+        base_tri_pts = [
+            (self.size + mid_pt, 0),  # top center
+            (self.size, self.size),  # bot left
+            (self.size * 2, self.size),  # bot right
+        ]
+        right_tri_pts = [
+            ((self.size + mid_pt) + pad, 0),  # top left corn
+            (((self.size * 2) + mid_pt) + pad, 0),  # right tip
+            ((self.size * 2) + pad, self.size),  # bottom left corn
+        ]
+        left_tri_pts = [
+            ((self.size + mid_pt) - pad, 0),  # top right corn
+            (mid_pt - pad, 0),  # left tip
+            (self.size - pad, self.size),  # bottom right corn
+        ]
+        bot_tri_pts = [
+            (self.size + mid_pt, (self.size * 2) + pad),  # bot tip
+            (self.size, self.size + pad),  # left corn
+            (self.size * 2, self.size + pad),  # right corn
+        ]
+
+        pygame.draw.polygon(
+            self.orig_image,
+            self.color,
+            inner_tri_pts,
+        )
+        pygame.draw.polygon(
+            self.orig_image,
+            self.color,
+            base_tri_pts,
+            width,
+        )
+        pygame.draw.polygon(
+            self.orig_image,
+            self.color,
+            right_tri_pts,
+        )
+        pygame.draw.polygon(
+            self.orig_image,
+            self.color,
+            left_tri_pts,
+        )
+        pygame.draw.polygon(
+            self.orig_image,
+            self.color,
+            bot_tri_pts,
+        )
+
+        self.image = pygame.transform.rotozoom(
+            self.orig_image,
+            self.rotation,
+            1.0,
+        )
+        self.rect = self.image.get_rect(center=(self.x_cor, self.y_cor))
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update_rotation(self, rotation):
+        self.rotation = rotation
+        center = self.rect.center
+        self.image = pygame.transform.rotozoom(self.orig_image, self.rotation, 1.0)
+        self.rect = self.image.get_rect(center=center)
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def lerp_rotation_to(self, target, speed=2):
+        diff = ((self.rotation - target) + 180) % 360 - 180
+
+        if abs(diff) <= speed:
+            self.update_rotation(target)
+        elif diff > 0:
+            self.update_rotation(self.rotation - speed)
+        else:
+            self.update_rotation(self.rotation + speed)
+
+    def lerp_rotation_to_zero(self, speed=2):
+        self.lerp_rotation_to(0, speed)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)

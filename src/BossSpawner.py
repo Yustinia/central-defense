@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-from src.Bosses import MilkyWay, Venus
+from src.Bosses import MilkyWay, Omen, Venus
 
 
 class BaseBossSpawner(ABC):
@@ -84,6 +84,39 @@ class VenusSpawner(BaseBossSpawner):
                 center_y,
                 self.projectile_grp,
                 self.sniper_grp,
+                self.obs_grp,
+            )
+        )
+
+        self.spawned += 1
+
+    def next_round(self, round_counter):
+        self.reset()
+
+        if round_counter == self.pref_round:
+            self.to_spawn = self.to_spawn_init
+        else:
+            self.to_spawn = 0
+
+
+class OmenSpawner(BaseBossSpawner):
+    def __init__(self, projectile_grp, obs_grp) -> None:
+        super().__init__(hard_lim=1, to_spawn=0, to_spawn_init=1)
+
+        self.projectile_grp = projectile_grp
+        self.obs_grp = obs_grp
+        self.pref_round = 20
+
+    def try_spawn(self, win_wd, win_ht):
+        if self.spawned >= self.to_spawn:
+            return
+
+        center_x, center_y = win_wd // 2, win_ht // 2
+        self.group.add(
+            Omen(
+                center_x,
+                center_y,
+                self.projectile_grp,
                 self.obs_grp,
             )
         )

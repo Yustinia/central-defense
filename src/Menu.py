@@ -1,6 +1,6 @@
 import pygame
 
-from const.COLORS import BLACK, BLUE, ORANGE, WHITE
+from const.COLORS import BLACK, BLUE, GREEN, ORANGE, WHITE
 from const.FONTS import BOLD, REGULAR
 from src.Core import Background, Border
 from src.Player import Player
@@ -73,6 +73,32 @@ class GameOver:
         header_rect = header_img.get_rect(center=(header_cor_x, header_cor_y))
 
         sub_img = self.sub_ft.render("Click to Start", True, WHITE)
+        sub_cor_x, sub_cor_y = self.win_wd // 2, (self.win_ht // 2) + 50
+        sub_rect = sub_img.get_rect(center=(sub_cor_x, sub_cor_y))
+
+        screen.blit(header_img, header_rect)
+        screen.blit(sub_img, sub_rect)
+
+
+class Victory:
+    def __init__(self, win_wd, win_ht) -> None:
+        self.win_wd = win_wd
+        self.win_ht = win_ht
+
+        bg_color = GREEN
+        self.bg = Background(self.win_wd, self.win_ht, bg_color)
+
+        self.header_ft = pygame.font.Font(BOLD, 130)
+        self.sub_ft = pygame.font.Font(REGULAR, 40)
+
+    def draw(self, screen):
+        self.bg.draw(screen)
+
+        header_img = self.header_ft.render("YOU WIN", True, BLACK)
+        header_cor_x, header_cor_y = self.win_wd // 2, (self.win_ht // 2) - 50
+        header_rect = header_img.get_rect(center=(header_cor_x, header_cor_y))
+
+        sub_img = self.sub_ft.render("Click to Start again", True, BLACK)
         sub_cor_x, sub_cor_y = self.win_wd // 2, (self.win_ht // 2) + 50
         sub_rect = sub_img.get_rect(center=(sub_cor_x, sub_cor_y))
 
