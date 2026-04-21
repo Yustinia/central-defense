@@ -16,7 +16,7 @@ from src.EnemySpawner import (
     TankSpawner,
 )
 from src.ItemSpawner import HealthPackSpawner
-from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState
+from src.Menu import GameOver, MainMenu, PauseMenu, PlayingState, Victory
 from src.Player import Player
 
 
@@ -313,7 +313,11 @@ class Game:
                 spawner.next_round(self.round_counter)
 
         if not self.player.is_alive:
-            return False
+            return "DEAD"
+
+        if self.round_counter > 20:
+            return "WIN"
+
         return True
 
     def draw(self, screen):
@@ -379,6 +383,7 @@ class GameManager:
         self.main_menu = MainMenu(self.disp_wd, self.disp_ht)
         self.game_over = GameOver(self.disp_wd, self.disp_ht)
         self.pause_menu = PauseMenu(self.disp_wd, self.disp_ht)
+        self.win_scr = Victory(self.disp_wd, self.disp_ht)
 
         # MUSIC
         self.venus_music_started = False
@@ -406,7 +411,7 @@ class GameManager:
             if event.type == pygame.QUIT:
                 self.game_running = False
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if self.current_state in ["MAINMENU", "GAMEOVER"]:
+                if self.current_state in ["MAINMENU", "GAMEOVER", "WIN"]:
                     self.current_state = "PLAYING"
                     self.current_music = None
             if event.type == pygame.KEYDOWN:
@@ -432,7 +437,7 @@ class GameManager:
             case "MAINMENU":
                 pass
             case "PLAYING":
-                is_player_alive = self.game.update()
+                result = self.game.update()
 
                 venus_alive = len(self.game.venus_spawner.group) > 0
                 milky_way_alive = len(self.game.milkyway_spawner.group) > 0
@@ -468,7 +473,7 @@ class GameManager:
                     elif not self.current_music:
                         self._play_music("sounds/music/CentralDefense.mp3")
 
-                if not is_player_alive:
+                if result == "DEAD":
                     self.current_state = "GAMEOVER"
                     self.game = Game(self.disp_wd, self.disp_ht)
 
@@ -478,10 +483,23 @@ class GameManager:
 
                     self._play_music("sounds/music/MenuMusic.wav")
 
+                elif result == "WIN":
+                    self.current_state = "WIN"
+                    self.game = Game(self.disp_wd, self.disp_ht)
+
+                    self.milky_way_music_started = False
+                    self.venus_music_started = False
+                    self.omen_music_started = False
+
+                    self._play_music("sounds/music/Victory.mp3", 0)
+
             case "GAMEOVER":
                 pass
 
             case "PAUSED":
+                pass
+
+            case "WIN":
                 pass
 
     def draw(self):
@@ -495,6 +513,8 @@ class GameManager:
             case "PAUSED":
                 self.game.draw(self.screen)
                 self.pause_menu.draw(self.screen)
+            case "WIN":
+                self.win_scr.draw(self.screen)
 
     def _log(self):
         self.game.player.health = self.game.player.max_health = 5000
@@ -556,4 +576,4 @@ if __name__ == "__main__":
     disp_info = pygame.display.Info()
     disp_wd, disp_ht = disp_info.current_w, disp_info.current_h
     gm = GameManager(disp_wd, disp_ht, "MAINMENU")
-    gm.runner(60, True)
+    gm.runner(60, False)

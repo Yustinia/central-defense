@@ -2134,8 +2134,8 @@ class Omen(OmenEntity):
                     self._burst_atk,
                     {
                         "cd": self.EIGHTH,
-                        "bullet_count": (38, 20),
-                        "rad": 10,
+                        "bullet_count": (32, 14),
+                        "rad": 6,
                         "ring_speed": 18,
                     },
                 ),
@@ -2166,8 +2166,8 @@ class Omen(OmenEntity):
                     self._burst_atk,
                     {
                         "cd": self.EIGHTH,
-                        "bullet_count": (38, 20),
-                        "rad": 10,
+                        "bullet_count": (32, 14),
+                        "rad": 6,
                         "ring_speed": 18,
                     },
                 ),
@@ -2198,8 +2198,8 @@ class Omen(OmenEntity):
                     self._burst_atk,
                     {
                         "cd": self.EIGHTH,
-                        "bullet_count": (38, 20, 20, 20),
-                        "rad": 10,
+                        "bullet_count": (38, 18, 18, 18),
+                        "rad": 6,
                         "ring_speed": 18,
                     },
                 ),
@@ -2257,8 +2257,8 @@ class Omen(OmenEntity):
                     self._burst_atk,
                     {
                         "cd": self.EIGHTH,
-                        "bullet_count": (38, 20, 20, 20),
-                        "rad": 10,
+                        "bullet_count": (38, 18, 18, 18),
+                        "rad": 6,
                         "ring_speed": 18,
                     },
                 ),
