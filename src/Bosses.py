@@ -1476,7 +1476,7 @@ class Omen(OmenEntity):
             ],
             49: [  # drop
                 (self._anchor, {"anchor": "top", "speed": 50}),
-                (self._rotate, {"rot_speed": -4}),
+                (self.lerp_rotation_to_zero, {"speed": 10}),
             ],
             50: [
                 (self._center, {"friction": 0.92, "accel": 0.92}),
@@ -1488,7 +1488,7 @@ class Omen(OmenEntity):
             ],
             52: [  # drop
                 (self._anchor, {"anchor": "bot", "speed": 50}),
-                (self.lerp_rotation_to_zero, {"speed": 10}),
+                (self.lerp_rotation_to, {"target": 180, "speed": 10}),
             ],
             53: [
                 (self._center, {"friction": 0.92, "accel": 0.92}),
@@ -1500,7 +1500,7 @@ class Omen(OmenEntity):
             ],
             55: [
                 (self._anchor, {"anchor": "right", "speed": 50}),
-                (self._rotate, {"rot_speed": 4}),
+                (self.lerp_rotation_to, {"target": 270, "speed": 10}),
             ],
             58: [
                 (self._center, {"friction": 0.92, "accel": 0.92}),
@@ -2611,34 +2611,17 @@ class Omen(OmenEntity):
         dist_top = self.rect.centery - top_border.rect.bottom
         dist_bot = bottom_border.rect.top - self.rect.centery
 
+        radius = max(dist_left, dist_right, dist_top, dist_bot)
+
         for i in range(bullet_arms):
             arm_angle_deg = self.rotation + (i * (360 / bullet_arms))
             arm_angle_rad = math.radians(arm_angle_deg)
 
-            cos_a = math.cos(arm_angle_rad)
-            sin_a = math.sin(arm_angle_rad)
-
-            distances = []
-            if cos_a < 0:
-                distances.append(dist_left / abs(cos_a))
-            elif cos_a > 0:
-                distances.append(dist_right / abs(cos_a))
-            if sin_a < 0:
-                distances.append(dist_top / abs(sin_a))
-            elif sin_a > 0:
-                distances.append(dist_bot / abs(sin_a))
-
-            radius = min(distances)
-
-            spawn_x = self.rect.centerx + cos_a * radius
-            spawn_y = self.rect.centery + sin_a * radius
+            spawn_x = self.rect.centerx + math.cos(arm_angle_rad) * radius
+            spawn_y = self.rect.centery + math.sin(arm_angle_rad) * radius
 
             tar_x = self.rect.centerx
             tar_y = self.rect.centery
-
-            print(
-                f"bullet spawn: ({spawn_x:.0f}, {spawn_y:.0f}) | radius: {radius:.0f}"
-            )
 
             bullet = Bullet(
                 radius=rad,
